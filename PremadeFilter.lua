@@ -17,26 +17,26 @@ function LFGListSearchPanel_UpdateResultList(self)
 	local searchText = self.SearchBox:GetText():lower();
 	--print("QUERY: "..searchText);
 	
-	local words = {}
-	for w in searchText:gmatch("%S+") do table.insert(words, w) end
-	
-	local include = {}
-	local exclude = {}
-	
-	for i,w in pairs(words) do
-		if w:sub(1,1) ~= "-" then
-			table.insert(include, w)
-			--print("INCLUDE: "..w);
-		else
-			w = w:sub(2, w:len());
-			if w ~= "" then
-				table.insert(exclude, w)
-				--print("EXCLUDE: "..w);
+	if searchText ~= "" then
+		local words = {}
+		for w in searchText:gmatch("%S+") do table.insert(words, w) end
+		
+		local include = {}
+		local exclude = {}
+		
+		for i,w in pairs(words) do
+			if w:sub(1,1) ~= "-" then
+				table.insert(include, w)
+				--print("INCLUDE: "..w);
+			else
+				w = w:sub(2, w:len());
+				if w ~= "" then
+					table.insert(exclude, w)
+					--print("EXCLUDE: "..w);
+				end
 			end
 		end
-	end
-	
-	if searchText ~= "" then
+		
 		local numResults = 0;
 		local newResults = {};
 		--print("LOOP");
