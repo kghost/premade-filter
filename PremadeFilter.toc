@@ -1,6 +1,6 @@
 ﻿## Interface: 60000
 ## Title: Premade Filter
-## Title-ruRU: Фильтр премейдов
+## Title-ruRU: Premade Filter
 ## Version: 2.0
 ## Author: PremadeFilter
 ## Notes: Advanced premade filtering
