@@ -128,7 +128,7 @@ function PremadeFilter_Options_OnClick(self, arg1, arg2, checked)
 		categoryName = categoryName.." - "..value["activity"]["name"];
 	end
 	
-	LFGListFrame.SearchPanel.CategoryName:SetText(categoryName);
+	PremadeFilter_Title:SetText(categoryName);
 end
 
 function PremadeFilter_Options_GetExpansion(categoryID, activityID)

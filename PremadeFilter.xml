@@ -6,6 +6,16 @@
 	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter">
 		<Size x="328" y="76" />
+		<Layers>
+			<Layer level="OVERLAY">
+					<FontString name="PremadeFilter_Title" inherits="GameFontNormal" justifyH="LEFT" text="Category - Group - Activity">
+						<Size x="275" y="12" /> 
+						<Anchors>
+							<Anchor point="TOPLEFT" x="8" y="-35" /> 
+						</Anchors>
+					</FontString>
+			</Layer>
+		</Layers>
 		<Frames>
 			<Button name="PremadeFilter_Button" inherits="UIPanelButtonTemplate" text="Advanced">
 				<Size x="110" y="23" />
@@ -28,6 +38,7 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
+				LFGListFrame.SearchPanel.CategoryName:Hide();
 				LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 				
 				self:SetParent(LFGListFrame.SearchPanel);
