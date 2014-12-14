@@ -1,0 +1,40 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	
+	<Script file="PremadeFilter.lua" />
+	
+	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter">
+		<Size x="328" y="76" />
+		<Frames>
+			<Button name="PremadeFilter_Button" inherits="UIPanelButtonTemplate" text="Advanced">
+				<Size x="110" y="23" />
+				<Anchors>
+					<Anchor point="TOPLEFT" x="218" y="-55" />
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PremadeFilter_Button_OnClick();
+					</OnClick>
+				</Scripts>
+			</Button>
+			<Frame name="PremadeFilter_Options" inherits="UIDropDownMenuTemplate" id="1">
+			   <Scripts>
+				   <OnLoad>
+					   UIDropDownMenu_Initialize(self, PremadeFilter_Options_OnLoad, "MENU");
+				   </OnLoad>
+			   </Scripts>
+		   </Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
+				
+				self:SetParent(LFGListFrame.SearchPanel);
+				self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPLEFT", 0, 0);
+				
+				--PremadeFilter_Button:SetPoint("TOPLEFT", PremadeFilter_Frame, "TOPLEFT", 238, -55);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+</Ui>

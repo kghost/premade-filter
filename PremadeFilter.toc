@@ -5,9 +5,5 @@
 ## Author: TOM_RUS
 ## Notes: Advanced premade filtering
 ## Notes-ruRU: Расширенный фильтр премейдов
-## X-Curse-Packaged-Version: r20141213094825
-## X-Curse-Project-Name: Premade Filter
-## X-Curse-Project-ID: premade-filter
-## X-Curse-Repository-ID: /wow/premade-filter
 
-PremadeFilter.lua
+PremadeFilter.xml
