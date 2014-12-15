@@ -197,13 +197,14 @@
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.NameLabel" relativePoint="BOTTOMLEFT" x="5" y="-5"/>
 				</Anchors>
-				<!--Scripts>
+				<Scripts>
 					<OnEditFocusGained function="nop"/>
 					<OnTextChanged>
 						InputBoxInstructions_OnTextChanged(self);
-						LFGListEntryCreation_UpdateValidState(self:GetParent());
+						LFGListFrame.SearchPanel.SearchBox:SetText(self:GetText());
+						--LFGListEntryCreation_UpdateValidState(self:GetParent());
 					</OnTextChanged>
-				</Scripts-->
+				</Scripts>
 			</EditBox>
 			
 			<Frame parentKey="CategoryDropDown" name="PremadeFilter_CategoryDropDown" inherits="UIDropDownMenuTemplate">
@@ -398,7 +399,7 @@
 					<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
 				</Anchors>
 				<Scripts>
-					<OnClick function="PremadeFilter_CancelButton_OnClick"/>
+					<OnClick function="PremadeFilter_FilterButton_OnClick"/>
 					<OnShow function="PremadeFilter_OnShow"/>
 				</Scripts>
 			</Button>

@@ -32,11 +32,19 @@ end
 function PremadeFilter_OnShow(self)
 	local selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
 	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
-	
 	LFGListEntryCreation_Select(PremadeFilter_Frame, selectedFilters, selectedCategory, nil, nil);
+	
+	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
+	LFGListFrame.SearchPanel.SearchBox:SetScript("OnTextChanged", LFGListFrameSearchBox_OnTextChanged);
 end
 
-function PremadeFilter_CancelButton_OnClick(self)
+function LFGListFrameSearchBox_OnTextChanged(self)
+	local text = self:GetText();
+	PremadeFilter_Frame.Name:SetText(text);
+	InputBoxInstructions_OnTextChanged(self);
+end
+
+function PremadeFilter_FilterButton_OnClick(self)
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 end
 
