@@ -397,9 +397,10 @@
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
 				</Anchors>
-				<!--Scripts>
+				<Scripts>
 					<OnClick function="PremadeFilter_CancelButton_OnClick"/>
-				</Scripts-->
+					<OnShow function="PremadeFilter_OnShow"/>
+				</Scripts>
 			</Button>
 			
 			<!-- FAKE -->

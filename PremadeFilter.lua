@@ -22,28 +22,22 @@ function PremadeFilter_Frame_OnLoad(self)
 
 	--PremadeFilter_Frame.NameLabel:SetPoint("LEFT", PremadeFilter_Frame, "TOPLEFT", 20, -163);
 	
---[[
-	self:RegisterEvent("LFG_LIST_AVAILABILITY_UPDATE");
-	self:RegisterEvent("LFG_LIST_ACTIVE_ENTRY_UPDATE");
-	self:RegisterEvent("LFG_LIST_SEARCH_RESULTS_RECEIVED");
-	self:RegisterEvent("LFG_LIST_SEARCH_RESULT_UPDATED");
-	self:RegisterEvent("LFG_LIST_SEARCH_FAILED");
-	self:RegisterEvent("VARIABLES_LOADED");
-	self:RegisterEvent("ADDON_LOADED");
-	self:RegisterEvent("UNIT_CONNECTION");
-	for i=1, #LFG_LIST_ACTIVE_QUEUE_MESSAGE_EVENTS do
-		self:RegisterEvent(LFG_LIST_ACTIVE_QUEUE_MESSAGE_EVENTS[i]);
-	end
-]]--
+	--print("CATEGORY: "..LFGListFrame.CategorySelection.selectedCategory);
+	--PrintTable(LFGListFrame.CategorySelection);
+	
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
---[[
-	LFGListFrame_SetActivePanel(self, self.NothingAvailable);
+end
 
-	self.EventsInBackground = {
-		LFG_LIST_SEARCH_FAILED = { self.SearchPanel };
-	};
-]]--
+function PremadeFilter_OnShow(self)
+	local selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
+	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
+	
+	LFGListEntryCreation_Select(PremadeFilter_Frame, selectedFilters, selectedCategory, nil, nil);
+end
+
+function PremadeFilter_CancelButton_OnClick(self)
+	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 end
 
 function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
@@ -111,18 +105,6 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 		info.isRadio = false;
 		UIDropDownMenu_AddButton(info);
 	end
-end
-
-function PrintTable(t, level)
-	level = level or 0;
-	table.foreach(t, function(k,v)
-		if (type(v) == "table") then
-			print(string.rep("  ", level)..k..": ");
-			PrintTable(v, level + 1);
-		else
-			print(string.rep("  ", level)..k..": "..v);
-		end
-	end);
 end
 
 --[[
@@ -270,6 +252,7 @@ function PremadeFilter_Options_GetExpansion(categoryID, activityID)
 	
 	return false;
 end
+]]--
 
 function LFGListSearchPanel_DoSearch(self)
 	local searchText = "";--self.SearchBox:GetText();
@@ -394,4 +377,15 @@ function LFGListSearchPanel_UpdateResults(self)
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self);
 end
-]]--
+
+function PrintTable(t, level)
+	level = level or 0;
+	table.foreach(t, function(k,v)
+		if (type(v) == "table") then
+			print(string.rep("  ", level)..k..": ");
+			PrintTable(v, level + 1);
+		elseif (type(v) ~= "userdata") then
+			print(string.rep("  ", level)..k..": "..v);
+		end
+	end);
+end
