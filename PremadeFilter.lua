@@ -15,9 +15,9 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.Name.Instructions:SetText(LFG_LIST_ENTER_NAME);
 	self.Description.EditBox:SetScript("OnEnterPressed", nop);
 	
-	LFGListUtil_SetUpDropDown(self, self.CategoryDropDown, LFGListEntryCreation_PopulateCategories, LFGListEntryCreation_OnCategorySelected);
-	LFGListUtil_SetUpDropDown(self, self.GroupDropDown, LFGListEntryCreation_PopulateGroups, LFGListEntryCreation_OnGroupSelected);
-	LFGListUtil_SetUpDropDown(self, self.ActivityDropDown, LFGListEntryCreation_PopulateActivities, LFGListEntryCreation_OnActivitySelected);
+	LFGListUtil_SetUpDropDown(self, self.CategoryDropDown, LFGListEntryCreation_PopulateCategories, PremadeFilter_OnCategorySelected);
+	LFGListUtil_SetUpDropDown(self, self.GroupDropDown, LFGListEntryCreation_PopulateGroups, PremadeFilter_OnGroupSelected);
+	LFGListUtil_SetUpDropDown(self, self.ActivityDropDown, LFGListEntryCreation_PopulateActivities, PremadeFilter_OnActivitySelected);
 	LFGListEntryCreation_SetBaseFilters(self, 0);
 
 	--PremadeFilter_Frame.NameLabel:SetPoint("LEFT", PremadeFilter_Frame, "TOPLEFT", 20, -163);
@@ -32,6 +32,10 @@ end
 function PremadeFilter_OnShow(self)
 	local selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
 	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
+	
+	PremadeFilter_Frame.selectedCategory = selectedCategory;
+	PremadeFilter_Frame.selectedFilters = selectedFilters;
+	
 	LFGListEntryCreation_Select(PremadeFilter_Frame, selectedFilters, selectedCategory, nil, nil);
 	
 	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
@@ -45,7 +49,28 @@ function LFGListFrameSearchBox_OnTextChanged(self)
 end
 
 function PremadeFilter_FilterButton_OnClick(self)
+	LFGListSearchPanel_SetCategory(LFGListFrame.SearchPanel, PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedFilters, nil);
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+end
+
+function PremadeFilter_OnCategorySelected(self, id, filters)
+	PremadeFilter_Frame.selectedCategory = id;
+	PremadeFilter_Frame.selectedFilters = filters;
+	
+	LFGListCategorySelection_SelectCategory(LFGListFrame.CategorySelection, id, filters);
+	LFGListEntryCreation_OnCategorySelected(self, id, filters)
+end
+
+function PremadeFilter_OnGroupSelected(self, id, buttonType)
+	PremadeFilter_Frame.selectedGroup = id;
+	
+	LFGListEntryCreation_OnGroupSelected(self, id, buttonType);
+end
+
+function PremadeFilter_OnActivitySelected(self, id, buttonType)
+	PremadeFilter_Frame.selectedActivity = id;
+	
+	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
 end
 
 function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
@@ -53,8 +78,6 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 		--We don't have a category, so we can't fill out groups.
 		return;
 	end
-
-	local useMore = false;
 
 	--Start out displaying everything
 	local groups = C_LFGList.GetAvailableActivityGroups(self.selectedCategory, bit.bor(self.baseFilters, self.selectedFilters));
@@ -99,25 +122,18 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 			groupOrder = groups[groupIndex] and select(2, C_LFGList.GetActivityGroupInfo(groups[groupIndex]));
 		end
 	end
-
-	if ( #activities + #groups > MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES ) then
-		useMore = true;
-	end
-
-	if ( useMore ) then
-		info.text = LFG_LIST_MORE;
-		info.value = nil;
-		info.arg1 = "more";
-		info.notCheckable = true;
-		info.checked = false;
-		info.isRadio = false;
-		UIDropDownMenu_AddButton(info);
-	end
 end
 
 function LFGListSearchPanel_DoSearch(self)
 	local searchText = "";--self.SearchBox:GetText();
-	C_LFGList.Search(self.categoryID, searchText, self.filters, self.preferredFilters);
+	
+	local category = PremadeFilter_Frame.selectedCategory;
+	if category then
+		C_LFGList.Search(category, searchText, self.filters, self.preferredFilters);
+	else
+		C_LFGList.Search(self.categoryID, searchText, self.filters, self.preferredFilters);
+	end
+	
 	self.searching = true;
 	self.searchFailed = false;
 	self.selectedResult = nil;
@@ -137,8 +153,10 @@ function LFGListSearchPanel_UpdateResultList(self)
 	
 	for i=1, #self.results do
 		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(self.results[i]);
-		local activityName = C_LFGList.GetActivityInfo(activityID);
-
+		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
+		
+		--print("=== "..name.." ===");
+		
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude);
 		
 		-- check additional filters
@@ -173,6 +191,34 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 		end
 		
+		-- category
+		local category = PremadeFilter_Frame.selectedCategory;
+		if category then
+			--print("CATEGORY "..category.." / "..categoryID);
+			local categoryMatches = (categoryID == category);
+			matches = matches and categoryMatches;
+			
+		end
+		
+		-- group
+		local group = PremadeFilter_Frame.selectedGroup;
+		if group then
+			--print("GROUP "..group.." / "..groupID);
+			local groupMatches = (groupID == group);
+			matches = matches and groupMatches;
+			
+		end
+		
+		-- activity
+		local activity = PremadeFilter_Frame.selectedActivity;
+		if activity then
+			--print("ACTIVITY "..activity.." / "..activityID);
+			local activityMatches = (activityID == activity);
+			matches = matches and activityMatches;
+			
+		end
+		
+		-- RESULT
 		if matches then
 			numResults = numResults + 1
 			newResults[numResults] = self.results[i];
@@ -282,7 +328,7 @@ function LFGListSearchPanel_UpdateResults(self)
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self);
 end
-
+--[[
 function PrintTable(t, level)
 	level = level or "";
 	table.foreach(t, function(k,v)
@@ -294,3 +340,4 @@ function PrintTable(t, level)
 		end
 	end);
 end
+]]--
