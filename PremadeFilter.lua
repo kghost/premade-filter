@@ -130,6 +130,59 @@ function LFGListSearchPanel_UpdateResultList(self)
 	self.applications = C_LFGList.GetApplications();
 	
 	local searchText = self.SearchBox:GetText():lower();
+	local include, exclude = PremadeFilter_ParseQuery(searchText);
+	
+	local numResults = 0;
+	local newResults = {};
+	
+	for i=1, #self.results do
+		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(self.results[i]);
+		local activityName = C_LFGList.GetActivityInfo(activityID);
+
+		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude);
+		
+		-- check additional filters
+		if PremadeFilter_Frame:IsVisible() then
+			-- description
+			local descrText = PremadeFilter_Frame.Description.EditBox:GetText();
+			if descrText ~= "" then
+				local descrInclude, descrExclude = PremadeFilter_ParseQuery(descrText);
+				local descrMatches = PremadeFilter_IsStringMatched(comment:lower(), descrInclude, descrExclude);
+				matches = matches and descrMatches;
+			end
+			
+			-- item level
+			if PremadeFilter_Frame.ItemLevel.CheckButton:GetChecked() then
+				local ilvlText = tonumber(PremadeFilter_Frame.ItemLevel.EditBox:GetText());
+				if ilvlText then
+					local ilvlMatches = (iLvl <= ilvlText);
+					matches = matches and ilvlMatches;
+				end
+			end
+			
+			-- voice chat
+			if PremadeFilter_Frame.VoiceChat.CheckButton:GetChecked() then
+				local vcText = PremadeFilter_Frame.VoiceChat.EditBox:GetText();
+				if vcText ~= "" then
+					local vcMatches = (voiceChat:lower() == vcText:lower());
+					matches = matches and vcMatches;
+				end
+			end
+		end
+		
+		if matches then
+			numResults = numResults + 1
+			newResults[numResults] = self.results[i];
+		end
+	end
+
+	self.totalResults = numResults;
+	self.results = newResults;
+	
+	LFGListUtil_SortSearchResults(self.results);
+end
+
+function PremadeFilter_ParseQuery(searchText)
 	local include = {}
 	local exclude = {}
 	
@@ -149,54 +202,33 @@ function LFGListSearchPanel_UpdateResultList(self)
 		end
 	end
 	
-	local numResults = 0;
-	local newResults = {};
+	return include, exclude;
+end
+
+function PremadeFilter_IsStringMatched(str, include, exclude)
+	local matches = true;
 	
-	for i=1, #self.results do
-		local matches = true;
-
-		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(self.results[i]);
-		local activityName = C_LFGList.GetActivityInfo(activityID);
-
-		name = name:lower();
-
-		if next(include) ~= nil then
-			for i,w in pairs(include) do
-				local nameMatch = name:find(w);
-				if nameMatch == nil then
-					matches = false;
-					break 
-				end
+	if next(include) ~= nil then
+		for i,w in pairs(include) do
+			local nameMatch = str:find(w);
+			if nameMatch == nil then
+				matches = false;
+				break 
 			end
-		end
-		
-		if matches and next(exclude) ~= nil then
-			for i,w in pairs(exclude) do
-				local nameMatch = name:find(w);
-				if nameMatch ~= nil then
-					matches = false;
-					break 
-				end
-			end
-		end
-		
-		-- check additional filters
-		if PremadeFilter_Frame:IsVisible() then
-			--print("ADVANCED SEARCH");
-		else
-			--print("SIMPLE SEARCH");
-		end
-		
-		if matches then
-			numResults = numResults + 1
-			newResults[numResults] = self.results[i];
 		end
 	end
-
-	self.totalResults = numResults;
-	self.results = newResults;
 	
-	LFGListUtil_SortSearchResults(self.results);
+	if matches and next(exclude) ~= nil then
+		for i,w in pairs(exclude) do
+			local nameMatch = str:find(w);
+			if nameMatch ~= nil then
+				matches = false;
+				break 
+			end
+		end
+	end
+	
+	return matches;
 end
 
 function LFGListSearchPanel_UpdateResults(self)
@@ -247,16 +279,15 @@ function LFGListSearchPanel_UpdateResults(self)
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self);
 end
---[[
+
 function PrintTable(t, level)
-	level = level or 0;
+	level = level or "";
 	table.foreach(t, function(k,v)
 		if (type(v) == "table") then
-			print(string.rep("  ", level)..k..": ");
-			PrintTable(v, level + 1);
+			print(level..k..": ");
+			PrintTable(v, level + " ");
 		elseif (type(v) ~= "userdata") then
-			print(string.rep("  ", level)..k..": "..v);
+			print(level..k..": "..v);
 		end
 	end);
 end
-]]--
