@@ -1,7 +1,6 @@
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 
 function PremadeFilter_Frame_OnLoad(self)
-	--LFGListFrame.SearchPanel.CategoryName:Hide();
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 
 	self.AdvancedButton:SetParent(LFGListFrame.SearchPanel);
@@ -9,8 +8,6 @@ function PremadeFilter_Frame_OnLoad(self)
 	
 	self:SetParent(LFGListFrame.SearchPanel);
 	self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPRIGHT", 10, -20);
-	--self:SetParent(LFGListFrame.EntryCreation);
-	--self:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPRIGHT", 10, -20);
 
 	self.Name.Instructions:SetText(LFG_LIST_ENTER_NAME);
 	self.Description.EditBox:SetScript("OnEnterPressed", nop);
@@ -20,11 +17,6 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListUtil_SetUpDropDown(self, self.ActivityDropDown, LFGListEntryCreation_PopulateActivities, PremadeFilter_OnActivitySelected);
 	LFGListEntryCreation_SetBaseFilters(self, 0);
 
-	--PremadeFilter_Frame.NameLabel:SetPoint("LEFT", PremadeFilter_Frame, "TOPLEFT", 20, -163);
-	
-	--print("CATEGORY: "..LFGListFrame.CategorySelection.selectedCategory);
-	--PrintTable(LFGListFrame.CategorySelection);
-	
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 end
@@ -49,7 +41,7 @@ function LFGListFrameSearchBox_OnTextChanged(self)
 end
 
 function PremadeFilter_FilterButton_OnClick(self)
-	LFGListSearchPanel_SetCategory(LFGListFrame.SearchPanel, PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedFilters, nil);
+	LFGListSearchPanel_SetCategory(LFGListFrame.SearchPanel, PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedFilters, PremadeFilter_Frame.selectedFilters);
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 end
 
