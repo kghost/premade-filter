@@ -1,3 +1,131 @@
+MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
+
+function PremadeFilter_Frame_OnLoad(self)
+	--LFGListFrame.SearchPanel.CategoryName:Hide();
+	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
+
+	self.AdvancedButton:SetParent(LFGListFrame.SearchPanel);
+	self.AdvancedButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel, "TOPRIGHT", -10, -55);
+	
+	self:SetParent(LFGListFrame.SearchPanel);
+	self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPRIGHT", 10, -20);
+	--self:SetParent(LFGListFrame.EntryCreation);
+	--self:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPRIGHT", 10, -20);
+
+	self.Name.Instructions:SetText(LFG_LIST_ENTER_NAME);
+	self.Description.EditBox:SetScript("OnEnterPressed", nop);
+	
+	LFGListUtil_SetUpDropDown(self, self.CategoryDropDown, LFGListEntryCreation_PopulateCategories, LFGListEntryCreation_OnCategorySelected);
+	LFGListUtil_SetUpDropDown(self, self.GroupDropDown, LFGListEntryCreation_PopulateGroups, LFGListEntryCreation_OnGroupSelected);
+	LFGListUtil_SetUpDropDown(self, self.ActivityDropDown, LFGListEntryCreation_PopulateActivities, LFGListEntryCreation_OnActivitySelected);
+	LFGListEntryCreation_SetBaseFilters(self, 0);
+
+	--PremadeFilter_Frame.NameLabel:SetPoint("LEFT", PremadeFilter_Frame, "TOPLEFT", 20, -163);
+	
+--[[
+	self:RegisterEvent("LFG_LIST_AVAILABILITY_UPDATE");
+	self:RegisterEvent("LFG_LIST_ACTIVE_ENTRY_UPDATE");
+	self:RegisterEvent("LFG_LIST_SEARCH_RESULTS_RECEIVED");
+	self:RegisterEvent("LFG_LIST_SEARCH_RESULT_UPDATED");
+	self:RegisterEvent("LFG_LIST_SEARCH_FAILED");
+	self:RegisterEvent("VARIABLES_LOADED");
+	self:RegisterEvent("ADDON_LOADED");
+	self:RegisterEvent("UNIT_CONNECTION");
+	for i=1, #LFG_LIST_ACTIVE_QUEUE_MESSAGE_EVENTS do
+		self:RegisterEvent(LFG_LIST_ACTIVE_QUEUE_MESSAGE_EVENTS[i]);
+	end
+]]--
+	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
+	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
+--[[
+	LFGListFrame_SetActivePanel(self, self.NothingAvailable);
+
+	self.EventsInBackground = {
+		LFG_LIST_SEARCH_FAILED = { self.SearchPanel };
+	};
+]]--
+end
+
+function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
+	if ( not self.selectedCategory ) then
+		--We don't have a category, so we can't fill out groups.
+		return;
+	end
+
+	local useMore = false;
+
+	--Start out displaying everything
+	local groups = C_LFGList.GetAvailableActivityGroups(self.selectedCategory, bit.bor(self.baseFilters, self.selectedFilters));
+	local activities = C_LFGList.GetAvailableActivities(self.selectedCategory, 0, bit.bor(self.baseFilters, self.selectedFilters));
+	
+	local groupOrder = groups[1] and select(2, C_LFGList.GetActivityGroupInfo(groups[1]));
+	local activityOrder = activities[1] and select(10, C_LFGList.GetActivityInfo(activities[1]));
+
+	local groupIndex, activityIndex = 1, 1;
+
+	--Start merging
+	for i=1, MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES do
+		if ( not groupOrder and not activityOrder ) then
+			break;
+		end
+
+		if ( activityOrder and (not groupOrder or activityOrder < groupOrder) ) then
+			local activityID = activities[activityIndex];
+			local name = select(ACTIVITY_RETURN_VALUES.shortName, C_LFGList.GetActivityInfo(activityID));
+
+			info.text = name;
+			info.value = activityID;
+			info.arg1 = "activity";
+			info.checked = (self.selectedActivity == activityID);
+			info.isRadio = true;
+			UIDropDownMenu_AddButton(info);
+
+			activityIndex = activityIndex + 1;
+			activityOrder = activities[activityIndex] and select(10, C_LFGList.GetActivityInfo(activities[activityIndex]));
+		else
+			local groupID = groups[groupIndex];
+			local name = C_LFGList.GetActivityGroupInfo(groupID);
+
+			info.text = name;
+			info.value = groupID;
+			info.arg1 = "group";
+			info.checked = (self.selectedGroup == groupID);
+			info.isRadio = true;
+			UIDropDownMenu_AddButton(info);
+
+			groupIndex = groupIndex + 1;
+			groupOrder = groups[groupIndex] and select(2, C_LFGList.GetActivityGroupInfo(groups[groupIndex]));
+		end
+	end
+
+	if ( #activities + #groups > MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES ) then
+		useMore = true;
+	end
+
+	if ( useMore ) then
+		info.text = LFG_LIST_MORE;
+		info.value = nil;
+		info.arg1 = "more";
+		info.notCheckable = true;
+		info.checked = false;
+		info.isRadio = false;
+		UIDropDownMenu_AddButton(info);
+	end
+end
+
+function PrintTable(t, level)
+	level = level or 0;
+	table.foreach(t, function(k,v)
+		if (type(v) == "table") then
+			print(string.rep("  ", level)..k..": ");
+			PrintTable(v, level + 1);
+		else
+			print(string.rep("  ", level)..k..": "..v);
+		end
+	end);
+end
+
+--[[
 function PremadeFilter_Button_OnClick(self)
 	ToggleDropDownMenu(1, nil, PremadeFilter_Options, PremadeFilter_Button, 0, 0);
 end
@@ -99,19 +227,7 @@ function PremadeFilter_Options_OnLoad(self, level)
 		end
 	end
 end
---[[
-function PrintTable(t, level)
-	level = level or 0;
-	table.foreach(t, function(k,v)
-		if (type(v) == "table") then
-			print(string.rep("  ", level)..k..": ");
-			PrintTable(v, level + 1);
-		else
-			print(string.rep("  ", level)..k..": "..v);
-		end
-	end);
-end
-]]--
+
 function PremadeFilter_Options_OnClick(self, arg1, arg2, checked)
 	local value = self.value;
 	local categoryName = "";
@@ -278,3 +394,4 @@ function LFGListSearchPanel_UpdateResults(self)
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self);
 end
+]]--

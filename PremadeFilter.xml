@@ -52,6 +52,7 @@
 			</EdgeSize>
 		</Backdrop>
 		<Frames>
+			
 			<Button parentKey="AdvancedButton" inherits="UIPanelButtonTemplate" text="Advanced">
 				<Size x="110" y="22"/>
 				<Anchors>
@@ -63,6 +64,7 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+			
 			<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="7" y="-41" />
@@ -78,6 +80,7 @@
 					</Layer>
 				</Layers>
 			</Frame>
+			
 			<Frame parentKey="ActivityFinder" frameLevel="13" enableMouse="true" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="-5" y="-24"/>
@@ -120,7 +123,7 @@
 								<Anchors>
 									<Anchor point="TOP" x="0" y="-15"/>
 								</Anchors>
-								<!--Scripts>
+								<Scripts>
 									<OnLoad>
 										self.Instructions:SetText(SEARCH);
 									</OnLoad>
@@ -132,7 +135,7 @@
 										LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
 										PlaySound("igMainMenuOptionCheckBoxOn");
 									</OnEnterPressed>
-								</Scripts-->
+								</Scripts>
 							</EditBox>
 							<ScrollFrame name="PremadeFilter_SearchScrollFrame" inherits="HybridScrollFrameTemplate" parentKey="ScrollFrame">
 								<Anchors>
@@ -159,32 +162,33 @@
 								<Anchors>
 									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOM" x="-10" y="15"/>
 								</Anchors>
-								<!--Scripts>
+								<Scripts>
 									<OnClick>
 										PlaySound("igMainMenuOptionCheckBoxOn");
 										LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
 									</OnClick>
-								</Scripts-->
+								</Scripts>
 							</Button>
 							<Button parentKey="CancelButton" inherits="UIPanelButtonTemplate" text="CANCEL">
 								<Size x="130" y="22"/>
 								<Anchors>
 									<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOM" x="10" y="15"/>
 								</Anchors>
-								<!--Scripts>
+								<Scripts>
 									<OnClick>
 										PlaySound("igMainMenuOptionCheckBoxOn");
 										LFGListEntryCreationActivityFinder_Cancel(self:GetParent():GetParent());
 									</OnClick>
-								</Scripts-->
+								</Scripts>
 							</Button>
 						</Frames>
 					</Frame>
 				</Frames>
-				<!--Scripts>
+				<Scripts>
 					<OnLoad function="LFGListEntryCreationActivityFinder_OnLoad"/>
-				</Scripts-->
+				</Scripts>
 			</Frame>
+			
 			<EditBox parentKey="Name" inherits="LFGListEditBoxTemplate" letters="31">
 				<Size x="288" y="22"/>
 				<KeyValues>
@@ -201,24 +205,28 @@
 					</OnTextChanged>
 				</Scripts-->
 			</EditBox>
+			
 			<Frame parentKey="CategoryDropDown" name="PremadeFilter_CategoryDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="320" y="32"/>
 				<Anchors>
 					<Anchor point="TOP" x="0" y="-80"/>
 				</Anchors>
 			</Frame>
+			
 			<Frame parentKey="GroupDropDown" name="PremadeFilter_GroupDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="175" y="32"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.CategoryDropDown" relativePoint="BOTTOMLEFT" x="0" y="3"/>
 				</Anchors>
 			</Frame>
+			
 			<Frame parentKey="ActivityDropDown" name="PremadeFilter_ActivityDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="175" y="32"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeKey="$parent.CategoryDropDown" relativePoint="BOTTOMRIGHT" x="0" y="3"/>
 				</Anchors>
 			</Frame>
+			
 			<ScrollFrame parentKey="Description" name="PremadeFilter_Description" inherits="InputScrollFrameTemplate">
 				<Size x="283" y="46"/>
 				<Anchors>
@@ -237,146 +245,141 @@
 					</OnLoad>
 				</Scripts-->
 			</ScrollFrame>			
-			<Frame parentKey="Extended">
-				<Size x="150" y="40"/>
+			
+			<Frame parentKey="ItemLevel">
+				<Size x="283" y="14"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-10"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-30"/>
 				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="Label" inherits="GameFontHighlightSmall" justifyH="LEFT" text="LFG_LIST_ITEM_LEVEL_REQ">
+							<Size x="150" y="14"/>
+							<Anchors>
+								<Anchor point="LEFT" x="24"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
 				<Frames>
-					<Frame parentKey="ItemLevel">
-						<Size x="283" y="14"/>
+					<CheckButton parentKey="CheckButton">
+						<Size x="22" y="22"/>
+						<HitRectInsets>
+							<AbsInset left="0" right="-130" top="0" bottom="0"/>
+						</HitRectInsets>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-20"/>
+							<Anchor point="LEFT" x="0" y="0"/>
 						</Anchors>
-						<Layers>
-							<Layer level="ARTWORK">
-								<FontString parentKey="Label" inherits="GameFontHighlightSmall" justifyH="LEFT" text="LFG_LIST_ITEM_LEVEL_REQ">
-									<Size x="150" y="14"/>
-									<Anchors>
-										<Anchor point="LEFT" x="24"/>
-									</Anchors>
-								</FontString>
-							</Layer>
-						</Layers>
-						<Frames>
-							<CheckButton parentKey="CheckButton">
-								<Size x="22" y="22"/>
-								<HitRectInsets>
-									<AbsInset left="0" right="-130" top="0" bottom="0"/>
-								</HitRectInsets>
-								<Anchors>
-									<Anchor point="LEFT" x="0" y="0"/>
-								</Anchors>
-								<Scripts>
-									<OnClick>
-										if ( self:GetChecked() ) then
-											PlaySound("igMainMenuOptionCheckBoxOn");
-											self:GetParent().EditBox:SetFocus();
-										else
-											PlaySound("igMainMenuOptionCheckBoxOff");
-											self:GetParent().EditBox:ClearFocus();
-											self:GetParent().EditBox:SetText("");
-										end
-									</OnClick>
-								</Scripts>
-								<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
-								<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
-								<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
-								<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-								<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
-							</CheckButton>
-							<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate">
-								<Size x="125" y="22"/>
-								<Anchors>
-									<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="10" y="5"/>
-								</Anchors>
-								<KeyValues>
-									<KeyValue key="instructions" value="LFG_LIST_ITEM_LEVEL_INSTR_SHORT" type="global"/>
-								</KeyValues>
-								<Scripts>
-									<OnLoad>
-										self.Instructions:SetText(self.instructions);
-									</OnLoad>
-									<OnTextChanged>
-										InputBoxInstructions_OnTextChanged(self);
-										--LFGListEntryCreationActivityFinder_UpdateMatching(self:GetParent():GetParent());
-									</OnTextChanged>
-									<OnEnterPressed>
-										--LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
-										--PlaySound("igMainMenuOptionCheckBoxOn");
-									</OnEnterPressed>
-								</Scripts>
-							</EditBox>
-						</Frames>
-					</Frame>				
-					<Frame parentKey="VoiceChat">
-						<Size x="283" y="14"/>
+						<Scripts>
+							<OnClick>
+								if ( self:GetChecked() ) then
+									PlaySound("igMainMenuOptionCheckBoxOn");
+									self:GetParent().EditBox:SetFocus();
+								else
+									PlaySound("igMainMenuOptionCheckBoxOff");
+									self:GetParent().EditBox:ClearFocus();
+									self:GetParent().EditBox:SetText("");
+								end
+							</OnClick>
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+					</CheckButton>
+					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate">
+						<Size x="125" y="22"/>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="-45"/>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="10" y="5"/>
 						</Anchors>
-						<Layers>
-							<Layer level="ARTWORK">
-								<FontString parentKey="Label" inherits="GameFontHighlightSmall" justifyH="LEFT" text="LFG_LIST_VOICE_CHAT">
-									<Size x="150" y="14"/>
-									<Anchors>
-										<Anchor point="LEFT" x="24"/>
-									</Anchors>
-								</FontString>
-							</Layer>
-						</Layers>
-						<Frames>
-							<CheckButton parentKey="CheckButton">
-								<Size x="22" y="22"/>
-								<HitRectInsets>
-									<AbsInset left="0" right="-130" top="0" bottom="0"/>
-								</HitRectInsets>
-								<Anchors>
-									<Anchor point="LEFT" x="0" y="0"/>
-								</Anchors>
-								<Scripts>
-									<OnClick>
-										if ( self:GetChecked() ) then
-											PlaySound("igMainMenuOptionCheckBoxOn");
-											self:GetParent().EditBox:SetFocus();
-										else
-											PlaySound("igMainMenuOptionCheckBoxOff");
-											self:GetParent().EditBox:ClearFocus();
-											self:GetParent().EditBox:SetText("");
-										end
-									</OnClick>
-								</Scripts>
-								<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
-								<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
-								<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
-								<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-								<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
-							</CheckButton>
-							<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate">
-								<Size x="125" y="22"/>
-								<Anchors>
-									<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="10" y="5"/>
-								</Anchors>
-								<KeyValues>
-									<KeyValue key="instructions" value="LFG_LIST_VOICE_CHAT_INSTR" type="global"/>
-								</KeyValues>
-								<Scripts>
-									<OnLoad>
-										self.Instructions:SetText(self.instructions);
-									</OnLoad>
-									<OnTextChanged>
-										--InputBoxInstructions_OnTextChanged(self);
-										--LFGListEntryCreationActivityFinder_UpdateMatching(self:GetParent():GetParent());
-									</OnTextChanged>
-									<OnEnterPressed>
-										--LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
-										--PlaySound("igMainMenuOptionCheckBoxOn");
-									</OnEnterPressed>
-								</Scripts>
-							</EditBox>
-						</Frames>
-					</Frame>
+						<KeyValues>
+							<KeyValue key="instructions" value="LFG_LIST_ITEM_LEVEL_INSTR_SHORT" type="global"/>
+						</KeyValues>
+						<Scripts>
+							<OnLoad>
+								self.Instructions:SetText(self.instructions);
+							</OnLoad>
+							<OnTextChanged>
+								InputBoxInstructions_OnTextChanged(self);
+								--LFGListEntryCreationActivityFinder_UpdateMatching(self:GetParent():GetParent());
+							</OnTextChanged>
+							<OnEnterPressed>
+								--LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
+								--PlaySound("igMainMenuOptionCheckBoxOn");
+							</OnEnterPressed>
+						</Scripts>
+					</EditBox>
+				</Frames>
+			</Frame>				
+			
+			<Frame parentKey="VoiceChat">
+				<Size x="283" y="14"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-55"/>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="Label" inherits="GameFontHighlightSmall" justifyH="LEFT" text="LFG_LIST_VOICE_CHAT">
+							<Size x="150" y="14"/>
+							<Anchors>
+								<Anchor point="LEFT" x="24"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<CheckButton parentKey="CheckButton">
+						<Size x="22" y="22"/>
+						<HitRectInsets>
+							<AbsInset left="0" right="-130" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="LEFT" x="0" y="0"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if ( self:GetChecked() ) then
+									PlaySound("igMainMenuOptionCheckBoxOn");
+									self:GetParent().EditBox:SetFocus();
+								else
+									PlaySound("igMainMenuOptionCheckBoxOff");
+									self:GetParent().EditBox:ClearFocus();
+									self:GetParent().EditBox:SetText("");
+								end
+							</OnClick>
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+					</CheckButton>
+					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate">
+						<Size x="125" y="22"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="10" y="5"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="instructions" value="LFG_LIST_VOICE_CHAT_INSTR" type="global"/>
+						</KeyValues>
+						<Scripts>
+							<OnLoad>
+								self.Instructions:SetText(self.instructions);
+							</OnLoad>
+							<OnTextChanged>
+								InputBoxInstructions_OnTextChanged(self);
+								--LFGListEntryCreationActivityFinder_UpdateMatching(self:GetParent():GetParent());
+							</OnTextChanged>
+							<OnEnterPressed>
+								--LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
+								--PlaySound("igMainMenuOptionCheckBoxOn");
+							</OnEnterPressed>
+						</Scripts>
+					</EditBox>
 				</Frames>
 			</Frame>
+			
 			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="CANCEL">
 				<Size x="135" y="22"/>
 				<Anchors>
@@ -388,6 +391,7 @@
 					</OnClick>
 				</Scripts>
 			</Button>
+			
 			<Button parentKey="FilterButton" inherits="LFGListMagicButtonTemplate" text="APPLY">
 				<Size x="135" y="22"/>
 				<Anchors>
@@ -397,30 +401,12 @@
 					<OnClick function="PremadeFilter_CancelButton_OnClick"/>
 				</Scripts-->
 			</Button>
+			
+			<!-- FAKE -->
+			<Button parentKey="ListGroupButton" />
 		</Frames>
 		<Scripts>
-			<OnLoad>
-				--LFGListFrame.SearchPanel.CategoryName:Hide();
-				LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
-
-				self.AdvancedButton:SetParent(LFGListFrame.SearchPanel);
-				self.AdvancedButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel, "TOPRIGHT", -10, -55);
-				
-				self:SetParent(LFGListFrame.SearchPanel);
-				self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPRIGHT", 10, -20);
-				--self:SetParent(LFGListFrame.EntryCreation);
-				--self:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPRIGHT", 10, -20);
-
-				self.Name.Instructions:SetText(LFG_LIST_ENTER_NAME);
-				self.Description.EditBox:SetScript("OnEnterPressed", nop);
-				--LFGListUtil_SetUpDropDown(self, self.CategoryDropDown, LFGListEntryCreation_PopulateCategories, LFGListEntryCreation_OnCategorySelected);
-				--LFGListUtil_SetUpDropDown(self, self.GroupDropDown, LFGListEntryCreation_PopulateGroups, LFGListEntryCreation_OnGroupSelected);
-				--LFGListUtil_SetUpDropDown(self, self.ActivityDropDown, LFGListEntryCreation_PopulateActivities, LFGListEntryCreation_OnActivitySelected);
-				--LFGListEntryCreation_SetBaseFilters(self, 0);
-
-				
-				--PremadeFilter_Frame.NameLabel:SetPoint("LEFT", PremadeFilter_Frame, "TOPLEFT", 20, -163);
-			</OnLoad>
+			<OnLoad function="PremadeFilter_Frame_OnLoad"/>
 		</Scripts>
 	</Frame>
 </Ui>
