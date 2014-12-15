@@ -14,7 +14,7 @@
 						<Anchor point="BOTTOMRIGHT" x="-2" y="3" />
 					</Anchors>
 				</Texture>
-				<FontString parentKey="Label" inherits="QuestFont_Huge" text="Advanced filter">
+				<FontString parentKey="Label" inherits="QuestFont_Huge" text="LFG_LIST_FIND_A_GROUP">
 					<Anchors>
 						<Anchor point="TOP" x="-3" y="-15"/>
 					</Anchors>
@@ -53,7 +53,7 @@
 		</Backdrop>
 		<Frames>
 			
-			<Button parentKey="AdvancedButton" inherits="UIPanelButtonTemplate" text="Advanced">
+			<Button parentKey="AdvancedButton" inherits="UIPanelButtonTemplate" text="FILTERS">
 				<Size x="110" y="22"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" x="-20" y="-20"/>
@@ -74,7 +74,8 @@
 					<Layer level="BACKGROUND">
 						<Texture parentKey="CustomBG" atlas="groupfinder-background" useAtlasSize="true">
 							<Anchors>
-								<Anchor point="TOPLEFT" x="3" y="-3" relativePoint="TOPLEFT"/>
+								<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="3" y="-3"/>
+								<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
 							</Anchors>
 						</Texture>
 					</Layer>
