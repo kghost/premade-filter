@@ -166,6 +166,9 @@ function LFGListSearchPanel_UpdateResultList(self)
 				if vcText ~= "" then
 					local vcMatches = (voiceChat:lower() == vcText:lower());
 					matches = matches and vcMatches;
+				else
+					local vcMatches = (voiceChat ~= "");
+					matches = matches and vcMatches;
 				end
 			end
 		end
