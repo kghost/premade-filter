@@ -59,14 +59,6 @@
 					<Anchor point="TOPRIGHT" x="-20" y="-20"/>
 				</Anchors>
 				<Scripts>
-					<OnShow>
-						if bit.band(LFGListFrame.baseFilters, LE_LFG_LIST_FILTER_PVP) ~= 0 then
-							self:Disable();
-							PremadeFilter_Frame:Hide();
-						else
-							self:Enable();
-						end
-					</OnShow>
 					<OnClick>
 						PremadeFilter_Frame:Show();
 					</OnClick>
