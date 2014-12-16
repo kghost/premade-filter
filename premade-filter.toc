@@ -1,0 +1,13 @@
+﻿## Interface: 60000
+## Title: Premade Filter
+## Title-ruRU: Premade Filter
+## Version: 2.0
+## Author: PremadeFilter
+## Notes: Advanced premade filtering
+## Notes-ruRU: Расширенный фильтр премейдов
+## X-Curse-Packaged-Version: r20141216164433
+## X-Curse-Project-Name: Premade Filter
+## X-Curse-Project-ID: premade-filter
+## X-Curse-Repository-ID: wow/premade-filter/mainline
+
+PremadeFilter.xml
