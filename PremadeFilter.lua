@@ -16,7 +16,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListUtil_SetUpDropDown(self, self.GroupDropDown, LFGListEntryCreation_PopulateGroups, PremadeFilter_OnGroupSelected);
 	LFGListUtil_SetUpDropDown(self, self.ActivityDropDown, LFGListEntryCreation_PopulateActivities, PremadeFilter_OnActivitySelected);
 	LFGListEntryCreation_SetBaseFilters(self, 0);
-
+	
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 end
@@ -24,6 +24,8 @@ end
 function PremadeFilter_OnShow(self)
 	local selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
 	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
+	
+	--LFGListFrame_SetBaseFilters(LFGListFrame, LE_LFG_LIST_FILTER_PVP);
 	
 	PremadeFilter_Frame.selectedCategory = selectedCategory;
 	PremadeFilter_Frame.selectedFilters = selectedFilters;
@@ -117,12 +119,25 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 end
 
 function LFGListSearchPanel_DoSearch(self)
-	local searchText = "";--self.SearchBox:GetText();
-	
+	local visible = PremadeFilter_Frame:IsVisible();
 	local category = PremadeFilter_Frame.selectedCategory;
-	if category then
-		C_LFGList.Search(category, searchText, self.filters, self.preferredFilters);
+	
+	--print("VISIBLE");
+	--print(visible);
+	--print("CATEGORY");
+	--print(category);
+	--print("SELF.CATEGORY");
+	--print(self.categoryID);
+	--print("self.filters");
+	--print(self.filters);
+	--print("self.preferredFilters");
+	--print(self.preferredFilters);
+	--print("===");
+	
+	if visible and category then
+		C_LFGList.Search(category, "", self.filters, self.preferredFilters);
 	else
+		local searchText = self.SearchBox:GetText();
 		C_LFGList.Search(self.categoryID, searchText, self.filters, self.preferredFilters);
 	end
 	
@@ -139,6 +154,11 @@ function LFGListSearchPanel_UpdateResultList(self)
 	
 	local searchText = self.SearchBox:GetText():lower();
 	local include, exclude = PremadeFilter_ParseQuery(searchText);
+
+	--print("INCLUDE");
+	--PrintTable(include);
+	--print("EXCLUDE");
+	--PrintTable(exclude);
 	
 	local numResults = 0;
 	local newResults = {};
@@ -147,9 +167,12 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(self.results[i]);
 		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 		
-		--print("=== "..name.." ===");
+		--print("NAME "..name);
 		
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude);
+		
+		--print("MATCHES");
+		--print(matches);
 		
 		-- check additional filters
 		if PremadeFilter_Frame:IsVisible() then
@@ -181,33 +204,33 @@ function LFGListSearchPanel_UpdateResultList(self)
 					matches = matches and vcMatches;
 				end
 			end
-		end
-		
-		-- category
-		local category = PremadeFilter_Frame.selectedCategory;
-		if category then
-			--print("CATEGORY "..category.." / "..categoryID);
-			local categoryMatches = (categoryID == category);
-			matches = matches and categoryMatches;
 			
-		end
-		
-		-- group
-		local group = PremadeFilter_Frame.selectedGroup;
-		if group then
-			--print("GROUP "..group.." / "..groupID);
-			local groupMatches = (groupID == group);
-			matches = matches and groupMatches;
+			-- category
+			local category = PremadeFilter_Frame.selectedCategory;
+			if category then
+				--print("CATEGORY "..category.." / "..categoryID);
+				local categoryMatches = (categoryID == category);
+				matches = matches and categoryMatches;
+				
+			end
 			
-		end
-		
-		-- activity
-		local activity = PremadeFilter_Frame.selectedActivity;
-		if activity then
-			--print("ACTIVITY "..activity.." / "..activityID);
-			local activityMatches = (activityID == activity);
-			matches = matches and activityMatches;
+			-- group
+			local group = PremadeFilter_Frame.selectedGroup;
+			if group then
+				--print("GROUP "..group.." / "..groupID);
+				local groupMatches = (groupID == group);
+				matches = matches and groupMatches;
+				
+			end
 			
+			-- activity
+			local activity = PremadeFilter_Frame.selectedActivity;
+			if activity then
+				--print("ACTIVITY "..activity.." / "..activityID);
+				local activityMatches = (activityID == activity);
+				matches = matches and activityMatches;
+				
+			end
 		end
 		
 		-- RESULT
@@ -320,16 +343,3 @@ function LFGListSearchPanel_UpdateResults(self)
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self);
 end
---[[
-function PrintTable(t, level)
-	level = level or "";
-	table.foreach(t, function(k,v)
-		if (type(v) == "table") then
-			print(level..k..": ");
-			PrintTable(v, level + " ");
-		elseif (type(v) ~= "userdata") then
-			print(level..k..": "..v);
-		end
-	end);
-end
-]]--
