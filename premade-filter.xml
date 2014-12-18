@@ -6,7 +6,6 @@
 	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" hidden="true">
 		<Size x="339" y="409" />
-		<!--Size x="350" y="433" /-->
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -45,7 +44,7 @@
 				</FontString>
 				<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="LFG_ROLES_TITLE">
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-356"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-285"/>
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -53,17 +52,17 @@
 			<Layer level="OVERLAY">
 				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-147" y="-346"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-147" y="-275"/>
 					</Anchors>
 				</Texture>
 				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-99" y="-346"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-99" y="-275"/>
 					</Anchors>
 				</Texture>
 				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-52" y="-346"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-52" y="-275"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -77,6 +76,8 @@
 			</EdgeSize>
 		</Backdrop>
 		<Frames>
+			<Frame>
+			</Frame>
 			
 			<Button parentKey="AdvancedButton" inherits="UIPanelButtonTemplate" text="FILTERS">
 				<Size x="110" y="22"/>
@@ -216,7 +217,7 @@
 			</Frame>
 			
 			<EditBox parentKey="Name" inherits="LFGListEditBoxTemplate">
-				<Size x="288" y="22"/>
+				<Size x="278" y="22"/>
 				<KeyValues>
 					<KeyValue key="tabCategory" value="ENTRY_CREATION" type="string"/>
 				</KeyValues>
@@ -254,7 +255,7 @@
 			</Frame>
 			
 			<ScrollFrame parentKey="Description" name="PremadeFilter_Description" inherits="InputScrollFrameTemplate">
-				<Size x="283" y="22"/>
+				<Size x="273" y="22"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="26" y="-196"/>
 				</Anchors>
@@ -273,7 +274,7 @@
 			<Frame parentKey="ItemLevel">
 				<Size x="283" y="14"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-30"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-52"/>
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -340,7 +341,7 @@
 			<Frame parentKey="VoiceChat">
 				<Size x="283" y="14"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-55"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-77"/>
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -410,7 +411,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-345"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-274"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
@@ -434,7 +435,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-345"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-274"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
@@ -458,7 +459,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-345"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-274"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
@@ -499,6 +500,110 @@
 				</Scripts>
 			</Button>
 			
+			<!-- MOVES INSIDE ENTITY CREATION FRAME -->
+			<Frame name="PremadeFilter_Roles" parentKey="PremadeRoles">
+				<Size x="352" y="30" />
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="CLASS_ROLES">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-285"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+					
+					<Layer level="OVERLAY">
+						<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-147" y="-275"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-99" y="-275"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="true">
+							<Anchors>
+								<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-52" y="-275"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<CheckButton parentKey="TankCheckButton">
+						<Size x="22" y="22"/>
+						<HitRectInsets>
+							<AbsInset left="-20" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-274"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if ( self:GetChecked() ) then
+									PlaySound("igMainMenuOptionCheckBoxOn");
+								else
+									PlaySound("igMainMenuOptionCheckBoxOff");
+								end
+							</OnClick>
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+					</CheckButton>
+					
+					<CheckButton parentKey="HealerCheckButton">
+						<Size x="22" y="22"/>
+						<HitRectInsets>
+							<AbsInset left="-20" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-274"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if ( self:GetChecked() ) then
+									PlaySound("igMainMenuOptionCheckBoxOn");
+								else
+									PlaySound("igMainMenuOptionCheckBoxOff");
+								end
+							</OnClick>
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+					</CheckButton>
+					
+					<CheckButton parentKey="DamagerCheckButton">
+						<Size x="22" y="22"/>
+						<HitRectInsets>
+							<AbsInset left="-20" right="0" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-274"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								if ( self:GetChecked() ) then
+									PlaySound("igMainMenuOptionCheckBoxOn");
+								else
+									PlaySound("igMainMenuOptionCheckBoxOff");
+								end
+							</OnClick>
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+					</CheckButton>
+				</Frames>
+			</Frame>
 			<!-- FAKE -->
 			<Button parentKey="ListGroupButton" />
 		</Frames>

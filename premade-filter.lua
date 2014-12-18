@@ -2,13 +2,18 @@ MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 
 function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
-
+	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
+	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-6);
+	
+	PremadeFilter_Roles:SetParent(LFGListFrame.EntryCreation);
+	PremadeFilter_Roles:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPLEFT", -10, -20);
+	
 	self.AdvancedButton:SetParent(LFGListFrame.SearchPanel);
 	self.AdvancedButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel, "TOPRIGHT", -10, -55);
 	
 	self:SetParent(LFGListFrame.SearchPanel);
 	self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPRIGHT", 10, -20);
-
+	
 	self.Name.Instructions:SetText(LFG_LIST_ENTER_NAME);
 	self.Description.EditBox:SetScript("OnEnterPressed", nop);
 	
@@ -346,4 +351,32 @@ function LFGListSearchPanel_UpdateResults(self)
 		HybridScrollFrame_Update(self.ScrollFrame, totalHeight, self.ScrollFrame:GetHeight());
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self);
+end
+
+function LFGListEntryCreation_ListGroup(self)
+	local name = LFGListEntryCreation_GetSanitizedName(self);
+	if ( LFGListEntryCreation_IsEditMode(self) ) then
+		C_LFGList.UpdateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, self.VoiceChat.EditBox:GetText(), self.Description.EditBox:GetText());
+		LFGListFrame_SetActivePanel(self:GetParent(), self:GetParent().ApplicationViewer);
+	else
+		local description = self.Description.EditBox:GetText();
+		
+		local tank = PremadeFilter_Roles.TankCheckButton:GetChecked();
+		local heal = PremadeFilter_Roles.HealerCheckButton:GetChecked();
+		local dps  = PremadeFilter_Roles.DamagerCheckButton:GetChecked();
+		local roles = "";
+		
+		if tank or heal or dps then
+			if tank then roles = roles.."t" end
+			if heal then roles = roles.."h" end
+			if dps  then roles = roles.."d" end
+			
+			description = description.." {"..roles.."}";
+		end
+		
+		if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, self.VoiceChat.EditBox:GetText(), description)) then
+			self.WorkingCover:Show();
+			LFGListEntryCreation_ClearFocus(self);
+		end
+	end
 end
