@@ -5,8 +5,8 @@
 	<Script file="premade-filter.lua" />
 	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" hidden="true">
-		<!--Size x="339" y="409" /-->
-		<Size x="350" y="433" />
+		<Size x="339" y="409" />
+		<!--Size x="350" y="433" /-->
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -45,7 +45,7 @@
 				</FontString>
 				<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="LFG_ROLES_TITLE">
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-380"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-356"/>
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -53,17 +53,17 @@
 			<Layer level="OVERLAY">
 				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-147" y="-370"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-147" y="-346"/>
 					</Anchors>
 				</Texture>
 				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-99" y="-370"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-99" y="-346"/>
 					</Anchors>
 				</Texture>
 				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-52" y="-370"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-52" y="-346"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -254,7 +254,7 @@
 			</Frame>
 			
 			<ScrollFrame parentKey="Description" name="PremadeFilter_Description" inherits="InputScrollFrameTemplate">
-				<Size x="283" y="46"/>
+				<Size x="283" y="22"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="26" y="-196"/>
 				</Anchors>
@@ -410,7 +410,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-369"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-345"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
@@ -434,7 +434,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-369"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-345"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
@@ -458,7 +458,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-369"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-345"/>
 				</Anchors>
 				<Scripts>
 					<OnClick>
