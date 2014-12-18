@@ -203,7 +203,6 @@
 					<OnTextChanged>
 						InputBoxInstructions_OnTextChanged(self);
 						LFGListFrame.SearchPanel.SearchBox:SetText(self:GetText());
-						--LFGListEntryCreation_UpdateValidState(self:GetParent());
 					</OnTextChanged>
 				</Scripts>
 			</EditBox>
@@ -239,13 +238,11 @@
 					<KeyValue key="instructions" value="DESCRIPTION_OF_YOUR_GROUP" type="global"/>
 					<KeyValue key="hideCharCount" value="true" type="boolean"/>
 				</KeyValues>
-				<!--Scripts>
+				<Scripts>
 					<OnLoad>
-						LFGListEditBox_AddToTabCategory(self.EditBox, "ENTRY_CREATION");
-						self.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
 						InputScrollFrame_OnLoad(self);
 					</OnLoad>
-				</Scripts-->
+				</Scripts>
 			</ScrollFrame>			
 			
 			<Frame parentKey="ItemLevel">
@@ -276,9 +273,11 @@
 							<OnClick>
 								if ( self:GetChecked() ) then
 									PlaySound("igMainMenuOptionCheckBoxOn");
+									self:GetParent().EditBox:Show();
 									self:GetParent().EditBox:SetFocus();
 								else
 									PlaySound("igMainMenuOptionCheckBoxOff");
+									self:GetParent().EditBox:Hide();
 									self:GetParent().EditBox:ClearFocus();
 									self:GetParent().EditBox:SetText("");
 								end
@@ -290,7 +289,7 @@
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
 						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
 					</CheckButton>
-					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate">
+					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate" hidden="true">
 						<Size x="125" y="22"/>
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="10" y="5"/>
@@ -304,11 +303,9 @@
 							</OnLoad>
 							<OnTextChanged>
 								InputBoxInstructions_OnTextChanged(self);
-								--LFGListEntryCreationActivityFinder_UpdateMatching(self:GetParent():GetParent());
 							</OnTextChanged>
 							<OnEnterPressed>
-								--LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
-								--PlaySound("igMainMenuOptionCheckBoxOn");
+								PlaySound("igMainMenuOptionCheckBoxOn");
 							</OnEnterPressed>
 						</Scripts>
 					</EditBox>
@@ -343,9 +340,11 @@
 							<OnClick>
 								if ( self:GetChecked() ) then
 									PlaySound("igMainMenuOptionCheckBoxOn");
+									self:GetParent().EditBox:Show();
 									self:GetParent().EditBox:SetFocus();
 								else
 									PlaySound("igMainMenuOptionCheckBoxOff");
+									self:GetParent().EditBox:Hide();
 									self:GetParent().EditBox:ClearFocus();
 									self:GetParent().EditBox:SetText("");
 								end
@@ -357,7 +356,7 @@
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
 						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
 					</CheckButton>
-					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate">
+					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate" hidden="true">
 						<Size x="125" y="22"/>
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="10" y="5"/>
@@ -371,11 +370,9 @@
 							</OnLoad>
 							<OnTextChanged>
 								InputBoxInstructions_OnTextChanged(self);
-								--LFGListEntryCreationActivityFinder_UpdateMatching(self:GetParent():GetParent());
 							</OnTextChanged>
 							<OnEnterPressed>
-								--LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
-								--PlaySound("igMainMenuOptionCheckBoxOn");
+								PlaySound("igMainMenuOptionCheckBoxOn");
 							</OnEnterPressed>
 						</Scripts>
 					</EditBox>

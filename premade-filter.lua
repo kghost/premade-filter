@@ -70,24 +70,7 @@ function PremadeFilter_OnActivitySelected(self, id, buttonType)
 	
 	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
 end
---[[
-function LFGListEntryCreation_PopulateCategories(self, dropDown, info)
-	print("--LFGListEntryCreation_PopulateCategories");
-	print("self.baseFilters");
-	print(self.baseFilters);
-	local categories = C_LFGList.GetAvailableCategories(self.baseFilters);
-	for i=1, #categories do
-		local categoryID = categories[i];
-		local name, separateRecommended = C_LFGList.GetCategoryInfo(categoryID);
-		if ( separateRecommended ) then
-			LFGListEntryCreation_AddCategoryEntry(self, info, categoryID, name, LE_LFG_LIST_FILTER_RECOMMENDED);
-			LFGListEntryCreation_AddCategoryEntry(self, info, categoryID, name, LE_LFG_LIST_FILTER_NOT_RECOMMENDED);
-		else
-			LFGListEntryCreation_AddCategoryEntry(self, info, categoryID, name, 0);
-		end
-	end
-end
-]]--
+
 function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 	if ( not self.selectedCategory ) then
 		--We don't have a category, so we can't fill out groups.
