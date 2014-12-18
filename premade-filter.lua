@@ -7,7 +7,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.AdvancedButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel, "TOPRIGHT", -10, -55);
 	
 	self:SetParent(LFGListFrame.SearchPanel);
-	self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPRIGHT", 10, -20);
+	self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPRIGHT", 10, 3);
 
 	self.Name.Instructions:SetText(LFG_LIST_ENTER_NAME);
 	self.Description.EditBox:SetScript("OnEnterPressed", nop);

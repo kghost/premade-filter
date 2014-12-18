@@ -5,7 +5,8 @@
 	<Script file="premade-filter.lua" />
 	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" hidden="true">
-		<Size x="339" y="409" />
+		<!--Size x="339" y="409" /-->
+		<Size x="350" y="433" />
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -14,6 +15,7 @@
 						<Anchor point="BOTTOMRIGHT" x="-2" y="3" />
 					</Anchors>
 				</Texture>
+				
 				<FontString parentKey="Label" inherits="QuestFont_Huge" text="LFG_LIST_FIND_A_GROUP">
 					<Anchors>
 						<Anchor point="TOP" x="-3" y="-15"/>
@@ -41,6 +43,29 @@
 						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-220"/>
 					</Anchors>
 				</FontString>
+				<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="LFG_ROLES_TITLE">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-380"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+			
+			<Layer level="OVERLAY">
+				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-147" y="-370"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-99" y="-370"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-52" y="-370"/>
+					</Anchors>
+				</Texture>
 			</Layer>
 		</Layers>
 		<Backdrop edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
@@ -378,6 +403,78 @@
 					</EditBox>
 				</Frames>
 			</Frame>
+			
+			<CheckButton parentKey="TankCheckButton">
+				<Size x="22" y="22"/>
+				<HitRectInsets>
+					<AbsInset left="-20" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-369"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if ( self:GetChecked() ) then
+							PlaySound("igMainMenuOptionCheckBoxOn");
+						else
+							PlaySound("igMainMenuOptionCheckBoxOff");
+						end
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+			</CheckButton>
+			
+			<CheckButton parentKey="HealerCheckButton">
+				<Size x="22" y="22"/>
+				<HitRectInsets>
+					<AbsInset left="-20" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-369"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if ( self:GetChecked() ) then
+							PlaySound("igMainMenuOptionCheckBoxOn");
+						else
+							PlaySound("igMainMenuOptionCheckBoxOff");
+						end
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+			</CheckButton>
+			
+			<CheckButton parentKey="DamagerCheckButton">
+				<Size x="22" y="22"/>
+				<HitRectInsets>
+					<AbsInset left="-20" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-369"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if ( self:GetChecked() ) then
+							PlaySound("igMainMenuOptionCheckBoxOn");
+						else
+							PlaySound("igMainMenuOptionCheckBoxOff");
+						end
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+			</CheckButton>
 			
 			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="CANCEL">
 				<Size x="135" y="22"/>
