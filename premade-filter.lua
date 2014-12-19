@@ -3,7 +3,7 @@ MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
-	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-6);
+	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-1);
 	
 	PremadeFilter_Roles:SetParent(LFGListFrame.EntryCreation);
 	PremadeFilter_Roles:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPLEFT", -10, -20);
@@ -213,7 +213,33 @@ function LFGListSearchPanel_UpdateResultList(self)
 			if activity then
 				local activityMatches = (activityID == activity);
 				matches = matches and activityMatches;
+			end
+			
+			-- roles
+			local tank = PremadeFilter_Frame.TankCheckButton:GetChecked();
+			local heal = PremadeFilter_Frame.HealerCheckButton:GetChecked();
+			local dps  = PremadeFilter_Frame.DamagerCheckButton:GetChecked();
+			local roles = 0;
+			
+			if tank or heal or dps then
+				if tank then roles = roles+4 end
+				if heal then roles = roles+2 end
+				if dps  then roles = roles+1 end
 				
+				-- check if premade has role bit mask
+				local lastByte = string.byte(comment, comment:len()-1, 1);
+				print("comment");
+				print(comment);
+				print("comment:len()");
+				print(comment:len());
+				print("roles");
+				print(roles);
+				print("lastByte");
+				print(lastByte);
+				if lastByte and lastByte <= 3 then
+					local roleMatches = bit.band(roles, lastByte) ~= 0;
+					matches = matches and roleMatches;
+				end
 			end
 		end
 		
@@ -346,7 +372,7 @@ function LFGListEntryCreation_ListGroup(self)
 			if heal then roles = roles+2 end
 			if dps  then roles = roles+1 end
 			
-			description = description..string.char(roles);
+			description = description..string.char(194)..string.char(128+roles);
 		end
 		
 		if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, self.VoiceChat.EditBox:GetText(), description)) then
