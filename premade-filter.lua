@@ -1,4 +1,5 @@
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
+LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
 function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
@@ -32,6 +33,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
+	self.results = {};
 end
 
 function PremadeFilter_OnShow(self)
@@ -149,6 +151,22 @@ function LFGListSearchPanel_DoSearch(self)
 	self.searching = true;
 	self.searchFailed = false;
 	self.selectedResult = nil;
+	
+	local totalResults, results = C_LFGList.GetSearchResults();
+	local ageMin = nil;
+	
+	for i=1, #results do
+		local id, activityID, name, comment, voiceChat, iLvl, age = C_LFGList.GetSearchResultInfo(results[i]);
+		if not ageMin or age < ageMin then
+			ageMin = age;
+		end
+	end
+	
+	if not ageMin then
+		ageMin = 0;
+	end
+	PremadeFilter_Frame.updated = time() - ageMin + 1;
+	
 	LFGListSearchPanel_UpdateResultList(self);
 	LFGListSearchPanel_UpdateResults(self);
 end
@@ -259,6 +277,218 @@ function LFGListSearchPanel_UpdateResultList(self)
 	LFGListUtil_SortSearchResults(self.results);
 end
 
+function LFGListSearchPanel_UpdateResults(self)
+	local offset = HybridScrollFrame_GetOffset(self.ScrollFrame);
+	local buttons = self.ScrollFrame.buttons;
+
+	--If we have an application selected, deselect it.
+	LFGListSearchPanel_ValidateSelected(self);
+
+	if ( self.searching ) then
+		self.SearchingSpinner:Show();
+		self.ScrollFrame.NoResultsFound:Hide();
+		self.ScrollFrame.StartGroupButton:Hide();
+		for i=1, #buttons do
+			buttons[i]:Hide();
+		end
+	else
+		self.SearchingSpinner:Hide();
+		local results = self.results;
+		local apps = self.applications;
+
+		for i=1, #buttons do
+			local button = buttons[i];
+			local idx = i + offset;
+			local result = (idx <= #apps) and apps[idx] or results[idx - #apps];
+
+			if ( result ) then
+				button.resultID = result;
+				LFGListSearchEntry_Update(button);
+				button:Show();
+			else
+				button.created = 0;
+				button.resultID = nil;
+				button:Hide();
+			end
+		end
+
+		local totalHeight = buttons[1]:GetHeight() * (#results + #apps);
+
+		--Reanchor the errors to not overlap applications
+		if ( totalHeight < self.ScrollFrame:GetHeight() ) then
+			self.ScrollFrame.NoResultsFound:SetPoint("TOP", self.ScrollFrame, "TOP", 0, -totalHeight - 27);
+		end
+		self.ScrollFrame.NoResultsFound:SetShown(self.totalResults == 0);
+		self.ScrollFrame.StartGroupButton:SetShown(self.totalResults == 0 and not self.searchFailed);
+		self.ScrollFrame.NoResultsFound:SetText(self.searchFailed and LFG_LIST_SEARCH_FAILED or LFG_LIST_NO_RESULTS_FOUND);
+
+		HybridScrollFrame_Update(self.ScrollFrame, totalHeight, self.ScrollFrame:GetHeight());
+	end
+	LFGListSearchPanel_UpdateButtonStatus(self);
+end
+
+function LFGListSearchEntry_Update(self)
+	local resultID = self.resultID;
+	local _, appStatus, pendingStatus, appDuration = C_LFGList.GetApplicationInfo(resultID);
+	local isApplication = (appStatus ~= "none" or pendingStatus);
+	local isAppFinished = LFGListUtil_IsStatusInactive(appStatus) or LFGListUtil_IsStatusInactive(pendingStatus);
+
+	--Update visibility based on whether we're an application or not
+	self.isApplication = isApplication;
+	self.ApplicationBG:SetShown(isApplication and not isAppFinished);
+	self.ResultBG:SetShown(not isApplication or isAppFinished);
+	self.DataDisplay:SetShown(not isApplication);
+	self.CancelButton:SetShown(isApplication and pendingStatus ~= "applied");
+	self.CancelButton:SetEnabled(LFGListUtil_IsAppEmpowered());
+	self.CancelButton.Icon:SetDesaturated(not LFGListUtil_IsAppEmpowered());
+	self.CancelButton.tooltip = (not LFGListUtil_IsAppEmpowered()) and LFG_LIST_APP_UNEMPOWERED;
+	self.Spinner:SetShown(pendingStatus == "applied");
+	
+	if ( pendingStatus == "applied" and C_LFGList.GetRoleCheckInfo() ) then
+		self.PendingLabel:SetText(LFG_LIST_ROLE_CHECK);
+		self.PendingLabel:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	elseif ( pendingStatus == "cancelled" or appStatus == "cancelled" or appStatus == "failed" ) then
+		self.PendingLabel:SetText(LFG_LIST_APP_CANCELLED);
+		self.PendingLabel:SetTextColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	elseif ( appStatus == "declined" ) then
+		self.PendingLabel:SetText(LFG_LIST_APP_DECLINED);
+		self.PendingLabel:SetTextColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	elseif ( appStatus == "timedout" ) then
+		self.PendingLabel:SetText(LFG_LIST_APP_TIMED_OUT);
+		self.PendingLabel:SetTextColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	elseif ( appStatus == "invited" ) then
+		self.PendingLabel:SetText(LFG_LIST_APP_INVITED);
+		self.PendingLabel:SetTextColor(GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	elseif ( appStatus == "inviteaccepted" ) then
+		self.PendingLabel:SetText(LFG_LIST_APP_INVITE_ACCEPTED);
+		self.PendingLabel:SetTextColor(GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	elseif ( appStatus == "invitedeclined" ) then
+		self.PendingLabel:SetText(LFG_LIST_APP_INVITE_DECLINED);
+		self.PendingLabel:SetTextColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	elseif ( isApplication and pendingStatus ~= "applied" ) then
+		self.PendingLabel:SetText(LFG_LIST_PENDING);
+		self.PendingLabel:SetTextColor(GREEN_FONT_COLOR.r, GREEN_FONT_COLOR.g, GREEN_FONT_COLOR.b);
+		self.PendingLabel:Show();
+		self.ExpirationTime:Show();
+		self.CancelButton:Show();
+	else
+		self.PendingLabel:Hide();
+		self.ExpirationTime:Hide();
+		self.CancelButton:Hide();
+	end
+
+	--Center justify if we're on more than one line
+	if ( self.PendingLabel:GetHeight() > 15 ) then
+		self.PendingLabel:SetJustifyH("CENTER");
+	else
+		self.PendingLabel:SetJustifyH("RIGHT");
+	end
+
+	--Change the anchor of the label depending on whether we have the expiration time
+	if ( self.ExpirationTime:IsShown() ) then
+		self.PendingLabel:SetPoint("RIGHT", self.ExpirationTime, "LEFT", -3, 0);
+	else
+		self.PendingLabel:SetPoint("RIGHT", self.ExpirationTime, "RIGHT", -3, 0);
+	end
+
+	self.expiration = GetTime() + appDuration;
+
+	local panel = self:GetParent():GetParent():GetParent();
+
+	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(resultID);
+	local activityName = C_LFGList.GetActivityInfo(activityID);
+
+	self.resultID = resultID;
+	self.Selected:SetShown(panel.selectedResult == resultID and not isApplication and not isDelisted);
+	self.Highlight:SetShown(panel.selectedResult ~= resultID and not isApplication and not isDelisted);
+	local nameColor = NORMAL_FONT_COLOR;
+	local activityColor = GRAY_FONT_COLOR;
+	if ( isDelisted or isAppFinished ) then
+		nameColor = LFG_LIST_DELISTED_FONT_COLOR;
+		activityColor = LFG_LIST_DELISTED_FONT_COLOR;
+	elseif ( numBNetFriends > 0 or numCharFriends > 0 or numGuildMates > 0 ) then
+		nameColor = BATTLENET_FONT_COLOR;
+	elseif time() - age > PremadeFilter_Frame.updated then
+		nameColor = LFG_LIST_FRESH_FONT_COLOR;
+	end
+	
+	self.Name:SetWidth(0);
+	self.Name:SetText(name);
+	self.Name:SetTextColor(nameColor.r, nameColor.g, nameColor.b);
+	self.ActivityName:SetText(activityName);
+	self.ActivityName:SetTextColor(activityColor.r, activityColor.g, activityColor.b);
+	self.VoiceChat:SetShown(voiceChat ~= "");
+	self.VoiceChat.tooltip = voiceChat;
+
+	local displayData = C_LFGList.GetSearchResultMemberCounts(resultID);
+	LFGListGroupDataDisplay_Update(self.DataDisplay, activityID, displayData, isDelisted);
+
+	local nameWidth = isApplication and 165 or 176;
+	if ( voiceChat ~= "" ) then
+		nameWidth = nameWidth - 22;
+	end
+	if ( self.Name:GetWidth() > nameWidth ) then
+		self.Name:SetWidth(nameWidth);
+	end
+	self.ActivityName:SetWidth(nameWidth);
+
+	local mouseFocus = GetMouseFocus();
+	if ( mouseFocus == self ) then
+		LFGListSearchEntry_OnEnter(self);
+	end
+	if ( mouseFocus == self.VoiceChat ) then
+		mouseFocus:GetScript("OnEnter")(mouseFocus);
+	end
+
+	if ( isApplication ) then
+		self:SetScript("OnUpdate", LFGListSearchEntry_UpdateExpiration);
+		LFGListSearchEntry_UpdateExpiration(self);
+	else
+		self:SetScript("OnUpdate", nil);
+	end
+end
+
+function LFGListUtil_SortSearchResultsCB(id1, id2)
+	local id1, activityID1, name1, comment1, voiceChat1, iLvl1, age1, numBNetFriends1, numCharFriends1, numGuildMates1, isDelisted1, leaderName1, numMembers1 = C_LFGList.GetSearchResultInfo(id1);
+	local id2, activityID2, name2, comment2, voiceChat2, iLvl2, age2, numBNetFriends2, numCharFriends2, numGuildMates2, isDelisted2, leaderName2, numMembers2 = C_LFGList.GetSearchResultInfo(id2);
+	
+	--If one has more friends, do that one first
+	if ( numBNetFriends1 ~= numBNetFriends2 ) then
+		return numBNetFriends1 > numBNetFriends2;
+	end
+
+	if ( numCharFriends1 ~= numCharFriends2 ) then
+		return numCharFriends1 > numCharFriends2;
+	end
+
+	if ( numGuildMates1 ~= numGuildMates2 ) then
+		return numGuildMates1 > numGuildMates2;
+	end
+	
+	return age1 < age2;
+end
+
 function PremadeFilter_ParseQuery(searchText)
 	local include = {}
 	local exclude = {}
@@ -306,55 +536,6 @@ function PremadeFilter_IsStringMatched(str, include, exclude)
 	end
 	
 	return matches;
-end
-
-function LFGListSearchPanel_UpdateResults(self)
-	local offset = HybridScrollFrame_GetOffset(self.ScrollFrame);
-	local buttons = self.ScrollFrame.buttons;
-
-	--If we have an application selected, deselect it.
-	LFGListSearchPanel_ValidateSelected(self);
-
-	if ( self.searching ) then
-		self.SearchingSpinner:Show();
-		self.ScrollFrame.NoResultsFound:Hide();
-		self.ScrollFrame.StartGroupButton:Hide();
-		for i=1, #buttons do
-			buttons[i]:Hide();
-		end
-	else
-		self.SearchingSpinner:Hide();
-		local results = self.results;
-		local apps = self.applications;
-
-		for i=1, #buttons do
-			local button = buttons[i];
-			local idx = i + offset;
-			local result = (idx <= #apps) and apps[idx] or results[idx - #apps];
-
-			if ( result ) then
-				button.resultID = result;
-				LFGListSearchEntry_Update(button);
-				button:Show();
-			else
-				button.resultID = nil;
-				button:Hide();
-			end
-		end
-
-		local totalHeight = buttons[1]:GetHeight() * (#results + #apps);
-
-		--Reanchor the errors to not overlap applications
-		if ( totalHeight < self.ScrollFrame:GetHeight() ) then
-			self.ScrollFrame.NoResultsFound:SetPoint("TOP", self.ScrollFrame, "TOP", 0, -totalHeight - 27);
-		end
-		self.ScrollFrame.NoResultsFound:SetShown(self.totalResults == 0);
-		self.ScrollFrame.StartGroupButton:SetShown(self.totalResults == 0 and not self.searchFailed);
-		self.ScrollFrame.NoResultsFound:SetText(self.searchFailed and LFG_LIST_SEARCH_FAILED or LFG_LIST_NO_RESULTS_FOUND);
-
-		HybridScrollFrame_Update(self.ScrollFrame, totalHeight, self.ScrollFrame:GetHeight());
-	end
-	LFGListSearchPanel_UpdateButtonStatus(self);
 end
 
 function LFGListEntryCreation_ListGroup(self)
