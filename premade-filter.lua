@@ -131,18 +131,6 @@ function LFGListSearchPanel_DoSearch(self)
 	local visible = PremadeFilter_Frame:IsVisible();
 	local category = PremadeFilter_Frame.selectedCategory;
 	
-	--print("VISIBLE");
-	--print(visible);
-	--print("CATEGORY");
-	--print(category);
-	--print("SELF.CATEGORY");
-	--print(self.categoryID);
-	--print("self.filters");
-	--print(self.filters);
-	--print("self.preferredFilters");
-	--print(self.preferredFilters);
-	--print("===");
-	
 	if visible and category then
 		C_LFGList.Search(category, "", self.filters, self.preferredFilters);
 	else
@@ -164,11 +152,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 	local searchText = self.SearchBox:GetText():lower();
 	local include, exclude = PremadeFilter_ParseQuery(searchText);
 
-	--print("INCLUDE");
-	--PrintTable(include);
-	--print("EXCLUDE");
-	--PrintTable(exclude);
-	
 	local numResults = 0;
 	local newResults = {};
 	
@@ -176,12 +159,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(self.results[i]);
 		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 		
-		--print("NAME "..name);
-		
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude);
-		
-		--print("MATCHES");
-		--print(matches);
 		
 		-- check additional filters
 		if PremadeFilter_Frame:IsVisible() then
@@ -217,7 +195,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 			-- category
 			local category = PremadeFilter_Frame.selectedCategory;
 			if category then
-				--print("CATEGORY "..category.." / "..categoryID);
 				local categoryMatches = (categoryID == category);
 				matches = matches and categoryMatches;
 				
@@ -226,7 +203,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 			-- group
 			local group = PremadeFilter_Frame.selectedGroup;
 			if group then
-				--print("GROUP "..group.." / "..groupID);
 				local groupMatches = (groupID == group);
 				matches = matches and groupMatches;
 				
@@ -235,7 +211,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 			-- activity
 			local activity = PremadeFilter_Frame.selectedActivity;
 			if activity then
-				--print("ACTIVITY "..activity.." / "..activityID);
 				local activityMatches = (activityID == activity);
 				matches = matches and activityMatches;
 				
@@ -364,14 +339,14 @@ function LFGListEntryCreation_ListGroup(self)
 		local tank = PremadeFilter_Roles.TankCheckButton:GetChecked();
 		local heal = PremadeFilter_Roles.HealerCheckButton:GetChecked();
 		local dps  = PremadeFilter_Roles.DamagerCheckButton:GetChecked();
-		local roles = "";
+		local roles = 0;
 		
 		if tank or heal or dps then
-			if tank then roles = roles.."t" end
-			if heal then roles = roles.."h" end
-			if dps  then roles = roles.."d" end
+			if tank then roles = roles+4 end
+			if heal then roles = roles+2 end
+			if dps  then roles = roles+1 end
 			
-			description = description.." {"..roles.."}";
+			description = description..string.char(roles);
 		end
 		
 		if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, self.VoiceChat.EditBox:GetText(), description)) then
