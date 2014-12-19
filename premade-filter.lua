@@ -1,4 +1,5 @@
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
+_G["PremadeFilter_Debug"] = true;
 
 function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
@@ -162,7 +163,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude);
 		
 		-- check additional filters
-		if PremadeFilter_Frame:IsVisible() then
+		if PremadeFilter_Frame:IsVisible() or _G["PremadeFilter_Debug"] then
 			-- description
 			local descrText = PremadeFilter_Frame.Description.EditBox:GetText();
 			if descrText ~= "" then
@@ -227,17 +228,12 @@ function LFGListSearchPanel_UpdateResultList(self)
 				if dps  then roles = roles+1 end
 				
 				-- check if premade has role bit mask
-				local lastByte = string.byte(comment, comment:len()-1, 1);
-				print("comment");
-				print(comment);
-				print("comment:len()");
-				print(comment:len());
-				print("roles");
-				print(roles);
-				print("lastByte");
-				print(lastByte);
-				if lastByte and lastByte <= 3 then
-					local roleMatches = bit.band(roles, lastByte) ~= 0;
+				local lastWord = string.sub(comment, comment:len()-1);
+				local byte1 = string.byte(lastWord, 1, 1);
+				local byte2 = string.byte(lastWord, 2, 2);
+				
+				if byte1 == 194 and byte2 >=128 and byte2 <= 135 then
+					local roleMatches = bit.band(roles, byte2-128) ~= 0;
 					matches = matches and roleMatches;
 				end
 			end
@@ -372,7 +368,7 @@ function LFGListEntryCreation_ListGroup(self)
 			if heal then roles = roles+2 end
 			if dps  then roles = roles+1 end
 			
-			description = description..string.char(194)..string.char(128+roles);
+			description = description..string.char(194, 128+roles);
 		end
 		
 		if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, self.VoiceChat.EditBox:GetText(), description)) then
@@ -380,4 +376,8 @@ function LFGListEntryCreation_ListGroup(self)
 			LFGListEntryCreation_ClearFocus(self);
 		end
 	end
+end
+
+function PremadeFilter_Test()
+	PremadeFilter_FilterButton_OnClick(PremadeFilter_Frame.FilterButton)
 end
