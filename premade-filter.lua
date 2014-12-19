@@ -1,10 +1,9 @@
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
-_G["PremadeFilter_Debug"] = true;
 
 function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
-	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-1);
+	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-2);
 	
 	PremadeFilter_Roles:SetParent(LFGListFrame.EntryCreation);
 	PremadeFilter_Roles:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPLEFT", -10, -20);
@@ -163,7 +162,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude);
 		
 		-- check additional filters
-		if PremadeFilter_Frame:IsVisible() or _G["PremadeFilter_Debug"] then
+		if PremadeFilter_Frame:IsVisible() then
 			-- description
 			local descrText = PremadeFilter_Frame.Description.EditBox:GetText();
 			if descrText ~= "" then
@@ -378,6 +377,29 @@ function LFGListEntryCreation_ListGroup(self)
 	end
 end
 
-function PremadeFilter_Test()
-	PremadeFilter_FilterButton_OnClick(PremadeFilter_Frame.FilterButton)
+function PremadeFilter_CheckButtonSound(self)
+	if ( self:GetChecked() ) then
+		PlaySound("igMainMenuOptionCheckBoxOn");
+	else
+		PlaySound("igMainMenuOptionCheckBoxOff");
+	end
+end
+
+function PremadeFilter_CheckButton_Editbox_OnClick(self)
+	if ( self:GetChecked() ) then
+		PlaySound("igMainMenuOptionCheckBoxOn");
+		self:GetParent().EditBox:Show();
+		self:GetParent().EditBox:SetFocus();
+	else
+		PlaySound("igMainMenuOptionCheckBoxOff");
+		self:GetParent().EditBox:Hide();
+		self:GetParent().EditBox:ClearFocus();
+		self:GetParent().EditBox:SetText("");
+	end
+end
+
+function PremadeFilter_Experimental(self)
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT");
+	GameTooltip:SetText("EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon.", nil, nil, nil, nil, true);
+	GameTooltip:Show();
 end

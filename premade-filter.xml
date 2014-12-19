@@ -296,18 +296,7 @@
 							<Anchor point="LEFT" x="0" y="0"/>
 						</Anchors>
 						<Scripts>
-							<OnClick>
-								if ( self:GetChecked() ) then
-									PlaySound("igMainMenuOptionCheckBoxOn");
-									self:GetParent().EditBox:Show();
-									self:GetParent().EditBox:SetFocus();
-								else
-									PlaySound("igMainMenuOptionCheckBoxOff");
-									self:GetParent().EditBox:Hide();
-									self:GetParent().EditBox:ClearFocus();
-									self:GetParent().EditBox:SetText("");
-								end
-							</OnClick>
+							<OnClick function="PremadeFilter_CheckButton_Editbox_OnClick"/>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -363,18 +352,7 @@
 							<Anchor point="LEFT" x="0" y="0"/>
 						</Anchors>
 						<Scripts>
-							<OnClick>
-								if ( self:GetChecked() ) then
-									PlaySound("igMainMenuOptionCheckBoxOn");
-									self:GetParent().EditBox:Show();
-									self:GetParent().EditBox:SetFocus();
-								else
-									PlaySound("igMainMenuOptionCheckBoxOff");
-									self:GetParent().EditBox:Hide();
-									self:GetParent().EditBox:ClearFocus();
-									self:GetParent().EditBox:SetText("");
-								end
-							</OnClick>
+							<OnClick function="PremadeFilter_CheckButton_Editbox_OnClick"/>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -414,13 +392,9 @@
 					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-274"/>
 				</Anchors>
 				<Scripts>
-					<OnClick>
-						if ( self:GetChecked() ) then
-							PlaySound("igMainMenuOptionCheckBoxOn");
-						else
-							PlaySound("igMainMenuOptionCheckBoxOff");
-						end
-					</OnClick>
+					<OnClick function="PremadeFilter_CheckButtonSound"/>
+					<OnEnter function="PremadeFilter_Experimental"/>
+					<OnLeave function="GameTooltip_Hide"/>
 				</Scripts>
 				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -438,13 +412,9 @@
 					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-274"/>
 				</Anchors>
 				<Scripts>
-					<OnClick>
-						if ( self:GetChecked() ) then
-							PlaySound("igMainMenuOptionCheckBoxOn");
-						else
-							PlaySound("igMainMenuOptionCheckBoxOff");
-						end
-					</OnClick>
+					<OnClick function="PremadeFilter_CheckButtonSound"/>
+					<OnEnter function="PremadeFilter_Experimental"/>
+					<OnLeave function="GameTooltip_Hide"/>
 				</Scripts>
 				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -462,13 +432,9 @@
 					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-274"/>
 				</Anchors>
 				<Scripts>
-					<OnClick>
-						if ( self:GetChecked() ) then
-							PlaySound("igMainMenuOptionCheckBoxOn");
-						else
-							PlaySound("igMainMenuOptionCheckBoxOff");
-						end
-					</OnClick>
+					<OnClick function="PremadeFilter_CheckButtonSound"/>
+					<OnEnter function="PremadeFilter_Experimental"/>
+					<OnLeave function="GameTooltip_Hide"/>
 				</Scripts>
 				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -540,13 +506,7 @@
 							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-274"/>
 						</Anchors>
 						<Scripts>
-							<OnClick>
-								if ( self:GetChecked() ) then
-									PlaySound("igMainMenuOptionCheckBoxOn");
-								else
-									PlaySound("igMainMenuOptionCheckBoxOff");
-								end
-							</OnClick>
+							<OnClick function="PremadeFilter_CheckButtonSound"/>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -564,13 +524,7 @@
 							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-274"/>
 						</Anchors>
 						<Scripts>
-							<OnClick>
-								if ( self:GetChecked() ) then
-									PlaySound("igMainMenuOptionCheckBoxOn");
-								else
-									PlaySound("igMainMenuOptionCheckBoxOff");
-								end
-							</OnClick>
+							<OnClick function="PremadeFilter_CheckButtonSound"/>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -588,13 +542,7 @@
 							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-274"/>
 						</Anchors>
 						<Scripts>
-							<OnClick>
-								if ( self:GetChecked() ) then
-									PlaySound("igMainMenuOptionCheckBoxOn");
-								else
-									PlaySound("igMainMenuOptionCheckBoxOff");
-								end
-							</OnClick>
+							<OnClick function="PremadeFilter_CheckButtonSound"/>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
