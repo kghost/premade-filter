@@ -552,6 +552,7 @@
 					</CheckButton>
 				</Frames>
 			</Frame>
+			
 			<!-- FAKE -->
 			<Button parentKey="ListGroupButton" />
 		</Frames>

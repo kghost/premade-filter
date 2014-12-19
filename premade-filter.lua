@@ -5,6 +5,14 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
 	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-2);
 	
+	LFGListFrame.EntryCreation.ItemLevel.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_Editbox_OnClick);
+	LFGListFrame.EntryCreation.ItemLevel.EditBox:SetScript("OnEditFocusLost", nop);
+	LFGListFrame.EntryCreation.ItemLevel.EditBox:Hide();
+	
+	LFGListFrame.EntryCreation.VoiceChat.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_Editbox_OnClick);
+	LFGListFrame.EntryCreation.VoiceChat.EditBox:SetScript("OnEditFocusLost", nop);
+	LFGListFrame.EntryCreation.VoiceChat.EditBox:Hide();
+	
 	PremadeFilter_Roles:SetParent(LFGListFrame.EntryCreation);
 	PremadeFilter_Roles:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPLEFT", -10, -20);
 	
