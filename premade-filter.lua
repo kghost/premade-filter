@@ -201,7 +201,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 			if PremadeFilter_Frame.ItemLevel.CheckButton:GetChecked() then
 				local ilvlText = tonumber(PremadeFilter_Frame.ItemLevel.EditBox:GetText());
 				if ilvlText then
-					local ilvlMatches = (iLvl <= ilvlText);
+					local ilvlMatches = (iLvl >= ilvlText);
 					matches = matches and ilvlMatches;
 				end
 			end
