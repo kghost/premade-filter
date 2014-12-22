@@ -120,7 +120,7 @@
 						LFGListFrame.SearchPanel.SearchBox:SetText(self:GetText());
 					</OnTextChanged>
 				</Scripts>
-				<!--Frames>
+				<Frames>
 					<Button parentKey="BuildButton" inherits="UIPanelButtonTemplate" text="+">
 						<Size x="24" y="18"/>
 						<Anchors>
@@ -133,7 +133,7 @@
 							</OnClick>
 						</Scripts>
 					</Button>
-				</Frames-->
+				</Frames>
 			</EditBox>
 			
 			<Frame parentKey="CategoryDropDown" name="PremadeFilter_CategoryDropDown" inherits="UIDropDownMenuTemplate">
@@ -403,10 +403,79 @@
 										<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
 									</Anchors>
 								</Texture>
+								<FontString parentKey="IncludeLabel" inherits="GameFontNormalLeft" text="Include">
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-40"/>
+									</Anchors>
+								</FontString>
+								<FontString parentKey="ExcludeLabel" inherits="GameFontNormalLeft" text="Exclude">
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-100"/>
+									</Anchors>
+								</FontString>
+								<FontString parentKey="PossibleLabel" inherits="GameFontNormalLeft" text="Possible">
+									<Anchors>
+										<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-160"/>
+									</Anchors>
+								</FontString>
 							</Layer>
 						</Layers>
 						<Frames>
-							<Button parentKey="SelectButton" inherits="UIPanelButtonTemplate" text="CANCEL">
+							<EditBox parentKey="Include" inherits="LFGListEditBoxTemplate" autoFocus="true">
+								<Size x="255" y="22"/>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent.IncludeLabel" relativePoint="BOTTOMLEFT" x="5" y="-5"/>
+								</Anchors>
+								<KeyValues>
+									<KeyValue key="tabCategory" value="tabQueryBuilder" type="string"/>
+								</KeyValues>
+								<Scripts>
+									<OnLoad>
+										self.Instructions:SetText("must have");
+										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+									</OnLoad>
+									<OnTextChanged>
+										InputBoxInstructions_OnTextChanged(self);
+									</OnTextChanged>
+								</Scripts>
+							</EditBox>
+							<EditBox parentKey="Exclude" inherits="LFGListEditBoxTemplate">
+								<Size x="255" y="22"/>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent.ExcludeLabel" relativePoint="BOTTOMLEFT" x="5" y="-5"/>
+								</Anchors>
+								<KeyValues>
+									<KeyValue key="tabCategory" value="tabQueryBuilder" type="string"/>
+								</KeyValues>
+								<Scripts>
+									<OnLoad>
+										self.Instructions:SetText("must have not");
+										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+									</OnLoad>
+									<OnTextChanged>
+										InputBoxInstructions_OnTextChanged(self);
+									</OnTextChanged>
+								</Scripts>
+							</EditBox>
+							<EditBox parentKey="Possible" inherits="LFGListEditBoxTemplate">
+								<Size x="255" y="22"/>
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent.PossibleLabel" relativePoint="BOTTOMLEFT" x="5" y="-5"/>
+								</Anchors>
+								<KeyValues>
+									<KeyValue key="tabCategory" value="tabQueryBuilder" type="string"/>
+								</KeyValues>
+								<Scripts>
+									<OnLoad>
+										self.Instructions:SetText("must have at least one");
+										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+									</OnLoad>
+									<OnTextChanged>
+										InputBoxInstructions_OnTextChanged(self);
+									</OnTextChanged>
+								</Scripts>
+							</EditBox>
+							<Button parentKey="CancelButton" inherits="UIPanelButtonTemplate" text="CANCEL">
 								<Size x="130" y="22"/>
 								<Anchors>
 									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOM" x="-10" y="15"/>
@@ -418,7 +487,7 @@
 									</OnClick>
 								</Scripts>
 							</Button>
-							<Button parentKey="CancelButton" inherits="UIPanelButtonTemplate" text="DONE">
+							<Button parentKey="DoneButton" inherits="UIPanelButtonTemplate" text="DONE">
 								<Size x="130" y="22"/>
 								<Anchors>
 									<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOM" x="10" y="15"/>
@@ -427,12 +496,21 @@
 									<OnClick>
 										PlaySound("igMainMenuOptionCheckBoxOn");
 										self:GetParent():GetParent():Hide();
+										PremadeFilter_BuildQuery();
 									</OnClick>
 								</Scripts>
 							</Button>
 						</Frames>
 					</Frame>
 				</Frames>
+				<Scripts>
+					<Onshow>
+						local include, exclude, possible = PremadeFilter_ParseQuery(self:GetParent().Name:GetText());
+						self.Dialog.Include:SetText(table.concat(include, " "));
+						self.Dialog.Exclude:SetText(table.concat(exclude, " "));
+						self.Dialog.Possible:SetText(table.concat(possible, " "));
+					</Onshow>
+				</Scripts>
 			</Frame>
 			
 			<!-- MOVES INSIDE ENTITY CREATION FRAME -->

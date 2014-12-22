@@ -489,6 +489,27 @@ function LFGListUtil_SortSearchResultsCB(id1, id2)
 	return age1 < age2;
 end
 
+function PremadeFilter_BuildQuery()
+	local include  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Include:GetText(),  "");
+	local exclude  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Exclude:GetText(),  "-");
+	local possible = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Possible:GetText(), "?");
+	
+	PremadeFilter_Frame.Name:SetText(include.." "..exclude.." "..possible);
+end
+
+function PremadeFilter_BuildQueryPrefix(text, prefix)
+	local words = {};
+	local len = 0;
+	
+	text = text:gsub("[%+%-%?]+", "");
+	for w in text:gmatch("%S+") do table.insert(words, w); len = len + 1; end
+	if len > 0 then
+		return prefix..table.concat(words, " "..prefix);
+	end
+	
+	return "";
+end
+
 function PremadeFilter_ParseQuery(searchText)
 	local include = {};
 	local exclude = {};
