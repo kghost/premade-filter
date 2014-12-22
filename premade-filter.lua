@@ -176,7 +176,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 	self.applications = C_LFGList.GetApplications();
 	
 	local searchText = self.SearchBox:GetText():lower();
-	local include, exclude = PremadeFilter_ParseQuery(searchText);
+	local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
 
 	local numResults = 0;
 	local newResults = {};
@@ -185,15 +185,15 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(self.results[i]);
 		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 		
-		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude);
+		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 		
 		-- check additional filters
 		if PremadeFilter_Frame:IsVisible() then
 			-- description
 			local descrText = PremadeFilter_Frame.Description.EditBox:GetText();
 			if descrText ~= "" then
-				local descrInclude, descrExclude = PremadeFilter_ParseQuery(descrText);
-				local descrMatches = PremadeFilter_IsStringMatched(comment:lower(), descrInclude, descrExclude);
+				local descrInclude, descrExclude, descrPossible = PremadeFilter_ParseQuery(descrText);
+				local descrMatches = PremadeFilter_IsStringMatched(comment:lower(), descrInclude, descrExclude, descrPossible);
 				matches = matches and descrMatches;
 			end
 			
@@ -490,49 +490,73 @@ function LFGListUtil_SortSearchResultsCB(id1, id2)
 end
 
 function PremadeFilter_ParseQuery(searchText)
-	local include = {}
-	local exclude = {}
+	local include = {};
+	local exclude = {};
+	local possible = {};
 	
 	if searchText ~= "" then
 		local words = {}
 		for w in searchText:gmatch("%S+") do table.insert(words, w) end
 		
 		for i,w in pairs(words) do
-			if w:sub(1,1) ~= "-" then
-				table.insert(include, w)
-			else
+			local firstChar = w:sub(1,1);
+			if firstChar == "+" then
 				w = w:sub(2, w:len());
 				if w ~= "" then
-					table.insert(exclude, w)
+					table.insert(include, w);
 				end
+			elseif firstChar == "-" then
+				w = w:sub(2, w:len());
+				if w ~= "" then
+					table.insert(exclude, w);
+				end
+			elseif firstChar == "?" then
+				w = w:sub(2, w:len());
+				if w ~= "" then
+					table.insert(possible, w);
+				end
+			else
+				table.insert(include, w);
 			end
 		end
 	end
 	
-	return include, exclude;
+	return include, exclude, possible;
 end
 
-function PremadeFilter_IsStringMatched(str, include, exclude)
+function PremadeFilter_IsStringMatched(str, include, exclude, possible)
 	local matches = true;
 	
 	if next(include) ~= nil then
 		for i,w in pairs(include) do
-			local nameMatch = str:find(w);
-			if nameMatch == nil then
+			local strMatch = str:find(w);
+			if strMatch == nil then
 				matches = false;
-				break 
+				break
 			end
 		end
 	end
 	
 	if matches and next(exclude) ~= nil then
 		for i,w in pairs(exclude) do
-			local nameMatch = str:find(w);
-			if nameMatch ~= nil then
+			local strMatch = str:find(w);
+			if strMatch ~= nil then
 				matches = false;
-				break 
+				break
 			end
 		end
+	end
+	
+	if matches and next(possible) ~= nil then
+		local strMatch = false;
+		for i,w in pairs(possible) do
+			local possibleMatch = str:find(w);
+			if possibleMatch ~= nil then
+				strMatch = true;
+				break
+			end
+		end
+		matches = matches and strMatch;
 	end
 	
 	return matches;

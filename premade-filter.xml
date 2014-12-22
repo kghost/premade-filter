@@ -76,9 +76,6 @@
 			</EdgeSize>
 		</Backdrop>
 		<Frames>
-			<Frame>
-			</Frame>
-			
 			<Button parentKey="AdvancedButton" inherits="UIPanelButtonTemplate" text="FILTERS">
 				<Size x="110" y="22"/>
 				<Anchors>
@@ -108,114 +105,6 @@
 				</Layers>
 			</Frame>
 			
-			<Frame parentKey="ActivityFinder" frameLevel="13" enableMouse="true" hidden="true">
-				<Anchors>
-					<Anchor point="TOPLEFT" x="-5" y="-24"/>
-					<Anchor point="BOTTOMRIGHT" x="-5" y="2"/>
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND">
-						<Texture parentKey="Background" setAllPoints="true">
-							<Color r="0" g="0" b="0" a="0.7"/>
-						</Texture>
-					</Layer>
-				</Layers>
-				<Frames>
-					<Frame parentKey="Dialog">
-						<Size x="320" y="250"/>
-						<Anchors>
-							<Anchor point="CENTER"/>
-						</Anchors>
-						<Backdrop edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-							<TileSize>
-								<AbsValue val="32"/>
-							</TileSize>
-							<EdgeSize>
-								<AbsValue val="32"/>
-							</EdgeSize>
-						</Backdrop>
-						<Layers>
-							<Layer level="BACKGROUND" textureSubLevel="-1">
-								<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
-									<Anchors>
-										<Anchor point="TOPLEFT" x="4" y="-4"/>
-										<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
-									</Anchors>
-								</Texture>
-							</Layer>
-						</Layers>
-						<Frames>
-							<EditBox parentKey="EntryBox" inherits="LFGListEditBoxTemplate" autoFocus="true">
-								<Size x="268" y="22"/>
-								<Anchors>
-									<Anchor point="TOP" x="0" y="-15"/>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										self.Instructions:SetText(SEARCH);
-									</OnLoad>
-									<OnTextChanged>
-										InputBoxInstructions_OnTextChanged(self);
-										LFGListEntryCreationActivityFinder_UpdateMatching(self:GetParent():GetParent());
-									</OnTextChanged>
-									<OnEnterPressed>
-										LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
-										PlaySound("igMainMenuOptionCheckBoxOn");
-									</OnEnterPressed>
-								</Scripts>
-							</EditBox>
-							<ScrollFrame name="PremadeFilter_SearchScrollFrame" inherits="HybridScrollFrameTemplate" parentKey="ScrollFrame">
-								<Anchors>
-									<Anchor point="TOPLEFT" x="25" y="-45"/>
-									<Anchor point="BOTTOMRIGHT" x="-25" y="50"/>
-								</Anchors>
-								<Frames>
-									<Slider name="$parentScrollBar" inherits="MinimalHybridScrollBarTemplate" parentKey="scrollBar">
-										<Anchors>
-											<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-3" y="-17"/>
-											<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-15" y="16"/>
-										</Anchors>
-									</Slider>
-								</Frames>
-							</ScrollFrame>
-							<Frame parentKey="BorderFrame" inherits="TooltipBorderedFrameTemplate" useParentLevel="true">
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeKey="$parent.ScrollFrame" relativePoint="TOPLEFT" x="-5" y="5"/>
-									<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ScrollFrame" relativePoint="BOTTOMRIGHT" x="5" y="-5"/>
-								</Anchors>
-							</Frame>
-							<Button parentKey="SelectButton" inherits="UIPanelButtonTemplate" text="LFG_LIST_SELECT">
-								<Size x="130" y="22"/>
-								<Anchors>
-									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOM" x="-10" y="15"/>
-								</Anchors>
-								<Scripts>
-									<OnClick>
-										PlaySound("igMainMenuOptionCheckBoxOn");
-										LFGListEntryCreationActivityFinder_Accept(self:GetParent():GetParent());
-									</OnClick>
-								</Scripts>
-							</Button>
-							<Button parentKey="CancelButton" inherits="UIPanelButtonTemplate" text="CANCEL">
-								<Size x="130" y="22"/>
-								<Anchors>
-									<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOM" x="10" y="15"/>
-								</Anchors>
-								<Scripts>
-									<OnClick>
-										PlaySound("igMainMenuOptionCheckBoxOn");
-										LFGListEntryCreationActivityFinder_Cancel(self:GetParent():GetParent());
-									</OnClick>
-								</Scripts>
-							</Button>
-						</Frames>
-					</Frame>
-				</Frames>
-				<Scripts>
-					<OnLoad function="LFGListEntryCreationActivityFinder_OnLoad"/>
-				</Scripts>
-			</Frame>
-			
 			<EditBox parentKey="Name" inherits="LFGListEditBoxTemplate">
 				<Size x="278" y="22"/>
 				<KeyValues>
@@ -231,6 +120,20 @@
 						LFGListFrame.SearchPanel.SearchBox:SetText(self:GetText());
 					</OnTextChanged>
 				</Scripts>
+				<!--Frames>
+					<Button parentKey="BuildButton" inherits="UIPanelButtonTemplate" text="+">
+						<Size x="24" y="18"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="-1"/>
+						</Anchors>
+						<Scripts>
+							<OnClick>
+								PlaySound("igMainMenuOptionCheckBoxOn");
+								self:GetParent():GetParent().QueryBuilder:Show();
+							</OnClick>
+						</Scripts>
+					</Button>
+				</Frames-->
 			</EditBox>
 			
 			<Frame parentKey="CategoryDropDown" name="PremadeFilter_CategoryDropDown" inherits="UIDropDownMenuTemplate">
@@ -466,6 +369,72 @@
 				</Scripts>
 			</Button>
 			
+			<Frame parentKey="QueryBuilder" frameLevel="13" enableMouse="true" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="5" y="-5"/>
+					<Anchor point="BOTTOMRIGHT" x="-5" y="5"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Background" setAllPoints="true">
+							<Color r="0" g="0" b="0" a="0.7"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="Dialog">
+						<Size x="320" y="250"/>
+						<Anchors>
+							<Anchor point="CENTER"/>
+						</Anchors>
+						<Backdrop edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+							<TileSize>
+								<AbsValue val="32"/>
+							</TileSize>
+							<EdgeSize>
+								<AbsValue val="32"/>
+							</EdgeSize>
+						</Backdrop>
+						<Layers>
+							<Layer level="BACKGROUND" textureSubLevel="-1">
+								<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
+									<Anchors>
+										<Anchor point="TOPLEFT" x="4" y="-4"/>
+										<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<Button parentKey="SelectButton" inherits="UIPanelButtonTemplate" text="CANCEL">
+								<Size x="130" y="22"/>
+								<Anchors>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOM" x="-10" y="15"/>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										PlaySound("igMainMenuOptionCheckBoxOn");
+										self:GetParent():GetParent():Hide();
+									</OnClick>
+								</Scripts>
+							</Button>
+							<Button parentKey="CancelButton" inherits="UIPanelButtonTemplate" text="DONE">
+								<Size x="130" y="22"/>
+								<Anchors>
+									<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOM" x="10" y="15"/>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										PlaySound("igMainMenuOptionCheckBoxOn");
+										self:GetParent():GetParent():Hide();
+									</OnClick>
+								</Scripts>
+							</Button>
+						</Frames>
+					</Frame>
+				</Frames>
+			</Frame>
+			
 			<!-- MOVES INSIDE ENTITY CREATION FRAME -->
 			<Frame name="PremadeFilter_Roles" parentKey="PremadeRoles">
 				<Size x="352" y="30" />
@@ -554,6 +523,7 @@
 			</Frame>
 			
 			<!-- FAKE -->
+			<Frame parentKey="ActivityFinder" frameLevel="13" enableMouse="true" hidden="true" />
 			<Button parentKey="ListGroupButton" />
 		</Frames>
 		<Scripts>
