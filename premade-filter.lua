@@ -8,6 +8,11 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
 	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-2);
 	
+	LFGListFrame.EntryCreation.Name:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
+	LFGListFrame.EntryCreation.Description.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
+	LFGListFrame.EntryCreation.ItemLevel.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
+	LFGListFrame.EntryCreation.VoiceChat.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
+	
 	LFGListFrame.EntryCreation.ItemLevel.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_Editbox_OnClick);
 	LFGListFrame.EntryCreation.ItemLevel.EditBox:SetScript("OnEditFocusLost", nop);
 	LFGListFrame.EntryCreation.ItemLevel.EditBox:Hide();
@@ -65,6 +70,26 @@ function LFGListFrameSearchBox_OnTextChanged(self)
 	local text = self:GetText();
 	PremadeFilter_Frame.Name:SetText(text);
 	InputBoxInstructions_OnTextChanged(self);
+end
+
+function LFGListEditBox_OnTabPressed(self)
+	if ( self.tabCategory ) then
+		local step = IsShiftKeyDown() and -1 or 1;
+		local offset = step;
+		local cat = LFG_LIST_EDIT_BOX_TAB_CATEGORIES[self.tabCategory];
+		if ( cat ) then
+			--It's times like this when I wish Lua was 0-based...
+			repeat
+				local index = ((self.tabCategoryIndex - 1 + offset + #cat) % #cat) + 1;
+				local input = cat[index];
+				if input:IsVisible() then
+					input:SetFocus();
+				else
+					offset = offset + step;
+				end
+			until input:IsVisible();
+		end
+	end
 end
 
 function PremadeFilter_FilterButton_OnClick(self)
