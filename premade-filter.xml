@@ -2,8 +2,6 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 	
-	<Script file="premade-filter.lua" />
-	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" hidden="true">
 		<Size x="339" y="409" />
 		<Layers>
@@ -403,17 +401,17 @@
 										<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
 									</Anchors>
 								</Texture>
-								<FontString parentKey="IncludeLabel" inherits="GameFontNormalLeft" text="Include">
+								<FontString parentKey="IncludeLabel" inherits="GameFontNormalLeft">
 									<Anchors>
 										<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-40"/>
 									</Anchors>
 								</FontString>
-								<FontString parentKey="ExcludeLabel" inherits="GameFontNormalLeft" text="Exclude">
+								<FontString parentKey="ExcludeLabel" inherits="GameFontNormalLeft">
 									<Anchors>
 										<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-100"/>
 									</Anchors>
 								</FontString>
-								<FontString parentKey="PossibleLabel" inherits="GameFontNormalLeft" text="Possible">
+								<FontString parentKey="PossibleLabel" inherits="GameFontNormalLeft">
 									<Anchors>
 										<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-160"/>
 									</Anchors>
@@ -431,7 +429,7 @@
 								</KeyValues>
 								<Scripts>
 									<OnLoad>
-										self.Instructions:SetText("must have");
+										self.Instructions:SetText(PremadeFilter_GetMessage("The words you want"));
 										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 									</OnLoad>
 									<OnTextChanged>
@@ -449,7 +447,7 @@
 								</KeyValues>
 								<Scripts>
 									<OnLoad>
-										self.Instructions:SetText("must have not");
+										self.Instructions:SetText(PremadeFilter_GetMessage("The words you don't want"));
 										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 									</OnLoad>
 									<OnTextChanged>
@@ -467,7 +465,7 @@
 								</KeyValues>
 								<Scripts>
 									<OnLoad>
-										self.Instructions:SetText("must have at least one");
+										self.Instructions:SetText(PremadeFilter_GetMessage("You want at least one of these words"));
 										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 									</OnLoad>
 									<OnTextChanged>
@@ -501,6 +499,13 @@
 								</Scripts>
 							</Button>
 						</Frames>
+						<Scripts>
+							<OnLoad>
+								self.IncludeLabel:SetText(PremadeFilter_GetMessage("Include words"));
+								self.ExcludeLabel:SetText(PremadeFilter_GetMessage("Exclude words"));
+								self.PossibleLabel:SetText(PremadeFilter_GetMessage("At least one word"));
+							</OnLoad>
+						</Scripts>
 					</Frame>
 				</Frames>
 				<Scripts>

@@ -1,3 +1,5 @@
+local _, L = ...;
+
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
@@ -34,6 +36,10 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
+end
+
+function PremadeFilter_GetMessage(str)
+	return L[str];
 end
 
 function PremadeFilter_OnShow(self)
