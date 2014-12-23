@@ -1,9 +1,13 @@
 ﻿## Interface: 60000
 ## Title: Premade Filter
 ## Title-ruRU: Premade Filter
-## Version: 0.4.2
+## Version: 0.4.3
 ## Author: PremadeFilter
 ## Notes: Advanced premade filtering
 ## Notes-ruRU: Расширенный фильтр премейдов
 
+localization\core.lua
+localization\ruRU.lua
+
+premade-filter.lua
 premade-filter.xml
