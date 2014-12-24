@@ -13,11 +13,11 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.EntryCreation.ItemLevel.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
 	LFGListFrame.EntryCreation.VoiceChat.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
 	
-	LFGListFrame.EntryCreation.ItemLevel.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_Editbox_OnClick);
+	LFGListFrame.EntryCreation.ItemLevel.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_OnClick);
 	LFGListFrame.EntryCreation.ItemLevel.EditBox:SetScript("OnEditFocusLost", nop);
 	LFGListFrame.EntryCreation.ItemLevel.EditBox:Hide();
 	
-	LFGListFrame.EntryCreation.VoiceChat.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_Editbox_OnClick);
+	LFGListFrame.EntryCreation.VoiceChat.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_OnClick);
 	LFGListFrame.EntryCreation.VoiceChat.EditBox:SetScript("OnEditFocusLost", nop);
 	LFGListFrame.EntryCreation.VoiceChat.EditBox:Hide();
 	
@@ -240,13 +240,19 @@ function LFGListSearchPanel_UpdateResultList(self)
 			-- voice chat
 			if PremadeFilter_Frame.VoiceChat.CheckButton:GetChecked() then
 				local vcText = PremadeFilter_Frame.VoiceChat.EditBox:GetText();
-				if vcText ~= "" then
-					local vcMatches = (voiceChat:lower() == vcText:lower());
-					matches = matches and vcMatches;
+				local vcMatches = false;
+				
+				if PremadeFilter_Frame.VoiceChat.CheckButton.CheckedNone then
+					vcMatches = (voiceChat == "");
 				else
-					local vcMatches = (voiceChat ~= "");
-					matches = matches and vcMatches;
-				end
+					if vcText ~= "" then
+						vcMatches = (voiceChat:lower() == vcText:lower());
+					else
+						vcMatches = (voiceChat ~= "");
+					end
+				end;
+				
+				matches = matches and vcMatches;
 			end
 			
 			-- category
@@ -650,7 +656,7 @@ function PremadeFilter_CheckButtonSound(self)
 	end
 end
 
-function PremadeFilter_CheckButton_Editbox_OnClick(self)
+function PremadeFilter_CheckButton_OnClick(self)
 	if ( self:GetChecked() ) then
 		PlaySound("igMainMenuOptionCheckBoxOn");
 		self:GetParent().EditBox:Show();
@@ -660,6 +666,32 @@ function PremadeFilter_CheckButton_Editbox_OnClick(self)
 		self:GetParent().EditBox:Hide();
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
+	end
+end
+
+function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
+	if not self:GetChecked() then
+		PlaySound("igMainMenuOptionCheckBoxOff");
+		
+		if not self.CheckedNone then
+			self.CheckedNone = true;
+			self:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up");
+			self:SetChecked(true);
+		else
+			self.CheckedNone = false;
+		end
+		
+		self:GetParent().EditBox:Hide();
+		self:GetParent().EditBox:ClearFocus();
+		self:GetParent().EditBox:SetText("");
+	else
+		PlaySound("igMainMenuOptionCheckBoxOn");
+		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
+		self:SetChecked(true);
+		self.CheckedNone = false;
+		
+		self:GetParent().EditBox:Show();
+		self:GetParent().EditBox:SetFocus();
 	end
 end
 

@@ -208,7 +208,7 @@
 							<Anchor point="LEFT" x="0" y="0"/>
 						</Anchors>
 						<Scripts>
-							<OnClick function="PremadeFilter_CheckButton_Editbox_OnClick"/>
+							<OnClick function="PremadeFilter_CheckButton_OnClick"/>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
@@ -266,13 +266,14 @@
 							<Anchor point="LEFT" x="0" y="0"/>
 						</Anchors>
 						<Scripts>
-							<OnClick function="PremadeFilter_CheckButton_Editbox_OnClick"/>
+							<OnLoad>self.CheckedNone = false;</OnLoad>
+							<OnClick function="PremadeFilter_CheckButton_VoiceChat_OnClick"/>
 						</Scripts>
 						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 					</CheckButton>
 					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate" hidden="true">
 						<Size x="125" y="22"/>
