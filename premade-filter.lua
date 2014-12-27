@@ -5,6 +5,12 @@ LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
 function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
+	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
+	LFGListFrame.SearchPanel.SearchBox:SetScript("OnEditFocusGained", nop);
+	LFGListFrame.SearchPanel.SearchBox:SetScript("OnEditFocusLost", nop);
+	LFGListFrame.SearchPanel.SearchBox:SetScript("OnTextChanged", LFGListFrameSearchBox_OnTextChanged);
+	LFGListFrame.SearchPanel.AutoCompleteFrame:Hide();
+	
 	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
 	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-2);
 	
@@ -38,6 +44,8 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListUtil_SetUpDropDown(self, self.ActivityDropDown, LFGListEntryCreation_PopulateActivities, PremadeFilter_OnActivitySelected);
 	LFGListEntryCreation_SetBaseFilters(self, 0);
 	
+	PremadeFilter_OnHide(self);
+	
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
@@ -51,19 +59,34 @@ function PremadeFilter_OnShow(self)
 	local categoryID = LFGListFrame.categoryID
 	local baseFilters = LFGListFrame.baseFilters;
 	
-	PremadeFilter_Frame.categoryID = categoryID;
-	PremadeFilter_Frame.baseFilters = baseFilters;
+	self.categoryID = categoryID;
+	self.baseFilters = baseFilters;
 
 	local selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
 	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
 	
-	PremadeFilter_Frame.selectedCategory = selectedCategory;
-	PremadeFilter_Frame.selectedFilters = selectedFilters;
+	self.selectedCategory = selectedCategory;
+	self.selectedFilters = selectedFilters;
 	
-	LFGListEntryCreation_Select(PremadeFilter_Frame, selectedFilters, selectedCategory, nil, nil);
+	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, nil, nil);
+	
+	PremadeFilter_Frame.QueryBuilder:SetParent(self);
+	PremadeFilter_Frame.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
+	PremadeFilter_Frame.QueryBuilder:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -5, 5);
+	
+	self.Name.BuildButton:SetParent(self.Name);
+	self.Name.BuildButton:SetPoint("TOPRIGHT", self.Name, "TOPRIGHT", 0, -1);
 	
 	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
-	LFGListFrame.SearchPanel.SearchBox:SetScript("OnTextChanged", LFGListFrameSearchBox_OnTextChanged);
+end
+
+function PremadeFilter_OnHide(self)
+	PremadeFilter_Frame.QueryBuilder:SetParent(LFGListFrame);
+	PremadeFilter_Frame.QueryBuilder:SetPoint("TOPLEFT", LFGListFrame, "TOPLEFT", -5, -21);
+	PremadeFilter_Frame.QueryBuilder:SetPoint("BOTTOMRIGHT", LFGListFrame, "BOTTOMRIGHT", -2, 2);
+	
+	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
+	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
 end
 
 function LFGListFrameSearchBox_OnTextChanged(self)
@@ -531,7 +554,8 @@ function PremadeFilter_BuildQuery()
 	local exclude  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Exclude:GetText(),  "-");
 	local possible = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Possible:GetText(), "?");
 	
-	PremadeFilter_Frame.Name:SetText(include.." "..exclude.." "..possible);
+	--PremadeFilter_Frame.Name:SetText(include.." "..exclude.." "..possible);
+	LFGListFrame.SearchPanel.SearchBox:SetText(include.." "..exclude.." "..possible);
 end
 
 function PremadeFilter_BuildQueryPrefix(text, prefix)

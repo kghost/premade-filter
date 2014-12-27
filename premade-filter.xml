@@ -131,7 +131,7 @@
 						<Scripts>
 							<OnClick>
 								PlaySound("igMainMenuOptionCheckBoxOn");
-								self:GetParent():GetParent().QueryBuilder:Show();
+								PremadeFilter_Frame.QueryBuilder:Show();
 							</OnClick>
 						</Scripts>
 					</Button>
@@ -379,11 +379,10 @@
 				</Anchors>
 				<Scripts>
 					<OnClick function="PremadeFilter_FilterButton_OnClick"/>
-					<OnShow function="PremadeFilter_OnShow"/>
 				</Scripts>
 			</Button>
 			
-			<Frame parentKey="QueryBuilder" frameLevel="13" enableMouse="true" hidden="true">
+			<Frame parentKey="QueryBuilder" frameStrata="DIALOG" toplevel="true" enableMouse="true" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="5" y="-5"/>
 					<Anchor point="BOTTOMRIGHT" x="-5" y="5"/>
@@ -526,7 +525,7 @@
 				</Frames>
 				<Scripts>
 					<Onshow>
-						local include, exclude, possible = PremadeFilter_ParseQuery(self:GetParent().Name:GetText());
+						local include, exclude, possible = PremadeFilter_ParseQuery(PremadeFilter_Frame.Name:GetText());
 						self.Dialog.Include:SetText(table.concat(include, " "));
 						self.Dialog.Exclude:SetText(table.concat(exclude, " "));
 						self.Dialog.Possible:SetText(table.concat(possible, " "));
@@ -627,6 +626,8 @@
 		</Frames>
 		<Scripts>
 			<OnLoad function="PremadeFilter_Frame_OnLoad"/>
+			<OnShow function="PremadeFilter_OnShow"/>
+			<OnHide function="PremadeFilter_OnHide"/>
 		</Scripts>
 	</Frame>
 </Ui>
