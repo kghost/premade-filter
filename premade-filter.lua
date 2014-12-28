@@ -3,6 +3,10 @@ local _, L = ...;
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
+function PremadeFilter_GetMessage(str)
+	return L[str];
+end
+
 function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
@@ -51,10 +55,6 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.results = {};
 end
 
-function PremadeFilter_GetMessage(str)
-	return L[str];
-end
-
 function PremadeFilter_OnShow(self)
 	local categoryID = LFGListFrame.categoryID
 	local baseFilters = LFGListFrame.baseFilters;
@@ -65,14 +65,11 @@ function PremadeFilter_OnShow(self)
 	local selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
 	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
 	
-	self.selectedCategory = selectedCategory;
-	self.selectedFilters = selectedFilters;
-	
 	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, nil, nil);
 	
-	PremadeFilter_Frame.QueryBuilder:SetParent(self);
-	PremadeFilter_Frame.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
-	PremadeFilter_Frame.QueryBuilder:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -5, 5);
+	self.QueryBuilder:SetParent(self);
+	self.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
+	self.QueryBuilder:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -5, 5);
 	
 	self.Name.BuildButton:SetParent(self.Name);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", self.Name, "TOPRIGHT", 0, -1);
@@ -121,21 +118,21 @@ function PremadeFilter_FilterButton_OnClick(self)
 end
 
 function PremadeFilter_OnCategorySelected(self, id, filters)
-	PremadeFilter_Frame.selectedCategory = id;
-	PremadeFilter_Frame.selectedFilters = filters;
+	self.selectedCategory = id;
+	self.selectedFilters = filters;
 	
 	LFGListCategorySelection_SelectCategory(LFGListFrame.CategorySelection, id, filters);
 	LFGListEntryCreation_OnCategorySelected(self, id, filters)
 end
 
 function PremadeFilter_OnGroupSelected(self, id, buttonType)
-	PremadeFilter_Frame.selectedGroup = id;
+	self.selectedGroup = id;
 	
 	LFGListEntryCreation_OnGroupSelected(self, id, buttonType);
 end
 
 function PremadeFilter_OnActivitySelected(self, id, buttonType)
-	PremadeFilter_Frame.selectedActivity = id;
+	self.selectedActivity = id;
 	
 	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
 end
@@ -145,7 +142,14 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 		--We don't have a category, so we can't fill out groups.
 		return;
 	end
-
+	--[[
+	info.text = "-";
+	info.value = nil;
+	info.arg1 = "none";
+	info.checked = (self.selectedGroup == nil);
+	info.isRadio = true;
+	UIDropDownMenu_AddButton(info);
+	]]--
 	--Start out displaying everything
 	local groups = C_LFGList.GetAvailableActivityGroups(self.selectedCategory, bit.bor(self.baseFilters, self.selectedFilters));
 	local activities = C_LFGList.GetAvailableActivities(self.selectedCategory, 0, bit.bor(self.baseFilters, self.selectedFilters));
@@ -721,6 +725,6 @@ end
 
 function PremadeFilter_Experimental(self)
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT");
-	GameTooltip:SetText("EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon.", nil, nil, nil, nil, true);
+	GameTooltip:SetText(PremadeFilter_GetMessage("EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"), nil, nil, nil, nil, true);
 	GameTooltip:Show();
 end
