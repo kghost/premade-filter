@@ -907,15 +907,13 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 end
 
 function LFGListSearchPanel_DoSearch(self)
-	--local visible = PremadeFilter_Frame:IsVisible();
+	local visible = PremadeFilter_Frame:IsVisible();
 	local category = PremadeFilter_Frame.selectedCategory;
 	
-	--if visible and category then
-	if category then
+	if visible and category then
 		C_LFGList.Search(category, "", self.filters, self.preferredFilters);
 	else
-		local searchText = self.SearchBox:GetText();
-		C_LFGList.Search(self.categoryID, searchText, self.filters, self.preferredFilters);
+		C_LFGList.Search(self.categoryID, "", self.filters, self.preferredFilters);
 	end
 	
 	self.searching = true;
