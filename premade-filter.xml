@@ -300,6 +300,21 @@
 				</Frames>
 			</Frame>
 			
+			<!--Frame parentKey="RealmDropDown" name="PremadeFilter_RealmDropDown" inherits="UIDropDownMenuTemplate">
+				<Size x="320" y="32"/>
+				<Anchors>
+					<Anchor point="TOP" x="0" y="-350"/>
+				</Anchors>
+				<Scripts>
+                   <OnLoad>
+                       UIDropDownMenu_Initialize(self, PremadeFilter_InitRealmMenu);
+                   </OnLoad>
+                   <OnClick>
+                       PremadeFilter_OnRealmSelected();
+                   </OnClick>
+               </Scripts>
+			</Frame-->
+			
 			<CheckButton parentKey="TankCheckButton">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
