@@ -1002,14 +1002,13 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 end
 
 function LFGListSearchPanel_DoSearch(self)
+	local visible = PremadeFilter_Frame:IsVisible();
 	local category = PremadeFilter_Frame.selectedCategory;
 	
-	--if visible and category then
-	if category then
+	if visible and category then
 		C_LFGList.Search(category, "", self.filters, self.preferredFilters);
 	else
-		local searchText = self.SearchBox:GetText();
-		C_LFGList.Search(self.categoryID, searchText, self.filters, self.preferredFilters);
+		C_LFGList.Search(self.categoryID, "", self.filters, self.preferredFilters);
 	end
 	
 	self.searching = true;
@@ -1031,8 +1030,70 @@ function LFGListSearchPanel_DoSearch(self)
 	end
 	PremadeFilter_Frame.updated = time() - ageMin + 1;
 	
+	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters();
+	
 	LFGListSearchPanel_UpdateResultList(self);
 	LFGListSearchPanel_UpdateResults(self);
+end
+
+function PremadeFilter_GetFilters()
+	if not PremadeFilter_Frame:IsVisible() then
+		return nil;
+	end
+	
+	local filters = {};
+	
+	-- category
+	filters.category = PremadeFilter_Frame.selectedCategory;
+	
+	-- group
+	filters.group = PremadeFilter_Frame.selectedGroup;
+	
+	-- activity
+	filters.activity = PremadeFilter_Frame.selectedActivity;
+	
+	-- description
+	local descrText = PremadeFilter_Frame.Description.EditBox:GetText();
+	if descrText ~= "" then
+		local descrInclude, descrExclude, descrPossible = PremadeFilter_ParseQuery(descrText);
+		filters.description = {
+			include = descrInclude,
+			exclude = descrExclude,
+			possible = descrPossible,
+		}
+	end
+	
+	-- item level
+	if PremadeFilter_Frame.ItemLevel.CheckButton:GetChecked() then
+		local ilvlText = tonumber(PremadeFilter_Frame.ItemLevel.EditBox:GetText());
+		filters.ilvl = ilvlText;
+	end
+	
+	-- voice chat
+	if PremadeFilter_Frame.VoiceChat.CheckButton:GetChecked() then
+		local vcText = PremadeFilter_Frame.VoiceChat.EditBox:GetText();
+		local vcNone = PremadeFilter_Frame.VoiceChat.CheckButton.CheckedNone;
+		filters.vc = {
+			text = vcText,
+			none = vcNone
+		}
+	end
+	
+	-- roles
+	local tank = PremadeFilter_Frame.TankCheckButton:GetChecked();
+	local heal = PremadeFilter_Frame.HealerCheckButton:GetChecked();
+	local dps  = PremadeFilter_Frame.DamagerCheckButton:GetChecked();
+	if tank or heal or dps then
+		filters.roles = 0;
+		if tank then filters.roles = filters.roles+4 end
+		if heal then filters.roles = filters.roles+2 end
+		if dps  then filters.roles = filters.roles+1 end
+	end
+	
+	-- realm
+	filters.realms = table.concat(PremadeFilter_GetSelectedRealms(), "-");
+	
+	return filters;
 end
 
 function LFGListSearchPanel_UpdateResultList(self)
@@ -1041,7 +1102,8 @@ function LFGListSearchPanel_UpdateResultList(self)
 	
 	local searchText = self.SearchBox:GetText():lower();
 	local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
-
+	local extraFilters = PremadeFilter_Frame.extraFilters;
+	
 	local numResults = 0;
 	local newResults = {};
 	
@@ -1052,93 +1114,61 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 		
 		-- check additional filters
-		if PremadeFilter_Frame:IsVisible() then
-			-- description
-			local descrText = PremadeFilter_Frame.Description.EditBox:GetText();
-			if descrText ~= "" then
-				local descrInclude, descrExclude, descrPossible = PremadeFilter_ParseQuery(descrText);
-				local descrMatches = PremadeFilter_IsStringMatched(comment:lower(), descrInclude, descrExclude, descrPossible);
-				matches = matches and descrMatches;
-			end
-			
-			-- item level
-			if PremadeFilter_Frame.ItemLevel.CheckButton:GetChecked() then
-				local ilvlText = tonumber(PremadeFilter_Frame.ItemLevel.EditBox:GetText());
-				if ilvlText then
-					local ilvlMatches = (iLvl >= ilvlText);
-					matches = matches and ilvlMatches;
-				end
-			end
-			
-			-- voice chat
-			if PremadeFilter_Frame.VoiceChat.CheckButton:GetChecked() then
-				local vcText = PremadeFilter_Frame.VoiceChat.EditBox:GetText();
-				local vcMatches = false;
-				
-				if PremadeFilter_Frame.VoiceChat.CheckButton.CheckedNone then
-					vcMatches = (voiceChat == "");
-				else
-					if vcText ~= "" then
-						vcMatches = (voiceChat:lower() == vcText:lower());
-					else
-						vcMatches = (voiceChat ~= "");
-					end
-				end;
-				
-				matches = matches and vcMatches;
-			end
-			
+		if matches and extraFilters then
 			-- category
-			local category = PremadeFilter_Frame.selectedCategory;
-			if category then
-				local categoryMatches = (categoryID == category);
-				matches = matches and categoryMatches;
-				
+			if matches and extraFilters.category then
+				matches = (categoryID == extraFilters.category);
 			end
 			
 			-- group
-			local group = PremadeFilter_Frame.selectedGroup;
-			if group then
-				local groupMatches = (groupID == group);
-				matches = matches and groupMatches;
-				
+			if matches and extraFilters.group then
+				matches = (groupID == extraFilters.group);
 			end
 			
 			-- activity
-			local activity = PremadeFilter_Frame.selectedActivity;
-			if activity then
-				local activityMatches = (activityID == activity);
-				matches = matches and activityMatches;
+			if matches and extraFilters.activity then
+				matches = (activityID == extraFilters.activity);
+			end
+			
+			-- description
+			if matches and extraFilters.description then
+				matches = PremadeFilter_IsStringMatched(comment:lower(), extraFilters.description.include, extraFilters.description.exclude, extraFilters.description.possible);
+			end
+			
+			-- item level
+			if matches and extraFilters.ilvl then
+				matches = (iLvl >= extraFilters.ilvl);
+			end
+			
+			-- voice chat
+			if matches and extraFilters.vc then
+				if extraFilters.vc.none then
+					matches = (voiceChat == "");
+				else
+					if extraFilters.vc.text ~= "" then
+						matches = (voiceChat:lower() == extraFilters.vc.text:lower());
+					else
+						matches = (voiceChat ~= "");
+					end
+				end;
 			end
 			
 			-- roles
-			local tank = PremadeFilter_Frame.TankCheckButton:GetChecked();
-			local heal = PremadeFilter_Frame.HealerCheckButton:GetChecked();
-			local dps  = PremadeFilter_Frame.DamagerCheckButton:GetChecked();
-			local roles = 0;
-			
-			if tank or heal or dps then
-				if tank then roles = roles+4 end
-				if heal then roles = roles+2 end
-				if dps  then roles = roles+1 end
-				
+			if matches and extraFilters.roles then
 				-- check if premade has role bit mask
 				local lastWord = string.sub(comment, comment:len()-1);
 				local byte1 = string.byte(lastWord, 1, 1);
 				local byte2 = string.byte(lastWord, 2, 2);
 				
 				if byte1 == 194 and byte2 >=128 and byte2 <= 135 then
-					local roleMatches = bit.band(roles, byte2-128) ~= 0;
-					matches = matches and roleMatches;
+					matches = (bit.band(extraFilters.roles, byte2-128) ~= 0);
 				end
 			end
 			
 			-- realm
-			local realms = PremadeFilter_GetSelectedRealms();
-			local realmStr = table.concat(realms, "-");
-			if leaderName then
+			if matches and leaderName then
 				local leaderRealm = leaderName:gmatch("-.+$")();
-				matches = matches and realmStr:match(leaderRealm:lower());
+				matches = extraFilters.realms:match(leaderRealm:lower());
 			end
 		end
 		
