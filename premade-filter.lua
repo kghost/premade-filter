@@ -1169,7 +1169,9 @@ function LFGListSearchPanel_UpdateResultList(self)
 			-- realm
 			if matches and leaderName then
 				local leaderRealm = leaderName:gmatch("-.+$")();
-				matches = extraFilters.realms:match(leaderRealm:lower());
+				if leaderRealm then
+					matches = extraFilters.realms:match(leaderRealm:lower());
+				end
 			end
 		end
 		
