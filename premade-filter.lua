@@ -833,12 +833,12 @@ function PremadeFilter_GetVisibleRealms()
 end
 
 function PremadeFilter_GetSelectedRealms()
-	local selectedRealms = {};
+	local selectedRealms = {""};
 	
 	for i=1, #PremadeFilter_Frame.realmList do
 		local info = PremadeFilter_Frame.realmList[i];
 		if not info.isChapter and info.isChecked then
-			local name = info.name:gsub("%s+", "");
+			local name = info.name:gsub("[%s]+", "");
 			table.insert(selectedRealms, name:lower());
 		end
 	end
@@ -889,14 +889,6 @@ function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonLis
 	end
 	
 	PlaySound(isChecked and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff");
-	--[[
-	if ( LFGIsIDHeader(dungeonID) ) then
-		LFGDungeonList_SetHeaderEnabled(category, dungeonID, isChecked, dungeonList, hiddenByCollapseList);
-	else
-		LFGDungeonList_SetDungeonEnabled(dungeonID, isChecked);
-		LFGListUpdateHeaderEnabledAndLockedStates(dungeonList, LFGEnabledList, hiddenByCollapseList);
-	end
-	]]--
 end
 
 function PremadeFilter_RealmList_Update()
@@ -932,7 +924,6 @@ function PremadeFilter_RealmList_Update()
 			
 			button:SetWidth(295);
 			button:Show();
-			--LFGDungeonListButton_SetDungeon(button, dungeonID, enabled, checkedList);
 		else
 			button:Hide();
 		end
@@ -1145,8 +1136,10 @@ function LFGListSearchPanel_UpdateResultList(self)
 			-- realm
 			local realms = PremadeFilter_GetSelectedRealms();
 			local realmStr = table.concat(realms, "-");
-			local leaderRealm = leaderName:gmatch("-.+$")();
-			matches = matches and realmStr:match(leaderRealm:lower());
+			if leaderName then
+				local leaderRealm = leaderName:gmatch("-.+$")();
+				matches = matches and realmStr:match(leaderRealm:lower());
+			end
 		end
 		
 		-- RESULT
