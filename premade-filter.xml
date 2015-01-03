@@ -5,9 +5,10 @@
 	<Frame name="PremadeFilter_RealmChoiceTemplate" enableMouse="true" inherits="LFGSpecificChoiceTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
+				self.lockedIndicator:Hide();
 				self.heroicIcon:Hide();
-				--self.enableButton:SetScript("OnClick", LFDQueueFrameDungeonChoiceEnableButton_OnClick);
-				--self.expandOrCollapseButton:SetScript("OnClick", LFDQueueFrameExpandOrCollapseButton_OnClick);
+				self.enableButton:SetScript("OnClick", PremadeFilter_RealmListCheckButton_OnClick);
+				self.expandOrCollapseButton:SetScript("OnClick", PremadeFilter_ExpandOrCollapseButton_OnClick);
 				--self:SetScript("OnEnter", LFDQueueFrameDungeonListButton_OnEnter);
 			</OnLoad>
 		</Scripts>
@@ -310,21 +311,6 @@
 				</Frames>
 			</Frame>
 			
-			<!--Frame parentKey="RealmDropDown" name="PremadeFilter_RealmDropDown" inherits="UIDropDownMenuTemplate">
-				<Size x="175" y="32"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
-				</Anchors>
-				<Scripts>
-                  <OnLoad>
-						UIDropDownMenu_Initialize(self, PremadeFilter_InitRealmMenu);
-					</OnLoad>
-					<OnClick>
-						PremadeFilter_OnRealmSelected();
-					</OnClick>
-               </Scripts>
-			</Frame-->
-			
 			<CheckButton parentKey="TankCheckButton">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
@@ -558,7 +544,7 @@
 				</Scripts>
 			</Frame>
 			
-			<Frame name="$parent_Realms">
+			<Frame name="$parent_Realm">
 				<Size x="339" y="260"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-359" y="-40" />
@@ -697,33 +683,6 @@
 							</Anchor>
 						</Anchors>
 					</Frame>
-					<!--Frame name="$parentListButton13" inherits="PremadeFilter_RealmChoiceTemplate" id="13">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton12" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton14" inherits="PremadeFilter_RealmChoiceTemplate" id="14">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton13" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton15" inherits="PremadeFilter_RealmChoiceTemplate" id="15">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton14" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame-->
 					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
@@ -739,7 +698,7 @@
 						</Anchors>
 						<Scripts>
 							<OnVerticalScroll>
-								--FauxScrollFrame_OnVerticalScroll(self, offset, 16, LFDQueueFrameSpecificList_Update);
+								FauxScrollFrame_OnVerticalScroll(self, offset, 16, PremadeFilter_RealmList_Update);
 							</OnVerticalScroll>
 						</Scripts>
 					</ScrollFrame>

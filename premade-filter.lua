@@ -661,12 +661,32 @@ end
 
 function PremadeFilter_GetRegionRealms(realmInfo)
 	local realmList = {};
+	local chapter = nil;
+	local currentChapterIndex = nil;
+	
 	for index, info in pairs(PremadeFilter_Relams) do
 		if info.region == realmInfo.region then
-			if not realmList[info.chapter] then
-				realmList[info.chapter] = {};
+			if info.chapter ~= chapter then
+				chapter = info.chapter;
+				currentChapterIndex = #realmList + 1;
+				
+				-- add chapter
+				table.insert(realmList, {
+					isChapter = true,
+					isCollapsed = true,
+					name = PremadeFilter_RealmChapters[info.region][info.chapter],
+					region = info.region,
+					chapter = info.chapter,
+					index = currentChapterIndex,
+					isChecked = true
+				});
 			end
-			table.insert(realmList[info.chapter], info.name);
+			
+			-- add realm
+			info.index = #realmList + 1;
+			info.chapterIndex = currentChapterIndex;
+			info.isChecked = true;
+			table.insert(realmList, info);
 		end
 	end
 	
@@ -729,14 +749,14 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
-	--self.realmName = GetRealmName();
-	--self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
-	--self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
+	self.realmName = GetRealmName();
+	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
+	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
 	
-	--LFGListUtil_SetUpDropDown(self, self.RealmDropDown, PremadeFilter_InitRealmMenu, PremadeFilter_OnRealmChapterSelected);
+	self.selectedRealms = {};
+	self.visibleRealms = PremadeFilter_GetVisibleRealms();
 	
-	--PremadeFilter_OnRealmChapterSelected(self, self.realmInfo.chapter);
-	--UIDropDownMenu_SetText(self.RealmDropDown, PremadeFilter_RealmChapters[self.realmInfo.region][self.realmInfo.chapter]);
+	PremadeFilter_RealmList_Update();
 end
 
 function PremadeFilter_OnShow(self)
@@ -801,10 +821,132 @@ function PremadeFilter_FilterButton_OnClick(self)
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 end
 
+function PremadeFilter_GetVisibleRealms()
+	local visibleRealms = {};
+	
+	for i=1, #PremadeFilter_Frame.realmList do
+		local info = PremadeFilter_Frame.realmList[i];
+		if info.isChapter or not PremadeFilter_Frame.realmList[info.chapterIndex].isCollapsed then
+			table.insert(visibleRealms, info);
+		end
+	end
+	
+	return visibleRealms;
+end
+
+function PremadeFilter_ExpandOrCollapseButton_OnClick(self, button)
+	local info = self:GetParent().info;
+	
+	PremadeFilter_Frame.realmList[info.index].isCollapsed = not info.isCollapsed;
+	PremadeFilter_Frame.visibleRealms = PremadeFilter_GetVisibleRealms();
+	
+	PremadeFilter_RealmList_Update();
+end
+
+function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonList, hiddenByCollapseList)
+	local info = button:GetParent().info;
+	local update = info.isChapter and not info.isCollapsed;
+	local isChecked = button:GetChecked();
+	
+	if info.isChapter then
+		local chapter = info.chapter;
+		local index = info.index;
+		repeat
+			PremadeFilter_Frame.realmList[info.index].isChecked = isChecked;
+			info = PremadeFilter_Frame.realmList[info.index+1];
+		until not info or info.isChapter;
+	else
+		PremadeFilter_Frame.realmList[info.index].isChecked = isChecked;
+		
+		local chapterInfo = PremadeFilter_Frame.realmList[info.chapterIndex];
+		local chapterChecked = true;
+		info = PremadeFilter_Frame.realmList[chapterInfo.index + 1];
+		repeat
+			chapterChecked = chapterChecked and info.isChecked;
+			info = PremadeFilter_Frame.realmList[info.index+1];
+		until not chapterChecked or not info or info.isChapter;
+		
+		if chapterChecked ~= chapterInfo.isChecked then
+			PremadeFilter_Frame.realmList[chapterInfo.index].isChecked = chapterChecked;
+			update = true;
+		end
+	end
+	
+	if update then
+		PremadeFilter_RealmList_Update();
+	end
+	
+	PlaySound(isChecked and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff");
+	--[[
+	if ( LFGIsIDHeader(dungeonID) ) then
+		LFGDungeonList_SetHeaderEnabled(category, dungeonID, isChecked, dungeonList, hiddenByCollapseList);
+	else
+		LFGDungeonList_SetDungeonEnabled(dungeonID, isChecked);
+		LFGListUpdateHeaderEnabledAndLockedStates(dungeonList, LFGEnabledList, hiddenByCollapseList);
+	end
+	]]--
+end
+
+function PremadeFilter_RealmList_Update()
+	FauxScrollFrame_Update(PremadeFilter_Frame_RealmListScrollFrame, #PremadeFilter_Frame.visibleRealms, 12, 16);
+	
+	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_RealmListScrollFrame);
+	
+	local enabled, queued = LFGDungeonList_EvaluateListState(LE_LFG_CATEGORY_LFD);
+	
+	checkedList = LFGEnabledList;
+	
+	for i = 1, 12 do
+		local button = _G["PremadeFilter_Frame_RealmListButton"..i];
+		local info = PremadeFilter_Frame.visibleRealms[i+offset];
+		if info then
+			button.info = info;
+			button.instanceName:SetText(info.name);
+			button.instanceName:SetFontObject(QuestDifficulty_Header);
+			button.instanceName:SetPoint("RIGHT", button, "RIGHT", 0, 0);
+			
+			if info.isChapter then
+				if info.isCollapsed then
+					button.expandOrCollapseButton:SetNormalTexture("Interface\\Buttons\\UI-PlusButton-UP");
+				else
+					button.expandOrCollapseButton:SetNormalTexture("Interface\\Buttons\\UI-MinusButton-UP");
+				end
+				button.expandOrCollapseButton:Show();
+			else
+				button.expandOrCollapseButton:Hide();
+			end
+			
+			button.enableButton:SetChecked(info.isChecked);
+			
+			button:SetWidth(295);
+			button:Show();
+			--LFGDungeonListButton_SetDungeon(button, dungeonID, enabled, checkedList);
+		else
+			button:Hide();
+		end
+	end
+end
+--[[
 function PremadeFilter_OnRealmChapterSelected(self, chapter, value)
 	UIDropDownMenu_SetSelectedValue(self.RealmDropDown, chapter);
 end;
 
+function PremadeFilter_InitRealmMenu(self, dropDown, info)
+	if not PremadeFilter_Frame.realmList then
+		return;
+	end
+	
+	for index, realms in pairs(PremadeFilter_Frame.realmList) do
+		local chapterName = PremadeFilter_RealmChapters[PremadeFilter_Frame.realmInfo.region][index];
+		info.text = chapterName;
+		info.value = index;
+		info.checked = false;
+		info.isRadio = true;
+		info.hasArrow = false;
+		UIDropDownMenu_AddButton(info);
+	end
+end
+]]--
 function PremadeFilter_OnCategorySelected(self, id, filters)
 	self.selectedCategory = id;
 	self.selectedFilters = filters;
@@ -823,22 +965,6 @@ function PremadeFilter_OnActivitySelected(self, id, buttonType)
 	self.selectedActivity = id;
 	
 	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
-end
-
-function PremadeFilter_InitRealmMenu(self, dropDown, info)
-	if not PremadeFilter_Frame.realmList then
-		return;
-	end
-	
-	for index, realms in pairs(PremadeFilter_Frame.realmList) do
-		local chapterName = PremadeFilter_RealmChapters[PremadeFilter_Frame.realmInfo.region][index];
-		info.text = chapterName;
-		info.value = index;
-		info.checked = false;
-		info.isRadio = true;
-		info.hasArrow = false;
-		UIDropDownMenu_AddButton(info);
-	end
 end
 
 function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
@@ -893,7 +1019,6 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 end
 
 function LFGListSearchPanel_DoSearch(self)
-	--local visible = PremadeFilter_Frame:IsVisible();
 	local category = PremadeFilter_Frame.selectedCategory;
 	
 	--if visible and category then
