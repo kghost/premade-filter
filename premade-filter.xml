@@ -703,9 +703,6 @@
 						</Scripts>
 					</ScrollFrame>
 				</Frames>
-				<Scripts>
-					<!--OnShow function="LFDQueueFrame_Update"/-->
-				</Scripts>
 			</Frame>
 			
 			<!-- MOVES INSIDE ENTITY CREATION FRAME -->

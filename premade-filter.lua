@@ -752,8 +752,6 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.realmName = GetRealmName();
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
-	
-	self.selectedRealms = {};
 	self.visibleRealms = PremadeFilter_GetVisibleRealms();
 	
 	PremadeFilter_RealmList_Update();
@@ -832,6 +830,20 @@ function PremadeFilter_GetVisibleRealms()
 	end
 	
 	return visibleRealms;
+end
+
+function PremadeFilter_GetSelectedRealms()
+	local selectedRealms = {};
+	
+	for i=1, #PremadeFilter_Frame.realmList do
+		local info = PremadeFilter_Frame.realmList[i];
+		if not info.isChapter and info.isChecked then
+			local name = info.name:gsub("%s+", "");
+			table.insert(selectedRealms, name:lower());
+		end
+	end
+	
+	return selectedRealms;
 end
 
 function PremadeFilter_ExpandOrCollapseButton_OnClick(self, button)
@@ -926,27 +938,7 @@ function PremadeFilter_RealmList_Update()
 		end
 	end
 end
---[[
-function PremadeFilter_OnRealmChapterSelected(self, chapter, value)
-	UIDropDownMenu_SetSelectedValue(self.RealmDropDown, chapter);
-end;
 
-function PremadeFilter_InitRealmMenu(self, dropDown, info)
-	if not PremadeFilter_Frame.realmList then
-		return;
-	end
-	
-	for index, realms in pairs(PremadeFilter_Frame.realmList) do
-		local chapterName = PremadeFilter_RealmChapters[PremadeFilter_Frame.realmInfo.region][index];
-		info.text = chapterName;
-		info.value = index;
-		info.checked = false;
-		info.isRadio = true;
-		info.hasArrow = false;
-		UIDropDownMenu_AddButton(info);
-	end
-end
-]]--
 function PremadeFilter_OnCategorySelected(self, id, filters)
 	self.selectedCategory = id;
 	self.selectedFilters = filters;
@@ -1063,7 +1055,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 	local newResults = {};
 	
 	for i=1, #self.results do
-		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(self.results[i]);
+		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.results[i]);
 		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 		
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
@@ -1149,6 +1141,12 @@ function LFGListSearchPanel_UpdateResultList(self)
 					matches = matches and roleMatches;
 				end
 			end
+			
+			-- realm
+			local realms = PremadeFilter_GetSelectedRealms();
+			local realmStr = table.concat(realms, "-");
+			local leaderRealm = leaderName:gmatch("-.+$")();
+			matches = matches and realmStr:match(leaderRealm:lower());
 		end
 		
 		-- RESULT
