@@ -659,12 +659,7 @@ function PremadeFilter_GetMessage(str)
 	return L[str];
 end
 
-function PremadeFilter_GetRegionRealms(region, realmName)
-	local realmInfo = PremadeFilter_GetRealmInfo(region, realmName);
-	if not realmInfo then
-		return nil;
-	end
-	
+function PremadeFilter_GetRegionRealms(realmInfo)
 	local realmList = {};
 	for index, info in pairs(PremadeFilter_Relams) do
 		if info.region == realmInfo.region then
@@ -674,6 +669,7 @@ function PremadeFilter_GetRegionRealms(region, realmName)
 			table.insert(realmList[info.chapter], info.name);
 		end
 	end
+	
 	return realmList;
 end
 
@@ -683,6 +679,7 @@ function PremadeFilter_GetRealmInfo(region, realmName)
 			return info;
 		end
 	end
+	
 	return nil;
 end
 
@@ -732,9 +729,14 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
-	self.region = GetCurrentRegion();
-	self.realmName = GetRealmName();
-	--self.realmList = PremadeFilter_GetRegionRealms(self.region, self.realmName);
+	--self.realmName = GetRealmName();
+	--self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
+	--self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
+	
+	--LFGListUtil_SetUpDropDown(self, self.RealmDropDown, PremadeFilter_InitRealmMenu, PremadeFilter_OnRealmChapterSelected);
+	
+	--PremadeFilter_OnRealmChapterSelected(self, self.realmInfo.chapter);
+	--UIDropDownMenu_SetText(self.RealmDropDown, PremadeFilter_RealmChapters[self.realmInfo.region][self.realmInfo.chapter]);
 end
 
 function PremadeFilter_OnShow(self)
@@ -748,7 +750,7 @@ function PremadeFilter_OnShow(self)
 	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
 	
 	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, nil, nil);
-	
+
 	self.QueryBuilder:SetParent(self);
 	self.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
 	self.QueryBuilder:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -5, 5);
@@ -799,9 +801,8 @@ function PremadeFilter_FilterButton_OnClick(self)
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 end
 
-function PremadeFilter_OnRealmSelected(self, id, buttonType)
-	--print("REALM");
-	--print(id);
+function PremadeFilter_OnRealmChapterSelected(self, chapter, value)
+	UIDropDownMenu_SetSelectedValue(self.RealmDropDown, chapter);
 end;
 
 function PremadeFilter_OnCategorySelected(self, id, filters)
@@ -824,34 +825,19 @@ function PremadeFilter_OnActivitySelected(self, id, buttonType)
 	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
 end
 
-function PremadeFilter_InitRealmMenu(self, level)
+function PremadeFilter_InitRealmMenu(self, dropDown, info)
 	if not PremadeFilter_Frame.realmList then
 		return;
 	end
 	
-	level = level or 1;
-	if level == 1 then
-		for index, realms in pairs(PremadeFilter_Frame.realmList) do
-			local chapterName = PremadeFilter_RealmChapters[PremadeFilter_Frame.region][index];
-			local info = UIDropDownMenu_CreateInfo();
-			info.text = chapterName;
-			info.value = index;
-			info.checked = false;
-			info.isRadio = true;
-			info.hasArrow = true;
-			UIDropDownMenu_AddButton(info, level);
-		end
-	else
-		local realms = PremadeFilter_Frame.realmList[UIDROPDOWNMENU_MENU_VALUE];
-		for index, realmName in pairs(realms) do
-			local info = UIDropDownMenu_CreateInfo();
-			info.text = realmName;
-			info.value = index;
-			info.checked = false;
-			info.isRadio = true;
-			info.hasArrow = false;
-			UIDropDownMenu_AddButton(info, level);
-		end
+	for index, realms in pairs(PremadeFilter_Frame.realmList) do
+		local chapterName = PremadeFilter_RealmChapters[PremadeFilter_Frame.realmInfo.region][index];
+		info.text = chapterName;
+		info.value = index;
+		info.checked = false;
+		info.isRadio = true;
+		info.hasArrow = false;
+		UIDropDownMenu_AddButton(info);
 	end
 end
 
@@ -907,13 +893,15 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 end
 
 function LFGListSearchPanel_DoSearch(self)
-	local visible = PremadeFilter_Frame:IsVisible();
+	--local visible = PremadeFilter_Frame:IsVisible();
 	local category = PremadeFilter_Frame.selectedCategory;
 	
-	if visible and category then
+	--if visible and category then
+	if category then
 		C_LFGList.Search(category, "", self.filters, self.preferredFilters);
 	else
-		C_LFGList.Search(self.categoryID, "", self.filters, self.preferredFilters);
+		local searchText = self.SearchBox:GetText();
+		C_LFGList.Search(self.categoryID, searchText, self.filters, self.preferredFilters);
 	end
 	
 	self.searching = true;

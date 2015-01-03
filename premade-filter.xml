@@ -2,8 +2,19 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 	
+	<Frame name="PremadeFilter_RealmChoiceTemplate" enableMouse="true" inherits="LFGSpecificChoiceTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				self.heroicIcon:Hide();
+				--self.enableButton:SetScript("OnClick", LFDQueueFrameDungeonChoiceEnableButton_OnClick);
+				--self.expandOrCollapseButton:SetScript("OnClick", LFDQueueFrameExpandOrCollapseButton_OnClick);
+				--self:SetScript("OnEnter", LFDQueueFrameDungeonListButton_OnEnter);
+			</OnLoad>
+		</Scripts>
+	</Frame>
+	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
-		<Size x="339" y="409" />
+		<Size x="678" y="409" />
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -12,7 +23,6 @@
 						<Anchor point="BOTTOMRIGHT" x="-2" y="3" />
 					</Anchors>
 				</Texture>
-				
 				<FontString parentKey="Label" inherits="QuestFont_Huge" text="LFG_LIST_FIND_A_GROUP">
 					<Anchors>
 						<Anchor point="TOP" x="-3" y="-15"/>
@@ -50,17 +60,17 @@
 			<Layer level="OVERLAY">
 				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-147" y="-275"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="198" y="-275"/>
 					</Anchors>
 				</Texture>
 				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-99" y="-275"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="245" y="-275"/>
 					</Anchors>
 				</Texture>
 				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="true">
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-52" y="-275"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="292" y="-275"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -141,7 +151,7 @@
 			<Frame parentKey="CategoryDropDown" name="PremadeFilter_CategoryDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="320" y="32"/>
 				<Anchors>
-					<Anchor point="TOP" x="0" y="-80"/>
+					<Anchor point="TOPLEFT" x="10" y="-80"/>
 				</Anchors>
 			</Frame>
 			
@@ -301,17 +311,17 @@
 			</Frame>
 			
 			<!--Frame parentKey="RealmDropDown" name="PremadeFilter_RealmDropDown" inherits="UIDropDownMenuTemplate">
-				<Size x="320" y="32"/>
+				<Size x="175" y="32"/>
 				<Anchors>
-					<Anchor point="TOP" x="0" y="-350"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="0" y="0"/>
 				</Anchors>
 				<Scripts>
-                   <OnLoad>
-                       UIDropDownMenu_Initialize(self, PremadeFilter_InitRealmMenu);
-                   </OnLoad>
-                   <OnClick>
-                       PremadeFilter_OnRealmSelected();
-                   </OnClick>
+                  <OnLoad>
+						UIDropDownMenu_Initialize(self, PremadeFilter_InitRealmMenu);
+					</OnLoad>
+					<OnClick>
+						PremadeFilter_OnRealmSelected();
+					</OnClick>
                </Scripts>
 			</Frame-->
 			
@@ -321,7 +331,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-125" y="-274"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="220" y="-274"/>
 				</Anchors>
 				<Scripts>
 					<OnClick function="PremadeFilter_CheckButtonSound"/>
@@ -341,7 +351,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-77" y="-274"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="267" y="-275"/>
 				</Anchors>
 				<Scripts>
 					<OnClick function="PremadeFilter_CheckButtonSound"/>
@@ -361,7 +371,7 @@
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-30" y="-274"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="314" y="-275"/>
 				</Anchors>
 				<Scripts>
 					<OnClick function="PremadeFilter_CheckButtonSound"/>
@@ -545,6 +555,197 @@
 						self.Dialog.Exclude:SetText(table.concat(exclude, " "));
 						self.Dialog.Possible:SetText(table.concat(possible, " "));
 					</Onshow>
+				</Scripts>
+			</Frame>
+			
+			<Frame name="$parent_Realms">
+				<Size x="339" y="260"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-359" y="-40" />
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<FontString parentKey="TypeLabel" inherits="GameFontNormalLeft" text="FRIENDS_LIST_REALM">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="10" y="-27"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="7" y="-41" />
+							<Anchor point="BOTTOMRIGHT" x="-7" y="7" />
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture parentKey="CustomBG" atlas="groupfinder-background" useAtlasSize="true">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="3" y="-3"/>
+										<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+					<Frame name="$parentListButton1" inherits="PremadeFilter_RealmChoiceTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-52"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton2" inherits="PremadeFilter_RealmChoiceTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton3" inherits="PremadeFilter_RealmChoiceTemplate" id="3">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton2" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton4" inherits="PremadeFilter_RealmChoiceTemplate" id="4">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton3" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton5" inherits="PremadeFilter_RealmChoiceTemplate" id="5">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton4" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton6" inherits="PremadeFilter_RealmChoiceTemplate" id="6">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton5" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton7" inherits="PremadeFilter_RealmChoiceTemplate" id="7">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton6" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton8" inherits="PremadeFilter_RealmChoiceTemplate" id="8">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton7" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton9" inherits="PremadeFilter_RealmChoiceTemplate" id="9">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton8" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton10" inherits="PremadeFilter_RealmChoiceTemplate" id="10">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton9" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton11" inherits="PremadeFilter_RealmChoiceTemplate" id="11">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton10" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton12" inherits="PremadeFilter_RealmChoiceTemplate" id="12">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton11" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<!--Frame name="$parentListButton13" inherits="PremadeFilter_RealmChoiceTemplate" id="13">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton12" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton14" inherits="PremadeFilter_RealmChoiceTemplate" id="14">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton13" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton15" inherits="PremadeFilter_RealmChoiceTemplate" id="15">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton14" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame-->
+					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
+								<Offset>
+									<AbsDimension x="0" y="7"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton12" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="1" y="-7"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnVerticalScroll>
+								--FauxScrollFrame_OnVerticalScroll(self, offset, 16, LFDQueueFrameSpecificList_Update);
+							</OnVerticalScroll>
+						</Scripts>
+					</ScrollFrame>
+				</Frames>
+				<Scripts>
+					<!--OnShow function="LFDQueueFrame_Update"/-->
 				</Scripts>
 			</Frame>
 			
