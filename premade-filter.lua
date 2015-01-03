@@ -1015,25 +1015,26 @@ function LFGListSearchPanel_DoSearch(self)
 	self.searchFailed = false;
 	self.selectedResult = nil;
 	
-	local totalResults, results = C_LFGList.GetSearchResults();
-	local ageMin = nil;
-	
-	for i=1, #results do
-		local id, activityID, name, comment, voiceChat, iLvl, age = C_LFGList.GetSearchResultInfo(results[i]);
-		if not ageMin or age < ageMin then
-			ageMin = age;
-		end
-	end
-	
-	if not ageMin then
-		ageMin = 0;
-	end
-	PremadeFilter_Frame.updated = time() - ageMin + 1;
-	
 	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters();
 	
 	LFGListSearchPanel_UpdateResultList(self);
 	LFGListSearchPanel_UpdateResults(self);
+	
+	PremadeFilter_Frame.updated = time() - PremadeFilter_GetMinFoundAge() + 1;
+end
+
+function PremadeFilter_GetMinFoundAge()
+	local totalResults, results = C_LFGList.GetSearchResults();
+	local minAge = nil;
+	
+	for i=1, #results do
+		local id, activityID, name, comment, voiceChat, iLvl, age = C_LFGList.GetSearchResultInfo(results[i]);
+		if not minAge or age < minAge then
+			minAge = age;
+		end
+	end
+	
+	return minAge or 0;
 end
 
 function PremadeFilter_GetFilters()
@@ -1188,7 +1189,7 @@ end
 function LFGListSearchPanel_UpdateResults(self)
 	local offset = HybridScrollFrame_GetOffset(self.ScrollFrame);
 	local buttons = self.ScrollFrame.buttons;
-
+	
 	--If we have an application selected, deselect it.
 	LFGListSearchPanel_ValidateSelected(self);
 

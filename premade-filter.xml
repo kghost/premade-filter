@@ -92,7 +92,11 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						PremadeFilter_Frame:Show();
+						if PremadeFilter_Frame:IsVisible() then
+							PremadeFilter_Frame:Hide();
+						else
+							PremadeFilter_Frame:Show();
+						end
 					</OnClick>
 				</Scripts>
 			</Button>
