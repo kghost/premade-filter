@@ -541,6 +541,7 @@
 				<Scripts>
 					<Onshow>
 						local include, exclude, possible = PremadeFilter_ParseQuery(PremadeFilter_Frame.Name:GetText());
+						self.Dialog.Include:SetFocus();
 						self.Dialog.Include:SetText(table.concat(include, " "));
 						self.Dialog.Exclude:SetText(table.concat(exclude, " "));
 						self.Dialog.Possible:SetText(table.concat(possible, " "));

@@ -1404,9 +1404,9 @@ function PremadeFilter_BuildQuery()
 	local include  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Include:GetText(),  "");
 	local exclude  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Exclude:GetText(),  "-");
 	local possible = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Possible:GetText(), "?");
+	local query = include.." "..exclude.." "..possible;
 	
-	--PremadeFilter_Frame.Name:SetText(include.." "..exclude.." "..possible);
-	LFGListFrame.SearchPanel.SearchBox:SetText(include.." "..exclude.." "..possible);
+	LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
 end
 
 function PremadeFilter_BuildQueryPrefix(text, prefix)
