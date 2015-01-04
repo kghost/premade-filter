@@ -660,6 +660,10 @@ function PremadeFilter_GetMessage(str)
 end
 
 function PremadeFilter_GetRegionRealms(realmInfo)
+	if not realmInfo then
+		return nil;
+	end
+	
 	local realmList = {};
 	local chapter = nil;
 	local currentChapterIndex = nil;
@@ -834,10 +838,12 @@ end
 function PremadeFilter_GetVisibleRealms()
 	local visibleRealms = {};
 	
-	for i=1, #PremadeFilter_Frame.realmList do
-		local info = PremadeFilter_Frame.realmList[i];
-		if info.isChapter or not PremadeFilter_Frame.realmList[info.chapterIndex].isCollapsed then
-			table.insert(visibleRealms, info);
+	if PremadeFilter_Frame.realmList then
+		for i=1, #PremadeFilter_Frame.realmList do
+			local info = PremadeFilter_Frame.realmList[i];
+			if info.isChapter or not PremadeFilter_Frame.realmList[info.chapterIndex].isCollapsed then
+				table.insert(visibleRealms, info);
+			end
 		end
 	end
 	
@@ -845,6 +851,10 @@ function PremadeFilter_GetVisibleRealms()
 end
 
 function PremadeFilter_GetSelectedRealms()
+	if not PremadeFilter_Frame.realmList then
+		return nil;
+	end
+	
 	local selectedRealms = {""};
 	
 	for i=1, #PremadeFilter_Frame.realmList do
@@ -1104,7 +1114,10 @@ function PremadeFilter_GetFilters()
 	end
 	
 	-- realm
-	filters.realms = table.concat(PremadeFilter_GetSelectedRealms(), "-");
+	local selectedRealms = PremadeFilter_GetSelectedRealms();
+	if selectedRealms then
+		filters.realms = table.concat(selectedRealms, "-");
+	end
 	
 	return filters;
 end
