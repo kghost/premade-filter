@@ -598,7 +598,7 @@ local PremadeFilter_Relams = {
 		
 		-- Italian
 		{ name = "Nemesis", region = 3, chapter = 7 },
-		{ name = "Pozzo dell’Eternità", region = 3, chapter = 7 },
+		{ name = "Pozzo dell'Eternità", region = 3, chapter = 7 },
 		
 	-- Taiwan
 		-- 殺戮
