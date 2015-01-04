@@ -132,6 +132,10 @@
 						self.Instructions:SetText(PremadeFilter_GetMessage("The words you don't want"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 					</OnLoad>
+					<OnEnterPressed>
+						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+						self:ClearFocus();
+					</OnEnterPressed>
 					<OnTextChanged>
 						InputBoxInstructions_OnTextChanged(self);
 						LFGListFrame.SearchPanel.SearchBox:SetText(self:GetText());
@@ -525,6 +529,7 @@
 										PlaySound("igMainMenuOptionCheckBoxOn");
 										self:GetParent():GetParent():Hide();
 										PremadeFilter_BuildQuery();
+										LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 									</OnClick>
 								</Scripts>
 							</Button>

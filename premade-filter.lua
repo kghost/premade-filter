@@ -753,6 +753,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
 	self.visibleRealms = PremadeFilter_GetVisibleRealms();
+	self.query = "";
 	
 	PremadeFilter_RealmList_Update();
 end
@@ -780,17 +781,28 @@ function PremadeFilter_OnShow(self)
 end
 
 function PremadeFilter_OnHide(self)
-	PremadeFilter_Frame.QueryBuilder:SetParent(LFGListFrame);
-	PremadeFilter_Frame.QueryBuilder:SetPoint("TOPLEFT", LFGListFrame, "TOPLEFT", -5, -21);
-	PremadeFilter_Frame.QueryBuilder:SetPoint("BOTTOMRIGHT", LFGListFrame, "BOTTOMRIGHT", -2, 2);
+	self.QueryBuilder:SetParent(LFGListFrame);
+	self.QueryBuilder:SetPoint("TOPLEFT", LFGListFrame, "TOPLEFT", -5, -21);
+	self.QueryBuilder:SetPoint("BOTTOMRIGHT", LFGListFrame, "BOTTOMRIGHT", -2, 2);
 	
 	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
 end
 
+function LFGListSearchPanel_Clear(self)
+	C_LFGList.ClearSearchResults();
+	self.SearchBox:SetText(PremadeFilter_Frame.query);
+	self.selectedResult = nil;
+	LFGListSearchPanel_UpdateResultList(self);
+	LFGListSearchPanel_UpdateResults(self);
+end
+
 function LFGListFrameSearchBox_OnTextChanged(self)
 	local text = self:GetText();
+	
+	PremadeFilter_Frame.query = text;
 	PremadeFilter_Frame.Name:SetText(text);
+	
 	InputBoxInstructions_OnTextChanged(self);
 end
 
