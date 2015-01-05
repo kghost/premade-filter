@@ -178,6 +178,7 @@ local PremadeFilter_Relams = {
 		{ name = "Malfurion", region = 1, chapter = 4 },
 		{ name = "Malorne", region = 1, chapter = 4 },
 		{ name = "Malygos", region = 1, chapter = 4 },
+		{ name = "Mok’Nathal", region = 1, chapter = 4 },
 		{ name = "Moon Guard", region = 1, chapter = 4 },
 		{ name = "Mug'thol", region = 1, chapter = 4 },
 		{ name = "Muradin", region = 1, chapter = 4 },
