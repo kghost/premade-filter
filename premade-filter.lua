@@ -919,7 +919,7 @@ function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonLis
 end
 
 function PremadeFilter_RealmList_Update()
-	FauxScrollFrame_Update(PremadeFilter_Frame_RealmListScrollFrame, #PremadeFilter_Frame.visibleRealms, 12, 16);
+	FauxScrollFrame_Update(PremadeFilter_Frame_RealmListScrollFrame, #PremadeFilter_Frame.visibleRealms, 10, 16);
 	
 	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_RealmListScrollFrame);
 	
@@ -1212,7 +1212,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 			
 			-- realm
-			if matches and leaderName then
+			if matches and leaderName and extraFilters.realms then
 				local leaderRealm = leaderName:gmatch("-.+$")();
 				if leaderRealm then
 					matches = extraFilters.realms:match(leaderRealm:lower());
