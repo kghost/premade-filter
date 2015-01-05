@@ -865,7 +865,12 @@ function PremadeFilter_GetSelectedRealms()
 		end
 	end
 	
-	return selectedRealms;
+	if #selectedRealms == (1 + #PremadeFilter_Frame.realmList) then
+		-- all realms selected
+		return nil;
+	else
+		return selectedRealms;
+	end
 end
 
 function PremadeFilter_ExpandOrCollapseButton_OnClick(self, button)
@@ -944,7 +949,7 @@ function PremadeFilter_RealmList_Update()
 			
 			button.enableButton:SetChecked(info.isChecked);
 			
-			button:SetWidth(295);
+			button:SetWidth(165);
 			button:Show();
 		else
 			button:Hide();

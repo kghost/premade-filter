@@ -15,7 +15,7 @@
 	</Frame>
 	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
-		<Size x="678" y="409" />
+		<Size x="548" y="409" />
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -555,9 +555,9 @@
 			</Frame>
 			
 			<Frame name="$parent_Realm">
-				<Size x="339" y="260"/>
+				<Size x="209" y="260"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-359" y="-40" />
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="319" y="-40" />
 				</Anchors>
 				<Layers>
 					<Layer level="BACKGROUND" textureSubLevel="-1">
