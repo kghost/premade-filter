@@ -9,13 +9,12 @@
 				self.heroicIcon:Hide();
 				self.enableButton:SetScript("OnClick", PremadeFilter_RealmListCheckButton_OnClick);
 				self.expandOrCollapseButton:SetScript("OnClick", PremadeFilter_ExpandOrCollapseButton_OnClick);
-				--self:SetScript("OnEnter", LFDQueueFrameDungeonListButton_OnEnter);
 			</OnLoad>
 		</Scripts>
 	</Frame>
 	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
-		<Size x="548" y="409" />
+		<Size x="578" y="409" />
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -56,6 +55,51 @@
 						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-285"/>
 					</Anchors>
 				</FontString>
+				<FontString parentKey="PlayersLabel" inherits="GameFontNormalLeft" text="PLAYERS_IN_GROUP">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="328" y="-285"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersMinLabel" inherits="GameFontHighlightSmall" justifyH="LEFT" text="MINIMUM">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="328" y="-316"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersMaxLabel" inherits="GameFontHighlightSmall" justifyH="LEFT" text="MAXIMUM">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="328" y="-341"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersNoTankMinLabel" inherits="GameFontHighlightSmall" text="-">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="427" y="-316"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersNoTankMaxLabel" inherits="GameFontHighlightSmall" text="-">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="427" y="-341"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersNoHealerMinLabel" inherits="GameFontHighlightSmall" text="-">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="477" y="-316"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersNoHealerMaxLabel" inherits="GameFontHighlightSmall" text="-">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="477" y="-341"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersNoDamagerMinLabel" inherits="GameFontHighlightSmall" text="-">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="527" y="-316"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="PlayersNoDamagerMaxLabel" inherits="GameFontHighlightSmall" text="-">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="527" y="-341"/>
+					</Anchors>
+				</FontString>
 			</Layer>
 			
 			<Layer level="OVERLAY">
@@ -72,6 +116,22 @@
 				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="true">
 					<Anchors>
 						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="292" y="-275"/>
+					</Anchors>
+				</Texture>
+				
+				<Texture parentKey="PlayersTankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="428" y="-275"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="PlayersHealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="478" y="-275"/>
+					</Anchors>
+				</Texture>
+				<Texture parentKey="PlayersDamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="true">
+					<Anchors>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="528" y="-275"/>
 					</Anchors>
 				</Texture>
 			</Layer>
@@ -379,6 +439,174 @@
 				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
 			</CheckButton>
 			
+			<CheckButton parentKey="PlayersTankCheckButton">
+				<Size x="22" y="22"/>
+				<HitRectInsets>
+					<AbsInset left="-20" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="450" y="-274"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then
+							self:GetParent().PlayersNoTankMinLabel:Hide();
+							self:GetParent().PlayersNoTankMaxLabel:Hide();
+							self:GetParent().MinTanks:Show();
+							self:GetParent().MaxTanks:Show();
+							self:GetParent().MinTanks:SetFocus();
+						else
+							self:GetParent().PlayersNoTankMinLabel:Show();
+							self:GetParent().PlayersNoTankMaxLabel:Show();
+							self:GetParent().MinTanks:Hide();
+							self:GetParent().MaxTanks:Hide();
+							self:GetParent().MinTanks:SetText("");
+							self:GetParent().MaxTanks:SetText("");
+						end
+						PremadeFilter_CheckButtonSound(self);
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+			</CheckButton>
+			
+			<CheckButton parentKey="PlayersHealerCheckButton">
+				<Size x="22" y="22"/>
+				<HitRectInsets>
+					<AbsInset left="-20" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="500" y="-275"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then
+							self:GetParent().PlayersNoHealerMinLabel:Hide();
+							self:GetParent().PlayersNoHealerMaxLabel:Hide();
+							self:GetParent().MinHealers:Show();
+							self:GetParent().MaxHealers:Show();
+							self:GetParent().MinHealers:SetFocus();
+						else
+							self:GetParent().PlayersNoHealerMinLabel:Show();
+							self:GetParent().PlayersNoHealerMaxLabel:Show();
+							self:GetParent().MinHealers:Hide();
+							self:GetParent().MaxHealers:Hide();
+							self:GetParent().MinHealers:SetText("");
+							self:GetParent().MaxHealers:SetText("");
+						end
+						PremadeFilter_CheckButtonSound(self);
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+			</CheckButton>
+			
+			<CheckButton parentKey="PlayersDamagerCheckButton">
+				<Size x="22" y="22"/>
+				<HitRectInsets>
+					<AbsInset left="-20" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="550" y="-275"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						if self:GetChecked() then
+							self:GetParent().PlayersNoDamagerMinLabel:Hide();
+							self:GetParent().PlayersNoDamagerMaxLabel:Hide();
+							self:GetParent().MinDamagers:Show();
+							self:GetParent().MaxDamagers:Show();
+							self:GetParent().MinDamagers:SetFocus();
+						else
+							self:GetParent().PlayersNoDamagerMinLabel:Show();
+							self:GetParent().PlayersNoDamagerMaxLabel:Show();
+							self:GetParent().MinDamagers:Hide();
+							self:GetParent().MaxDamagers:Hide();
+							self:GetParent().MinDamagers:SetText("");
+							self:GetParent().MaxDamagers:SetText("");
+						end
+						PremadeFilter_CheckButtonSound(self);
+					</OnClick>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+			</CheckButton>
+			
+			<EditBox parentKey="MinTanks" inherits="LFGListEditBoxTemplate" hidden="true">
+				<Size x="30" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.PlayersMinLabel" relativePoint="TOP" y="5" />
+					<Anchor point="LEFT" relativeKey="$parent.PlayersTankIcon" relativePoint="LEFT" x="7" />
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+				</KeyValues>
+			</EditBox>			
+			
+			<EditBox parentKey="MaxTanks" inherits="LFGListEditBoxTemplate" hidden="true">
+				<Size x="30" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.PlayersMaxLabel" relativePoint="TOP" y="5" />
+					<Anchor point="LEFT" relativeKey="$parent.PlayersTankIcon" relativePoint="LEFT" x="7" />
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+				</KeyValues>
+			</EditBox>			
+			
+			<EditBox parentKey="MinHealers" inherits="LFGListEditBoxTemplate" hidden="true">
+				<Size x="30" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.PlayersMinLabel" relativePoint="TOP" y="5" />
+					<Anchor point="LEFT" relativeKey="$parent.PlayersHealerIcon" relativePoint="LEFT" x="7" />
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+				</KeyValues>
+			</EditBox>			
+			
+			<EditBox parentKey="MaxHealers" inherits="LFGListEditBoxTemplate" hidden="true">
+				<Size x="30" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.PlayersMaxLabel" relativePoint="TOP" y="5" />
+					<Anchor point="LEFT" relativeKey="$parent.PlayersHealerIcon" relativePoint="LEFT" x="7" />
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+				</KeyValues>
+			</EditBox>			
+			
+			<EditBox parentKey="MinDamagers" inherits="LFGListEditBoxTemplate" hidden="true">
+				<Size x="30" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.PlayersMinLabel" relativePoint="TOP" y="5" />
+					<Anchor point="LEFT" relativeKey="$parent.PlayersDamagerIcon" relativePoint="LEFT" x="7" />
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+				</KeyValues>
+			</EditBox>			
+			
+			<EditBox parentKey="MaxDamagers" inherits="LFGListEditBoxTemplate" hidden="true">
+				<Size x="30" y="22"/>
+				<Anchors>
+					<Anchor point="TOP" relativeKey="$parent.PlayersMaxLabel" relativePoint="TOP" y="5" />
+					<Anchor point="LEFT" relativeKey="$parent.PlayersDamagerIcon" relativePoint="LEFT" x="7" />
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+				</KeyValues>
+			</EditBox>			
+			
 			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="CANCEL">
 				<Size x="135" y="22"/>
 				<Anchors>
@@ -555,7 +783,7 @@
 			</Frame>
 			
 			<Frame name="$parent_Realm">
-				<Size x="209" y="260"/>
+				<Size x="239" y="229"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="319" y="-40" />
 				</Anchors>
@@ -585,6 +813,7 @@
 							</Layer>
 						</Layers>
 					</Frame>
+					
 					<Frame name="$parentListButton1" inherits="PremadeFilter_RealmChoiceTemplate" id="1">
 						<Anchors>
 							<Anchor point="TOPLEFT">
@@ -675,24 +904,7 @@
 							</Anchor>
 						</Anchors>
 					</Frame>
-					<Frame name="$parentListButton11" inherits="PremadeFilter_RealmChoiceTemplate" id="11">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton10" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton12" inherits="PremadeFilter_RealmChoiceTemplate" id="12">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton11" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
+					
 					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
@@ -700,7 +912,7 @@
 									<AbsDimension x="0" y="7"/>
 								</Offset>
 							</Anchor>
-							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton12" relativePoint="BOTTOMRIGHT">
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton10" relativePoint="BOTTOMRIGHT">
 								<Offset>
 									<AbsDimension x="1" y="-7"/>
 								</Offset>

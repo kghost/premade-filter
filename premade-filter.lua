@@ -927,7 +927,7 @@ function PremadeFilter_RealmList_Update()
 	
 	checkedList = LFGEnabledList;
 	
-	for i = 1, 12 do
+	for i = 1, 10 do
 		local button = _G["PremadeFilter_Frame_RealmListButton"..i];
 		local info = PremadeFilter_Frame.visibleRealms[i+offset];
 		if info then
@@ -949,7 +949,7 @@ function PremadeFilter_RealmList_Update()
 			
 			button.enableButton:SetChecked(info.isChecked);
 			
-			button:SetWidth(165);
+			button:SetWidth(195);
 			button:Show();
 		else
 			button:Hide();
@@ -1124,6 +1124,20 @@ function PremadeFilter_GetFilters()
 		filters.realms = table.concat(selectedRealms, "-");
 	end
 	
+	-- members
+	if PremadeFilter_Frame.PlayersTankCheckButton:GetChecked() then
+		filters.minTanks = tonumber(PremadeFilter_Frame.MinTanks:GetText());
+		filters.maxTanks = tonumber(PremadeFilter_Frame.MaxTanks:GetText());
+	end
+	if PremadeFilter_Frame.PlayersHealerCheckButton:GetChecked() then
+		filters.minHealers = tonumber(PremadeFilter_Frame.MinHealers:GetText());
+		filters.maxHealers = tonumber(PremadeFilter_Frame.MaxHealers:GetText());
+	end
+	if PremadeFilter_Frame.PlayersDamagerCheckButton:GetChecked() then
+		filters.minDamagers = tonumber(PremadeFilter_Frame.MinDamagers:GetText());
+		filters.maxDamagers = tonumber(PremadeFilter_Frame.MaxDamagers:GetText());
+	end
+	
 	return filters;
 end
 
@@ -1141,6 +1155,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 	for i=1, #self.results do
 		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.results[i]);
 		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
+		local memberCounts = C_LFGList.GetSearchResultMemberCounts(self.results[i]);
 		
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 		
@@ -1202,6 +1217,28 @@ function LFGListSearchPanel_UpdateResultList(self)
 				if leaderRealm then
 					matches = extraFilters.realms:match(leaderRealm:lower());
 				end
+			end
+			
+			-- members
+			if matches and extraFilters.minTanks then
+				matches = (memberCounts.TANK >= extraFilters.minTanks);
+			end
+			if matches and extraFilters.maxTanks then
+				matches = (memberCounts.TANK <= extraFilters.maxTanks);
+			end
+			
+			if matches and extraFilters.minHealers then
+				matches = (memberCounts.HEALER >= extraFilters.minHealers);
+			end
+			if matches and extraFilters.maxHealers then
+				matches = (memberCounts.HEALER <= extraFilters.maxHealers);
+			end
+			
+			if matches and extraFilters.minDamagers then
+				matches = (memberCounts.DAMAGER >= extraFilters.minDamagers);
+			end
+			if matches and extraFilters.maxDamagers then
+				matches = (memberCounts.DAMAGER <= extraFilters.maxDamagers);
 			end
 		end
 		
