@@ -3,6 +3,10 @@ local _, L = ...;
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
+PremadeFilter_Settings = {
+	MinimapPos = 45,
+	UpdateInterval = 15
+}
 
 local PremadeFilter_RealmChapters = {
 	-- US
@@ -1642,4 +1646,40 @@ function PremadeFilter_Experimental(self)
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT");
 	GameTooltip:SetText(PremadeFilter_GetMessage("EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"), nil, nil, nil, nil, true);
 	GameTooltip:Show();
+end
+
+function PremadeFilter_MinimapButton_Reposition()
+	PremadeFilter_MinimapButton:SetPoint("TOPLEFT", "Minimap", "TOPLEFT", 52 - (80 * cos(PremadeFilter_Settings.MinimapPos)), (80 * sin(PremadeFilter_Settings.MinimapPos)) - 52);
+end
+
+function PremadeFilter_MinimapButton_DraggingFrame_OnUpdate()
+
+	local xpos,ypos = GetCursorPosition();
+	local xmin,ymin = Minimap:GetLeft(), Minimap:GetBottom();
+
+	xpos = xmin-xpos / UIParent:GetScale() + 70;
+	ypos = ypos / UIParent:GetScale() - ymin - 70;
+
+	PremadeFilter_Settings.MinimapPos = math.deg(math.atan2(ypos, xpos));
+	PremadeFilter_MinimapButton_Reposition();
+end
+
+function PremadeFilter_MinimapButton_OnLoad(self)
+	QueueStatusMinimapButton_OnLoad(self);
+	EyeTemplate_StartAnimating(self.Eye);
+end
+
+function PremadeFilter_MinimapButton_OnClick()
+	-- открываем фрейм, который запомнили, когда была нажата кнопка мониторинга
+	
+	-- PVE -- PVEFrame_ToggleFrame("GroupFinderFrame", "LFGListPVEStub");
+	-- PVP -- PVEFrame_ToggleFrame("PVPUIFrame", "LFGListPVPStub");
+end
+
+function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
+	self.TimeSinceLastUpdate = self.TimeSinceLastUpdate + elapsed;
+	
+	if (self.TimeSinceLastUpdate > PremadeFilter_Settings.UpdateInterval) then
+		self.TimeSinceLastUpdate = 0;
+  end
 end
