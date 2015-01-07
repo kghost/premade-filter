@@ -151,13 +151,15 @@
 					<Anchor point="TOPRIGHT" x="-20" y="-20"/>
 				</Anchors>
 				<Scripts>
-					<OnClick>
-						if PremadeFilter_Frame:IsVisible() then
-							PremadeFilter_Frame:Hide();
-						else
+					<OnHide>
+						PremadeFilter_Frame.ShowNextTime = PremadeFilter_Frame:IsVisible();
+					</OnHide>
+					<OnUpdate>
+						if PremadeFilter_Frame.ShowNextTime and not PremadeFilter_Frame:IsVisible() then
 							PremadeFilter_Frame:Show();
 						end
-					</OnClick>
+					</OnUpdate>
+					<OnClick function="PremadeFilter_Toggle"/>
 				</Scripts>
 			</Button>
 			
@@ -752,31 +754,13 @@
 				</Frames>
 			</Frame>
 			
-			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="CANCEL">
+			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="CLOSE">
 				<Size x="135" y="22"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="0" y="0"/>
 				</Anchors>
 				<Scripts>
-					<OnClick>
-						PremadeFilter_Frame:Hide();
-					</OnClick>
-				</Scripts>
-			</Button>
-			
-			<Button parentKey="MinimizeButton" inherits="LFGListMagicButtonTemplate" text="MINIMIZE">
-				<Size x="135" y="22"/>
-				<Anchors>
-					<Anchor point="BOTTOM" x="0" y="0"/>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						PremadeFilter_StartMonitoring();
-						HideUIPanel(PVEFrame);
-						PremadeFilter_MinimapButton:Show();
-						PremadeFilter_MinimapButton.Eye:Show();
-						EyeTemplate_StartAnimating(PremadeFilter_MinimapButton.Eye);
-					</OnClick>
+					<OnClick function="PremadeFilter_Toggle"/>
 				</Scripts>
 			</Button>
 			
@@ -1104,6 +1088,7 @@
 			<OnLoad function="PremadeFilter_Frame_OnLoad"/>
 			<OnShow function="PremadeFilter_OnShow"/>
 			<OnHide function="PremadeFilter_OnHide"/>
+			<!--OnUpdate function="PremadeFilter_OnUpdate"/-->
 		</Scripts>
 	</Frame>
 </Ui>

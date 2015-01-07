@@ -4,9 +4,10 @@ MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
 PremadeFilter_Settings = {
-	MinimapPos = 45,
-	UpdateInterval = 10
-}
+	UpdateInterval = 15
+};
+
+table.insert(UIChildWindows, "PremadeFilter_Frame");
 
 local PremadeFilter_RealmChapters = {
 	-- US
@@ -664,6 +665,40 @@ function PremadeFilter_GetMessage(str)
 	return L[str];
 end
 
+StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
+	text = PremadeFilter_GetMessage("Monitor new groups in background?"),
+	button1 = YES,
+	button2 = NO,
+	OnShow = function(self)
+		PremadeFilter_Frame.closeConfirmation = true;
+	end,
+	OnHide = function(self)
+		PremadeFilter_Frame.closeConfirmation = false;
+	end,
+	OnAccept = function(self, arg1, reason)
+		if PremadeFilter_Frame:IsVisible() then
+			PremadeFilter_Frame.ShowNextTime = true;
+			
+			HideUIPanel(PVEFrame);
+			
+			PremadeFilter_MinimapButton:Show();
+			PremadeFilter_MinimapButton.Eye:Show();
+			EyeTemplate_StartAnimating(PremadeFilter_MinimapButton.Eye);
+			
+			PremadeFilter_StartMonitoring();
+		end
+	end,
+	OnCancel = function(self, arg1, reason)
+		PremadeFilter_Frame.ShowNextTime = false;
+		PremadeFilter_Frame:Hide();
+		PremadeFilter_Frame.AdvancedButton:Enable();
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
+
 function PremadeFilter_GetRegionRealms(realmInfo)
 	if not realmInfo then
 		return nil;
@@ -769,13 +804,13 @@ function PremadeFilter_Frame_OnLoad(self)
 	
 	QueueStatusMinimapButton:HookScript("OnShow", 
 		function() 
-			self.MinimizeButton:Disable();
+			--self.MinimizeButton:Disable();
 			PremadeFilter_StopMonitoring(); 
 		end
 	);
 	QueueStatusMinimapButton:HookScript("OnHide", 
 		function() 
-			self.MinimizeButton:Enable(); 
+			--self.MinimizeButton:Enable(); 
 		end
 	);
 end
@@ -801,10 +836,17 @@ function PremadeFilter_OnShow(self)
 	
 	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
 	
-	PremadeFilter_MinimapButton:Hide();
-	PremadeFilter_MinimapButton.Eye:Hide();
-	EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye);
+	if PremadeFilter_MinimapButton:IsVisible() then
+		PremadeFilter_MinimapButton:Hide();
+		PremadeFilter_MinimapButton.Eye:Hide();
+		EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye);
+	else
+		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
+	end
+	
 	PremadeFilter_StopNotification();
+	
+	PlaySound("igMainMenuOpen");
 end
 
 function PremadeFilter_OnHide(self)
@@ -814,6 +856,20 @@ function PremadeFilter_OnHide(self)
 	
 	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
+	
+	StaticPopup_Hide("PREMADEFILTER_CONFIGM_CLOSE");
+end
+
+function PremadeFilter_Toggle()
+	if PremadeFilter_Frame:IsVisible() then
+		if QueueStatusMinimapButton:IsVisible() or PremadeFilter_Frame.closeConfirmation then
+			PremadeFilter_Frame:Hide();
+		else
+			StaticPopup_Show("PREMADEFILTER_CONFIGM_CLOSE");
+		end
+	else
+		PremadeFilter_Frame:Show();
+	end
 end
 
 function LFGListSearchPanel_Clear(self)
@@ -854,7 +910,7 @@ function LFGListEditBox_OnTabPressed(self)
 end
 
 function PremadeFilter_FilterButton_OnClick(self)
-	LFGListSearchPanel_SetCategory(LFGListFrame.SearchPanel, PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedFilters, PremadeFilter_Frame.selectedFilters);
+	LFGListSearchPanel_SetCategory(LFGListFrame.SearchPanel, PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedFilters, PremadeFilter_Frame.baseFilters);
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 end
 
@@ -1071,6 +1127,7 @@ function LFGListSearchPanel_DoSearch(self)
 	LFGListSearchPanel_UpdateResults(self);
 	
 	if not PremadeFilter_MinimapButton:IsVisible() then
+		PremadeFilter_MinimapButton.LastUpdate = 0;
 		PremadeFilter_Frame.updated = time() - PremadeFilter_GetMinFoundAge() + 1;
 	end
 end
@@ -1786,11 +1843,16 @@ end
 
 function PremadeFilter_MinimapButton_OnClick()
 	PVEFrame_ShowFrame("GroupFinderFrame");
+	
 	PremadeFilter_MinimapButton:Hide();
 	PremadeFilter_MinimapButton.Eye:Hide();
 	EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye);
 	
 	PremadeFilter_StopMonitoring();
+end
+
+function PremadeFilter_OnUpdate(self, elapsed)
+	PremadeFilter_MinimapButton_OnUpdate(PremadeFilter_MinimapButton, elapsed);
 end
 
 function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
