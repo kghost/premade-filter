@@ -1317,10 +1317,8 @@ function LFGListSearchPanel_UpdateResults(self)
 			local result = (idx <= #apps) and apps[idx] or results[idx - #apps];
 
 			if ( result ) then
-				if PremadeFilter_Frame.freshResults[result] then
-					button.fresh = true;
-				end
 				button.resultID = result;
+				button.fresh = PremadeFilter_Frame.freshResults[result];
 				LFGListSearchEntry_Update(button);
 				button:Show();
 			else
