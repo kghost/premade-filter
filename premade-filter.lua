@@ -5,7 +5,7 @@ LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
 PremadeFilter_Settings = {
 	MinimapPos = 45,
-	UpdateInterval = 15
+	UpdateInterval = 10
 }
 
 local PremadeFilter_RealmChapters = {
@@ -763,8 +763,21 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
 	self.visibleRealms = PremadeFilter_GetVisibleRealms();
 	self.query = "";
+	self.freshResults = {};
 	
 	PremadeFilter_RealmList_Update();
+	
+	QueueStatusMinimapButton:HookScript("OnShow", 
+		function() 
+			self.MinimizeButton:Disable();
+			PremadeFilter_StopMonitoring(); 
+		end
+	);
+	QueueStatusMinimapButton:HookScript("OnHide", 
+		function() 
+			self.MinimizeButton:Enable(); 
+		end
+	);
 end
 
 function PremadeFilter_OnShow(self)
@@ -787,6 +800,11 @@ function PremadeFilter_OnShow(self)
 	self.Name.BuildButton:SetPoint("TOPRIGHT", self.Name, "TOPRIGHT", 0, -1);
 	
 	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
+	
+	PremadeFilter_MinimapButton:Hide();
+	PremadeFilter_MinimapButton.Eye:Hide();
+	EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye);
+	PremadeFilter_StopNotification();
 end
 
 function PremadeFilter_OnHide(self)
@@ -1052,7 +1070,9 @@ function LFGListSearchPanel_DoSearch(self)
 	LFGListSearchPanel_UpdateResultList(self);
 	LFGListSearchPanel_UpdateResults(self);
 	
-	PremadeFilter_Frame.updated = time() - PremadeFilter_GetMinFoundAge() + 1;
+	if not PremadeFilter_MinimapButton:IsVisible() then
+		PremadeFilter_Frame.updated = time() - PremadeFilter_GetMinFoundAge() + 1;
+	end
 end
 
 function PremadeFilter_GetMinFoundAge()
@@ -1157,11 +1177,22 @@ function LFGListSearchPanel_UpdateResultList(self)
 	local numResults = 0;
 	local newResults = {};
 	
+	PremadeFilter_Frame.freshResults = {};
+	
 	for i=1, #self.results do
-		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.results[i]);
+		local resultID = self.results[i];
+		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
 		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
-		local memberCounts = C_LFGList.GetSearchResultMemberCounts(self.results[i]);
+		local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 		
+		if time() - age > PremadeFilter_Frame.updated then
+			PremadeFilter_Frame.freshResults[resultID] = true;
+			
+			if PremadeFilter_MinimapButton:IsVisible() then
+				PremadeFilter_StartNotification();
+			end
+		end
+	
 		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 		
 		-- check additional filters
@@ -1251,7 +1282,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		-- RESULT
 		if matches then
 			numResults = numResults + 1
-			newResults[numResults] = self.results[i];
+			newResults[numResults] = resultID;
 		end
 	end
 
@@ -1286,6 +1317,9 @@ function LFGListSearchPanel_UpdateResults(self)
 			local result = (idx <= #apps) and apps[idx] or results[idx - #apps];
 
 			if ( result ) then
+				if PremadeFilter_Frame.freshResults[result] then
+					button.fresh = true;
+				end
 				button.resultID = result;
 				LFGListSearchEntry_Update(button);
 				button:Show();
@@ -1414,7 +1448,7 @@ function LFGListSearchEntry_Update(self)
 		activityColor = LFG_LIST_DELISTED_FONT_COLOR;
 	elseif ( numBNetFriends > 0 or numCharFriends > 0 or numGuildMates > 0 ) then
 		nameColor = BATTLENET_FONT_COLOR;
-	elseif time() - age > PremadeFilter_Frame.updated then
+	elseif self.fresh then
 		nameColor = LFG_LIST_FRESH_FONT_COLOR;
 	end
 	
@@ -1738,38 +1772,45 @@ function PremadeFilter_Experimental(self)
 	GameTooltip:Show();
 end
 
-function PremadeFilter_MinimapButton_Reposition()
-	PremadeFilter_MinimapButton:SetPoint("TOPLEFT", "Minimap", "TOPLEFT", 52 - (80 * cos(PremadeFilter_Settings.MinimapPos)), (80 * sin(PremadeFilter_Settings.MinimapPos)) - 52);
+function PremadeFilter_StartMonitoring()
+	--output("START: monitoring");
 end
 
-function PremadeFilter_MinimapButton_DraggingFrame_OnUpdate()
-
-	local xpos,ypos = GetCursorPosition();
-	local xmin,ymin = Minimap:GetLeft(), Minimap:GetBottom();
-
-	xpos = xmin-xpos / UIParent:GetScale() + 70;
-	ypos = ypos / UIParent:GetScale() - ymin - 70;
-
-	PremadeFilter_Settings.MinimapPos = math.deg(math.atan2(ypos, xpos));
-	PremadeFilter_MinimapButton_Reposition();
+function PremadeFilter_StopMonitoring()
+	--output("STOP: monitoring");
+	PremadeFilter_Frame.updated = time() - PremadeFilter_GetMinFoundAge() + 1;
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
 	QueueStatusMinimapButton_OnLoad(self);
-	EyeTemplate_StartAnimating(self.Eye);
+	self.LastUpdate = 0;
 end
 
 function PremadeFilter_MinimapButton_OnClick()
-	-- открываем фрейм, который запомнили, когда была нажата кнопка мониторинга
+	PVEFrame_ShowFrame("GroupFinderFrame");
+	PremadeFilter_MinimapButton:Hide();
+	PremadeFilter_MinimapButton.Eye:Hide();
+	EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye);
 	
-	-- PVE -- PVEFrame_ToggleFrame("GroupFinderFrame", "LFGListPVEStub");
-	-- PVP -- PVEFrame_ToggleFrame("PVPUIFrame", "LFGListPVPStub");
+	PremadeFilter_StopMonitoring();
 end
 
 function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
-	self.TimeSinceLastUpdate = self.TimeSinceLastUpdate + elapsed;
+	self.LastUpdate = self.LastUpdate + elapsed;
 	
-	if (self.TimeSinceLastUpdate > PremadeFilter_Settings.UpdateInterval) then
-		self.TimeSinceLastUpdate = 0;
-  end
+	if (self.LastUpdate > PremadeFilter_Settings.UpdateInterval) then
+		--output("update");
+		self.LastUpdate = 0;
+		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
+	end
 end
+
+function PremadeFilter_StartNotification()
+	--output("START: notification");
+	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", true);
+end;
+
+function PremadeFilter_StopNotification()
+	--output("STOP: notification");
+	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", false);
+end;

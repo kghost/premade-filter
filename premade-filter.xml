@@ -605,7 +605,152 @@
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
 				</KeyValues>
-			</EditBox>			
+			</EditBox>
+			
+			<Frame name="$parent_Realm">
+				<Size x="239" y="229"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="319" y="-40" />
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<FontString parentKey="TypeLabel" inherits="GameFontNormalLeft" text="FRIENDS_LIST_REALM">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="10" y="-27"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="7" y="-41" />
+							<Anchor point="BOTTOMRIGHT" x="-7" y="7" />
+						</Anchors>
+						<Layers>
+							<Layer level="BACKGROUND">
+								<Texture parentKey="CustomBG" atlas="groupfinder-background" useAtlasSize="true">
+									<Anchors>
+										<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="3" y="-3"/>
+										<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+					
+					<Frame name="$parentListButton1" inherits="PremadeFilter_RealmChoiceTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-52"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton2" inherits="PremadeFilter_RealmChoiceTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton3" inherits="PremadeFilter_RealmChoiceTemplate" id="3">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton2" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton4" inherits="PremadeFilter_RealmChoiceTemplate" id="4">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton3" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton5" inherits="PremadeFilter_RealmChoiceTemplate" id="5">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton4" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton6" inherits="PremadeFilter_RealmChoiceTemplate" id="6">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton5" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton7" inherits="PremadeFilter_RealmChoiceTemplate" id="7">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton6" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton8" inherits="PremadeFilter_RealmChoiceTemplate" id="8">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton7" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton9" inherits="PremadeFilter_RealmChoiceTemplate" id="9">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton8" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton10" inherits="PremadeFilter_RealmChoiceTemplate" id="10">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton9" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					
+					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
+								<Offset>
+									<AbsDimension x="0" y="7"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton10" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="1" y="-7"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnVerticalScroll>
+								FauxScrollFrame_OnVerticalScroll(self, offset, 16, PremadeFilter_RealmList_Update);
+							</OnVerticalScroll>
+						</Scripts>
+					</ScrollFrame>
+				</Frames>
+			</Frame>
 			
 			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="CANCEL">
 				<Size x="135" y="22"/>
@@ -615,6 +760,22 @@
 				<Scripts>
 					<OnClick>
 						PremadeFilter_Frame:Hide();
+					</OnClick>
+				</Scripts>
+			</Button>
+			
+			<Button parentKey="MinimizeButton" inherits="LFGListMagicButtonTemplate" text="MINIMIZE">
+				<Size x="135" y="22"/>
+				<Anchors>
+					<Anchor point="BOTTOM" x="0" y="0"/>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						PremadeFilter_StartMonitoring();
+						HideUIPanel(PVEFrame);
+						PremadeFilter_MinimapButton:Show();
+						PremadeFilter_MinimapButton.Eye:Show();
+						EyeTemplate_StartAnimating(PremadeFilter_MinimapButton.Eye);
 					</OnClick>
 				</Scripts>
 			</Button>
@@ -781,153 +942,7 @@
 					</Onshow>
 				</Scripts>
 			</Frame>
-			
-			<Frame name="$parent_Realm">
-				<Size x="239" y="229"/>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="319" y="-40" />
-				</Anchors>
-				<Layers>
-					<Layer level="BACKGROUND" textureSubLevel="-1">
-						<FontString parentKey="TypeLabel" inherits="GameFontNormalLeft" text="FRIENDS_LIST_REALM">
-							<Anchors>
-								<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="10" y="-27"/>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Frames>
-					<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT" x="7" y="-41" />
-							<Anchor point="BOTTOMRIGHT" x="-7" y="7" />
-						</Anchors>
-						<Layers>
-							<Layer level="BACKGROUND">
-								<Texture parentKey="CustomBG" atlas="groupfinder-background" useAtlasSize="true">
-									<Anchors>
-										<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="3" y="-3"/>
-										<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
-									</Anchors>
-								</Texture>
-							</Layer>
-						</Layers>
-					</Frame>
-					
-					<Frame name="$parentListButton1" inherits="PremadeFilter_RealmChoiceTemplate" id="1">
-						<Anchors>
-							<Anchor point="TOPLEFT">
-								<Offset>
-									<AbsDimension x="10" y="-52"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton2" inherits="PremadeFilter_RealmChoiceTemplate" id="2">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton3" inherits="PremadeFilter_RealmChoiceTemplate" id="3">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton2" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton4" inherits="PremadeFilter_RealmChoiceTemplate" id="4">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton3" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton5" inherits="PremadeFilter_RealmChoiceTemplate" id="5">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton4" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton6" inherits="PremadeFilter_RealmChoiceTemplate" id="6">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton5" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton7" inherits="PremadeFilter_RealmChoiceTemplate" id="7">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton6" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton8" inherits="PremadeFilter_RealmChoiceTemplate" id="8">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton7" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton9" inherits="PremadeFilter_RealmChoiceTemplate" id="9">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton8" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					<Frame name="$parentListButton10" inherits="PremadeFilter_RealmChoiceTemplate" id="10">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton9" relativePoint="BOTTOMLEFT">
-								<Offset>
-									<AbsDimension x="0" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</Frame>
-					
-					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
-						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
-								<Offset>
-									<AbsDimension x="0" y="7"/>
-								</Offset>
-							</Anchor>
-							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton10" relativePoint="BOTTOMRIGHT">
-								<Offset>
-									<AbsDimension x="1" y="-7"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-						<Scripts>
-							<OnVerticalScroll>
-								FauxScrollFrame_OnVerticalScroll(self, offset, 16, PremadeFilter_RealmList_Update);
-							</OnVerticalScroll>
-						</Scripts>
-					</ScrollFrame>
-				</Frames>
-			</Frame>
-			
-			<Button name="PremadeFilter_MinimapButton" parent="MinimapBackdrop" inherits="MiniMapButtonTemplate" hidden="false">
+			<Button name="PremadeFilter_MinimapButton" parent="MinimapBackdrop" inherits="MiniMapButtonTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="33" y="33"/>
 				</Size>
@@ -987,8 +1002,9 @@
 				</Frames>
 				<Scripts>
 					<OnLoad function="PremadeFilter_MinimapButton_OnLoad"/>
+					<OnShow function="QueueStatusMinimapButton_OnShow"/>
 					<OnClick function="PremadeFilter_MinimapButton_OnClick"/>
-					<OnUpdate function="PremadeFilter_MinimapButton_OnUpdate" />
+					<OnUpdate function="PremadeFilter_MinimapButton_OnUpdate"/>
 				</Scripts>
 				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 			</Button>	
