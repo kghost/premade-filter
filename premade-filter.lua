@@ -1207,7 +1207,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 				local byte1 = string.byte(lastWord, 1, 1);
 				local byte2 = string.byte(lastWord, 2, 2);
 				
-				if byte1 == 194 and byte2 >=128 and byte2 <= 135 then
+				if byte1 == 194 and byte2 > 128 and byte2 <= 135 then
 					matches = (bit.band(extraFilters.roles, byte2-128) ~= 0);
 				end
 			end
@@ -1668,13 +1668,11 @@ function LFGListEntryCreation_ListGroup(self)
 		local dps  = PremadeFilter_Roles.DamagerCheckButton:GetChecked();
 		local roles = 0;
 		
-		if tank or heal or dps then
-			if tank then roles = roles+4 end
-			if heal then roles = roles+2 end
-			if dps  then roles = roles+1 end
-			
-			description = description..string.char(194, 128+roles);
-		end
+		if tank then roles = roles+4 end
+		if heal then roles = roles+2 end
+		if dps  then roles = roles+1 end
+		
+		description = description..string.char(194, 128+roles);
 		
 		if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, self.VoiceChat.EditBox:GetText(), description)) then
 			self.WorkingCover:Show();
