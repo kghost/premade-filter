@@ -1450,6 +1450,10 @@ function LFGListSearchEntry_Update(self)
 	end
 end
 
+function LFGListSearchEntry_OnEnter(self)
+	PremadeFilter_SearchEntry_OnEnter(self);
+end
+
 function PremadeFilter_SearchEntry_OnEnter(self)
 	local resultID = self.resultID;
 	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
