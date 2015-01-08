@@ -754,7 +754,7 @@
 				</Frames>
 			</Frame>
 			
-			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="CLOSE">
+			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="HIDE">
 				<Size x="135" y="22"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" x="0" y="0"/>

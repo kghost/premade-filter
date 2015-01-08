@@ -836,7 +836,7 @@ function PremadeFilter_OnShow(self)
 	
 	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
 	
-	if PremadeFilter_MinimapButton:IsVisible() then
+	if PremadeFilter_Frame.ShowNextTime then
 		PremadeFilter_MinimapButton:Hide();
 		PremadeFilter_MinimapButton.Eye:Hide();
 		EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye);
