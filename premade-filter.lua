@@ -1147,7 +1147,7 @@ function PremadeFilter_GetMinFoundAge()
 end
 
 function PremadeFilter_GetFilters()
-	if not PremadeFilter_Frame:IsVisible() then
+	if not PremadeFilter_Frame:IsVisible() or PremadeFilter_MinimapButton:IsVisible() then
 		return nil;
 	end
 	
