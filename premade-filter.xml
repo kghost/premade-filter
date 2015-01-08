@@ -157,6 +157,7 @@
 					<OnUpdate>
 						if PremadeFilter_Frame.ShowNextTime and not PremadeFilter_Frame:IsVisible() then
 							PremadeFilter_Frame:Show();
+							PremadeFilter_Frame.ShowNextTime = false;
 						end
 					</OnUpdate>
 					<OnClick function="PremadeFilter_Toggle"/>

@@ -793,6 +793,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
+	self.minAge = 0;
 	self.realmName = GetRealmName();
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
@@ -935,16 +936,20 @@ function PremadeFilter_GetSelectedRealms()
 	end
 	
 	local selectedRealms = {""};
+	local totalRealms = 1;
 	
 	for i=1, #PremadeFilter_Frame.realmList do
 		local info = PremadeFilter_Frame.realmList[i];
-		if not info.isChapter and info.isChecked then
-			local name = info.name:gsub("[%s]+", "");
-			table.insert(selectedRealms, name:lower());
+		if not info.isChapter then
+			totalRealms = totalRealms + 1;
+			if info.isChecked then
+				local name = info.name:gsub("[%s]+", "");
+				table.insert(selectedRealms, name:lower());
+			end
 		end
 	end
 	
-	if #selectedRealms == (1 + #PremadeFilter_Frame.realmList) then
+	if #selectedRealms == totalRealms then
 		-- all realms selected
 		return nil;
 	else
@@ -1128,26 +1133,12 @@ function LFGListSearchPanel_DoSearch(self)
 	
 	if not PremadeFilter_MinimapButton:IsVisible() then
 		PremadeFilter_MinimapButton.LastUpdate = 0;
-		PremadeFilter_Frame.updated = time() - PremadeFilter_GetMinFoundAge() + 1;
+		PremadeFilter_Frame.updated = time() - self.minAge + 1;--PremadeFilter_GetMinFoundAge() + 1;
 	end
-end
-
-function PremadeFilter_GetMinFoundAge()
-	local totalResults, results = C_LFGList.GetSearchResults();
-	local minAge = nil;
-	
-	for i=1, #results do
-		local id, activityID, name, comment, voiceChat, iLvl, age = C_LFGList.GetSearchResultInfo(results[i]);
-		if not minAge or age < minAge then
-			minAge = age;
-		end
-	end
-	
-	return minAge or 0;
 end
 
 function PremadeFilter_GetFilters()
-	if not PremadeFilter_Frame:IsVisible() or PremadeFilter_MinimapButton:IsVisible() then
+	if not PremadeFilter_Frame:IsVisible() and not PremadeFilter_MinimapButton:IsVisible() then
 		return nil;
 	end
 	
@@ -1224,129 +1215,140 @@ function PremadeFilter_GetFilters()
 end
 
 function LFGListSearchPanel_UpdateResultList(self)
-	self.totalResults, self.results = C_LFGList.GetSearchResults();
-	self.applications = C_LFGList.GetApplications();
-	
-	local searchText = self.SearchBox:GetText():lower();
-	local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
-	local extraFilters = PremadeFilter_Frame.extraFilters;
-	
-	local numResults = 0;
-	local newResults = {};
-	
-	PremadeFilter_Frame.freshResults = {};
-	
-	for i=1, #self.results do
-		local resultID = self.results[i];
-		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
-		local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
-		local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
+	if not self.searching then
+		--print("LFGListSearchPanel_UpdateResultList");
+		self.totalResults, self.results = C_LFGList.GetSearchResults();
+		self.applications = C_LFGList.GetApplications();
 		
-		if time() - age > PremadeFilter_Frame.updated then
-			PremadeFilter_Frame.freshResults[resultID] = true;
-			
-			if PremadeFilter_MinimapButton:IsVisible() then
-				PremadeFilter_StartNotification();
-			end
-		end
-	
-		local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
+		local searchText = self.SearchBox:GetText():lower();
+		local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
+		local extraFilters = PremadeFilter_Frame.extraFilters;
 		
-		-- check additional filters
-		if matches and extraFilters then
-			-- category
-			if matches and extraFilters.category then
-				matches = (categoryID == extraFilters.category);
+		local numResults = 0;
+		local newResults = {};
+		
+		local minAge = nil;
+	
+		PremadeFilter_Frame.freshResults = {};
+		
+		for i=1, #self.results do
+			local resultID = self.results[i];
+			local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
+			local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
+			local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
+			
+			if not minAge or age < minAge then
+				minAge = age;
 			end
 			
-			-- group
-			if matches and extraFilters.group then
-				matches = (groupID == extraFilters.group);
+			if time() - age > PremadeFilter_Frame.updated then
+				PremadeFilter_Frame.freshResults[resultID] = true;
+				--output(name);
+				if PremadeFilter_MinimapButton:IsVisible() then
+					PremadeFilter_StartNotification();
+				end
 			end
+		
+			local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 			
-			-- activity
-			if matches and extraFilters.activity then
-				matches = (activityID == extraFilters.activity);
-			end
-			
-			-- description
-			if matches and extraFilters.description then
-				matches = PremadeFilter_IsStringMatched(comment:lower(), extraFilters.description.include, extraFilters.description.exclude, extraFilters.description.possible);
-			end
-			
-			-- item level
-			if matches and extraFilters.ilvl then
-				matches = (iLvl >= extraFilters.ilvl);
-			end
-			
-			-- voice chat
-			if matches and extraFilters.vc then
-				if extraFilters.vc.none then
-					matches = (voiceChat == "");
-				else
-					if extraFilters.vc.text ~= "" then
-						matches = (voiceChat:lower() == extraFilters.vc.text:lower());
-					else
-						matches = (voiceChat ~= "");
-					end
-				end;
-			end
-			
-			-- roles
-			if matches and extraFilters.roles then
-				-- check if premade has role bit mask
-				local lastWord = string.sub(comment, comment:len()-1);
-				local byte1 = string.byte(lastWord, 1, 1);
-				local byte2 = string.byte(lastWord, 2, 2);
+			-- check additional filters
+			if matches and extraFilters then
+				-- category
+				if matches and extraFilters.category then
+					matches = (categoryID == extraFilters.category);
+				end
 				
-				if byte1 == 194 and byte2 > 128 and byte2 <= 135 then
-					matches = (bit.band(extraFilters.roles, byte2-128) ~= 0);
+				-- group
+				if matches and extraFilters.group then
+					matches = (groupID == extraFilters.group);
+				end
+				
+				-- activity
+				if matches and extraFilters.activity then
+					matches = (activityID == extraFilters.activity);
+				end
+				
+				-- description
+				if matches and extraFilters.description then
+					matches = PremadeFilter_IsStringMatched(comment:lower(), extraFilters.description.include, extraFilters.description.exclude, extraFilters.description.possible);
+				end
+				
+				-- item level
+				if matches and extraFilters.ilvl then
+					matches = (iLvl >= extraFilters.ilvl);
+				end
+				
+				-- voice chat
+				if matches and extraFilters.vc then
+					if extraFilters.vc.none then
+						matches = (voiceChat == "");
+					else
+						if extraFilters.vc.text ~= "" then
+							matches = (voiceChat:lower() == extraFilters.vc.text:lower());
+						else
+							matches = (voiceChat ~= "");
+						end
+					end;
+				end
+				
+				-- roles
+				if matches and extraFilters.roles then
+					-- check if premade has role bit mask
+					local lastWord = string.sub(comment, comment:len()-1);
+					local byte1 = string.byte(lastWord, 1, 1);
+					local byte2 = string.byte(lastWord, 2, 2);
+					
+					if byte1 == 194 and byte2 > 128 and byte2 <= 135 then
+						matches = (bit.band(extraFilters.roles, byte2-128) ~= 0);
+					end
+				end
+				
+				-- realm
+				if matches and leaderName and extraFilters.realms then
+					local leaderRealm = leaderName:gmatch("-.+$")();
+					if not leaderRealm then
+						leaderRealm = "-"..PremadeFilter_Frame.realmName;
+					end
+					matches = extraFilters.realms:match(leaderRealm:lower());
+				end
+				
+				-- members
+				if matches and extraFilters.minTanks then
+					matches = (memberCounts.TANK >= extraFilters.minTanks);
+				end
+				if matches and extraFilters.maxTanks then
+					matches = (memberCounts.TANK <= extraFilters.maxTanks);
+				end
+				
+				if matches and extraFilters.minHealers then
+					matches = (memberCounts.HEALER >= extraFilters.minHealers);
+				end
+				if matches and extraFilters.maxHealers then
+					matches = (memberCounts.HEALER <= extraFilters.maxHealers);
+				end
+				
+				if matches and extraFilters.minDamagers then
+					matches = (memberCounts.DAMAGER >= extraFilters.minDamagers);
+				end
+				if matches and extraFilters.maxDamagers then
+					matches = (memberCounts.DAMAGER <= extraFilters.maxDamagers);
 				end
 			end
 			
-			-- realm
-			if matches and leaderName and extraFilters.realms then
-				local leaderRealm = leaderName:gmatch("-.+$")();
-				if not leaderRealm then
-					leaderRealm = "-"..PremadeFilter_Frame.realmName;
-				end
-				matches = extraFilters.realms:match(leaderRealm:lower());
-			end
-			
-			-- members
-			if matches and extraFilters.minTanks then
-				matches = (memberCounts.TANK >= extraFilters.minTanks);
-			end
-			if matches and extraFilters.maxTanks then
-				matches = (memberCounts.TANK <= extraFilters.maxTanks);
-			end
-			
-			if matches and extraFilters.minHealers then
-				matches = (memberCounts.HEALER >= extraFilters.minHealers);
-			end
-			if matches and extraFilters.maxHealers then
-				matches = (memberCounts.HEALER <= extraFilters.maxHealers);
-			end
-			
-			if matches and extraFilters.minDamagers then
-				matches = (memberCounts.DAMAGER >= extraFilters.minDamagers);
-			end
-			if matches and extraFilters.maxDamagers then
-				matches = (memberCounts.DAMAGER <= extraFilters.maxDamagers);
+			-- RESULT
+			if matches then
+				numResults = numResults + 1
+				newResults[numResults] = resultID;
 			end
 		end
-		
-		-- RESULT
-		if matches then
-			numResults = numResults + 1
-			newResults[numResults] = resultID;
-		end
-	end
 
-	self.totalResults = numResults;
-	self.results = newResults;
-	
-	LFGListUtil_SortSearchResults(self.results);
+		self.minAge = minAge or 0;
+		
+		self.totalResults = numResults;
+		self.results = newResults;
+		
+		LFGListUtil_SortSearchResults(self.results);
+	end
 end
 
 function LFGListSearchPanel_UpdateResults(self)
@@ -1364,6 +1366,7 @@ function LFGListSearchPanel_UpdateResults(self)
 			buttons[i]:Hide();
 		end
 	else
+		--print("LFGListSearchPanel_UpdateResults");
 		self.SearchingSpinner:Hide();
 		local results = self.results;
 		local apps = self.applications;
@@ -1833,7 +1836,7 @@ end
 
 function PremadeFilter_StopMonitoring()
 	--output("STOP: monitoring");
-	PremadeFilter_Frame.updated = time() - PremadeFilter_GetMinFoundAge() + 1;
+	PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;--PremadeFilter_GetMinFoundAge() + 1;
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
