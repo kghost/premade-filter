@@ -1133,7 +1133,7 @@ function LFGListSearchPanel_DoSearch(self)
 	
 	if not PremadeFilter_MinimapButton:IsVisible() then
 		PremadeFilter_MinimapButton.LastUpdate = 0;
-		PremadeFilter_Frame.updated = time() - self.minAge + 1;--PremadeFilter_GetMinFoundAge() + 1;
+		PremadeFilter_Frame.updated = time() - self.minAge + 1;
 	end
 end
 
@@ -1241,14 +1241,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 				minAge = age;
 			end
 			
-			if time() - age > PremadeFilter_Frame.updated then
-				PremadeFilter_Frame.freshResults[resultID] = true;
-				--output(name);
-				if PremadeFilter_MinimapButton:IsVisible() then
-					PremadeFilter_StartNotification();
-				end
-			end
-		
 			local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 			
 			-- check additional filters
@@ -1339,6 +1331,14 @@ function LFGListSearchPanel_UpdateResultList(self)
 			if matches then
 				numResults = numResults + 1
 				newResults[numResults] = resultID;
+				
+				if time() - age > PremadeFilter_Frame.updated then
+					PremadeFilter_Frame.freshResults[resultID] = true;
+					
+					if PremadeFilter_MinimapButton:IsVisible() then
+						PremadeFilter_StartNotification();
+					end
+				end
 			end
 		end
 
