@@ -823,11 +823,25 @@ function PremadeFilter_OnShow(self)
 	self.categoryID = categoryID;
 	self.baseFilters = baseFilters;
 
-	local selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
-	local selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
+	local selectedCategory;
+	local selectedFilters;
+	local selectedGroup;
+	local selectedActivity;
 	
-	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, nil, nil);
-
+	if self.selectedCategory ~= LFGListFrame.CategorySelection.selectedCategory or self.selectedFilters ~= LFGListFrame.CategorySelection.selectedFilters then
+		selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
+		selectedFilters = LFGListFrame.CategorySelection.selectedFilters;
+		selectedGroup = nil;
+		selectedActivity = nil;
+	else
+		selectedCategory = self.selectedCategory;
+		selectedFilters = self.selectedFilters;
+		selectedGroup = self.selectedGroup;
+		selectedActivity = self.selectedActivity;
+	end
+	
+	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, selectedGroup, selectedActivity);
+	
 	self.QueryBuilder:SetParent(self);
 	self.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
 	self.QueryBuilder:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -5, 5);
