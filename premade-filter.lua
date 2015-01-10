@@ -673,25 +673,6 @@ function PremadeFilter_GetMessage(str)
 	return L[str];
 end
 
-function PremadeFilter_PrintMessage(str)
-	DEFAULT_CHAT_FRAME:AddMessage(COLOR_GREEN.."PremadeFilter "..COLOR_RESET..str..COLOR_RESET);
-end
-
-function PremadeFilter_GetHyperlink(str)
-	return COLOR_BLUE.."|Hpremade|h["..str.."]|h";
-end
-
-function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
-	if linkData == "premade" then
-		local name = link:match("%[([^%]]+)%]");
-		if name and PremadeFilter_MinimapButton:IsVisible() then
-			PremadeFilter_MinimapButton_OnClick();
-		end
-	elseif self.oldHyperlinkScript then
-		self.oldHyperlinkScript(self, linkData, link, button);
-	end
-end
-
 StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
 	text = PremadeFilter_GetMessage("Monitor new groups in background?"),
 	button1 = YES,
@@ -1922,3 +1903,22 @@ function PremadeFilter_StopNotification()
 	--output("STOP: notification");
 	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", false);
 end;
+
+function PremadeFilter_PrintMessage(str)
+	DEFAULT_CHAT_FRAME:AddMessage(COLOR_GREEN.."PremadeFilter "..COLOR_RESET..str..COLOR_RESET);
+end
+
+function PremadeFilter_GetHyperlink(str)
+	return COLOR_BLUE.."|Hpremade|h["..str.."]|h";
+end
+
+function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
+	if linkData == "premade" then
+		local name = link:match("%[([^%]]+)%]");
+		if name and PremadeFilter_MinimapButton:IsVisible() then
+			PremadeFilter_MinimapButton_OnClick();
+		end
+	elseif PremadeFilter_Frame.oldHyperlinkScript then
+		PremadeFilter_Frame.oldHyperlinkScript(self, linkData, link, button);
+	end
+end
