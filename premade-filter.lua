@@ -3,6 +3,14 @@ local _, L = ...;
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
 
+local COLOR_RESET	= "|r"
+local COLOR_WHITE	= "|cffffffff"
+local COLOR_BLUE	= "|cff88ccff"
+local COLOR_GREEN	= "|cff88ff88"
+local COLOR_YELLOW	= "|cffffff66"
+local COLOR_ORANGE	= "|cffffaa66"
+local COLOR_RED		= "|cffff6666"
+
 PremadeFilter_Settings = {
 	UpdateInterval = 15
 };
@@ -665,6 +673,25 @@ function PremadeFilter_GetMessage(str)
 	return L[str];
 end
 
+function PremadeFilter_PrintMessage(str)
+	DEFAULT_CHAT_FRAME:AddMessage(COLOR_GREEN.."PremadeFilter "..COLOR_RESET..str..COLOR_RESET);
+end
+
+function PremadeFilter_GetHyperlink(str)
+	return COLOR_BLUE.."|Hpremade|h["..str.."]|h";
+end
+
+function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
+	if linkData == "premade" then
+		local name = link:match("%[([^%]]+)%]");
+		if name and PremadeFilter_MinimapButton:IsVisible() then
+			PremadeFilter_MinimapButton_OnClick();
+		end
+	elseif self.oldHyperlinkScript then
+		self.oldHyperlinkScript(self, linkData, link, button);
+	end
+end
+
 StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
 	text = PremadeFilter_GetMessage("Monitor new groups in background?"),
 	button1 = YES,
@@ -814,6 +841,9 @@ function PremadeFilter_Frame_OnLoad(self)
 			--self.MinimizeButton:Enable(); 
 		end
 	);
+	
+	self.oldHyperlinkScript = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick");
+	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkClick", PremadeFilter_Hyperlink_OnClick);
 end
 
 function PremadeFilter_OnShow(self)
@@ -1351,6 +1381,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 					
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification();
+						PremadeFilter_PrintMessage(PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name));
 					end
 				end
 			end
