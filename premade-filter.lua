@@ -756,6 +756,8 @@ function PremadeFilter_GetRealmInfo(region, realmName)
 end
 
 function PremadeFilter_Frame_OnLoad(self)
+	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
+	
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
 	LFGListFrame.SearchPanel.SearchBox:SetScript("OnEditFocusGained", nop);
@@ -825,6 +827,8 @@ function PremadeFilter_Frame_OnLoad(self)
 	
 	self.oldHyperlinkScript = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick");
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkClick", PremadeFilter_Hyperlink_OnClick);
+	
+	--SendAddonMessage("D4", "M\tPremadeFilter\trevision\tevent", "RAID", "Мезитха")
 end
 
 function PremadeFilter_OnShow(self)
@@ -1362,7 +1366,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 					
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification();
-						PremadeFilter_PrintMessage(PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name));
+						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name));
 					end
 				end
 			end
@@ -1862,7 +1866,7 @@ end
 
 function PremadeFilter_StopMonitoring()
 	--output("STOP: monitoring");
-	PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;--PremadeFilter_GetMinFoundAge() + 1;
+	PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
@@ -1904,8 +1908,8 @@ function PremadeFilter_StopNotification()
 	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", false);
 end;
 
-function PremadeFilter_PrintMessage(str)
-	DEFAULT_CHAT_FRAME:AddMessage(COLOR_GREEN.."PremadeFilter "..COLOR_RESET..str..COLOR_RESET);
+function PremadeFilter_PrintMessage(frame, str)
+	frame:AddMessage(COLOR_GREEN.."PremadeFilter "..COLOR_RESET..str..COLOR_RESET);
 end
 
 function PremadeFilter_GetHyperlink(str)
@@ -1916,9 +1920,48 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 	if linkData == "premade" then
 		local name = link:match("%[([^%]]+)%]");
 		if name and PremadeFilter_MinimapButton:IsVisible() then
-			PremadeFilter_MinimapButton_OnClick();
+			if button == "LeftButton" then
+				PremadeFilter_MinimapButton_OnClick();
+			else
+				PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
+				PremadeFilter_StopNotification();
+			end
 		end
 	elseif PremadeFilter_Frame.oldHyperlinkScript then
 		PremadeFilter_Frame.oldHyperlinkScript(self, linkData, link, button);
+	end
+end
+
+function PremadeFilter_OnEvent(self, event, ...)
+	if event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
+		local hasNewPending, hasNewPendingWithData = ...;
+		
+		if ( hasNewPending and hasNewPendingWithData ) then
+			local applicants = C_LFGList.GetApplicants();
+			
+			for i=1, #applicants do
+				local id, status, pendingStatus, numMembers, isNew = C_LFGList.GetApplicantInfo(applicants[i]);
+				local grayedOut = not pendingStatus and (status == "failed" or status == "cancelled" or status == "declined" or status == "invitedeclined" or status == "timedout");
+				local noTouchy = (status == "invited" or status == "inviteaccepted" or status == "invitedeclined");
+				
+				if isNew and not grayedOut and not noTouchy then
+					for i=1, numMembers do
+						local name, class, classLocalized, level, itemLevel, tank, healer, damage, assignedRole, relationship = C_LFGList.GetApplicantMemberInfo(id, i);
+						local classColor = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR;
+						local hexColor = string.format("|cff%02x%02x%02x", classColor.r*255, classColor.g*255, classColor.b*255);
+						local displayName = Ambiguate(name, "short");
+						
+						local role1 = tank and "TANK" or (healer and "HEALER" or (damage and "DAMAGER"));
+						local role2 = (tank and healer and "HEALER") or ((tank or healer) and damage and "DAMAGER");
+						local roles = _G[role1];
+						if ( role2 ) then
+							roles = roles..", ".._G[role2];
+						end
+						
+						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new player: ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
+					end
+				end
+			end
+		end
 	end
 end

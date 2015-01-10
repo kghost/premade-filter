@@ -1089,7 +1089,7 @@
 			<OnLoad function="PremadeFilter_Frame_OnLoad"/>
 			<OnShow function="PremadeFilter_OnShow"/>
 			<OnHide function="PremadeFilter_OnHide"/>
-			<!--OnUpdate function="PremadeFilter_OnUpdate"/-->
+			<OnEvent function="PremadeFilter_OnEvent"/>
 		</Scripts>
 	</Frame>
 </Ui>
