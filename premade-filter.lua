@@ -11,10 +11,6 @@ local COLOR_YELLOW	= "|cffffff66"
 local COLOR_ORANGE	= "|cffffaa66"
 local COLOR_RED		= "|cffff6666"
 
-PremadeFilter_Settings = {
-	UpdateInterval = 15
-};
-
 table.insert(UIChildWindows, "PremadeFilter_Frame");
 
 local PremadeFilter_RealmChapters = {
@@ -842,7 +838,12 @@ function PremadeFilter_OnEvent(self, event, ...)
 		local addonName = ...;
 		if addonName == "premade-filter" then
 			if not PremadeFilter_Data then
-				PremadeFilter_Data = {};
+				PremadeFilter_Data = {
+					Settings = {
+						UpdateInterval = 15,
+						MaxRecentWords = 10,
+					}
+				};
 			end
 		end
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
@@ -1916,7 +1917,7 @@ end
 function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
 	self.LastUpdate = self.LastUpdate + elapsed;
 	
-	if (self.LastUpdate > PremadeFilter_Settings.UpdateInterval) then
+	if (self.LastUpdate > PremadeFilter_Data.Settings.UpdateInterval) then
 		self.LastUpdate = 0;
 		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 	end
@@ -2064,7 +2065,14 @@ function PremadeFilter_AddRecentWords(words)
 end
 
 function PremadeFilter_Name_OnTextChanged(self)
+	InputBoxInstructions_OnTextChanged(self);
+	
+	if not self:HasFocus() then
+		return
+	end
+	
 	local text = self:GetText();
+	LFGListFrame.SearchPanel.SearchBox:SetText(text);
 	
 	if text == "" then
 		PremadeFilter_Frame.AutoCompleteFrame:Hide();
@@ -2088,6 +2096,7 @@ function PremadeFilter_Name_OnTextChanged(self)
 	
 	if word == "" then
 		PremadeFilter_Frame.AutoCompleteFrame:Hide();
+		return
 	end
 	
 	-- literalize
@@ -2105,6 +2114,10 @@ function PremadeFilter_Name_OnTextChanged(self)
 	
 	--Update the buttons
 	local numResults = #WordsFound;
+	if numResults > PremadeFilter_Data.Settings.MaxRecentWords then
+		numResults = PremadeFilter_Data.Settings.MaxRecentWords;
+	end
+	
 	for i=1, numResults do
 		local w = WordsFound[i]:gsub("^%s*(.-)%s*$", "%1");
 		local button = PremadeFilter_Frame.AutoCompleteFrame.Results[i];
@@ -2134,9 +2147,6 @@ function PremadeFilter_Name_OnTextChanged(self)
 	
 	PremadeFilter_Frame.AutoCompleteFrame:SetHeight(numResults * PremadeFilter_Frame.AutoCompleteFrame.Results[1]:GetHeight() + 8);
 	PremadeFilter_Frame.AutoCompleteFrame:SetShown(numResults > 0);
-	
-	InputBoxInstructions_OnTextChanged(self);
-	LFGListFrame.SearchPanel.SearchBox:SetText(text);
 end
 
 function PremadeFilter_AutoCompleteButton_OnClick(self)
@@ -2144,7 +2154,6 @@ function PremadeFilter_AutoCompleteButton_OnClick(self)
 	local position = PremadeFilter_Frame.Name:GetCursorPosition();
 	local word = text:sub(1, position):gmatch("%s*[^%s]+$")();
 	
-	-- remove prefix
 	word = word:gsub("^%s*(.-)%s*$", "%1");
 	local firstChar = word:sub(1,1);
 	
@@ -2152,6 +2161,7 @@ function PremadeFilter_AutoCompleteButton_OnClick(self)
 		return
 	end
 	
+	-- remove prefix
 	local firstChar = word:sub(1,1);
 	if firstChar ~= "+" and firstChar ~= "-" and firstChar ~= "?" then
 		firstChar = "";
@@ -2161,11 +2171,52 @@ function PremadeFilter_AutoCompleteButton_OnClick(self)
 	local textStart = text:sub(1, position);
 	local textEnd = text:sub(position+1);
 	
-	local textNew = textStart:gsub("%s*"..word.."$", " "..firstChar..wordNew);
+	local textNew = textStart:gsub("%s*"..word.."$", " "..firstChar..wordNew.." ");
 	position = textNew:len();
 	textNew = textNew..textEnd;
 	
-	PremadeFilter_Frame.Name:SetText(textNew);
+	PremadeFilter_Frame.Name:SetText(textNew:gsub("^%s*(.-)$", "%1"));
 	PremadeFilter_Frame.Name:SetCursorPosition(position);
 	PremadeFilter_Frame.AutoCompleteFrame:Hide();
+end
+
+function PremadeFilter_AutoCompleteAdvance(offset)
+	local selected = PremadeFilter_Frame.AutoCompleteFrame.selected;
+
+	--Find the index of the current selection and how many results we have displayed
+	local idx = nil;
+	local numDisplayed = 0;
+	local button;
+	for i=1, #PremadeFilter_Frame.AutoCompleteFrame.Results do
+		button = PremadeFilter_Frame.AutoCompleteFrame.Results[i];
+		if button:IsShown() then
+			numDisplayed = i;
+			if ( button:GetText() == selected ) then
+				idx = i;
+			end
+		else
+			break;
+		end
+	end
+
+	local newIndex = nil;
+	if ( not idx ) then
+		--We had nothing selected, advance from the front or back
+		if ( offset > 0 ) then
+			newIndex = offset;
+		else
+			newIndex = numDisplayed + 1 + offset;
+		end
+	else
+		--Advance from our old location
+		button = PremadeFilter_Frame.AutoCompleteFrame.Results[idx];
+		button.Selected:Hide();
+		newIndex = ((idx - 1 + offset + numDisplayed) % numDisplayed) + 1;
+	end
+	
+	button = PremadeFilter_Frame.AutoCompleteFrame.Results[newIndex];
+	button.Selected:Show();
+	
+	PremadeFilter_Frame.AutoCompleteFrame.selectedIndex = newIndex;
+	PremadeFilter_Frame.AutoCompleteFrame.selected = button:GetText();
 end

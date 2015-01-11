@@ -220,9 +220,31 @@
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 					</OnLoad>
 					<OnEnterPressed>
-						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
-						self:ClearFocus();
+						if PremadeFilter_Frame.AutoCompleteFrame:IsVisible() then
+							local idx = PremadeFilter_Frame.AutoCompleteFrame.selectedIndex
+							if idx then
+								local button = PremadeFilter_Frame.AutoCompleteFrame.Results[idx];
+								PremadeFilter_AutoCompleteButton_OnClick(button);
+							end
+						else
+							LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+							self:ClearFocus();
+						end
 					</OnEnterPressed>
+					<OnTabPressed>
+						if ( IsShiftKeyDown() ) then
+							PremadeFilter_AutoCompleteAdvance(-1);
+						else
+							PremadeFilter_AutoCompleteAdvance(1);
+						end
+					</OnTabPressed>
+					<OnArrowPressed>
+						if ( key == "UP" ) then
+							PremadeFilter_AutoCompleteAdvance(-1);
+						elseif ( key == "DOWN" ) then
+							PremadeFilter_AutoCompleteAdvance(1);
+						end
+					</OnArrowPressed>
 					<OnTextChanged function="PremadeFilter_Name_OnTextChanged"/>
 				</Scripts>
 				<Frames>
@@ -295,6 +317,7 @@
 				<Scripts>
 					<OnHide>
 						self.selected = nil;
+						self.selectedIndex = nil;
 					</OnHide>
 				</Scripts>
 			</Frame>
