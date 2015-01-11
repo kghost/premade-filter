@@ -1271,6 +1271,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local searchText = self.SearchBox:GetText():lower();
 		local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
 		
+		PremadeFilter_AddRecentQuery(searchText);
 		PremadeFilter_AddRecentWords(include);
 		PremadeFilter_AddRecentWords(exclude);
 		PremadeFilter_AddRecentWords(possible);
@@ -2029,6 +2030,19 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 		end
 end
 
+function PremadeFilter_GetRecentQueries()
+	if not PremadeFilter_Data.RecentQueries then
+		PremadeFilter_Data.RecentQueries = {};
+	end
+	
+	local strRecentQueries = "";
+	for k,v in pairs(PremadeFilter_Data.RecentQueries) do
+		strRecentQueries = strRecentQueries.."\n"..k.."\n";
+	end
+	
+	return strRecentQueries;
+end
+
 function PremadeFilter_GetRecentWords()
 	if not PremadeFilter_Data.RecentWords then
 		PremadeFilter_Data.RecentWords = {};
@@ -2039,7 +2053,31 @@ function PremadeFilter_GetRecentWords()
 		strRecentWords = strRecentWords.." "..k.." ";
 	end
 	
-	return PremadeFilter_Data.RecentWords, strRecentWords;
+	return strRecentWords;
+end
+
+function PremadeFilter_AddRecentQuery(query)
+	if not PremadeFilter_Data.RecentQueries then
+		PremadeFilter_Data.RecentQueries = {};
+	end
+	
+	if query == "" then
+		return
+	end
+	
+	if not PremadeFilter_Data.RecentQueriesOrder then
+		PremadeFilter_Data.RecentQueriesOrder = {};
+	end
+	
+	if not PremadeFilter_Data.RecentQueries[query] then
+		PremadeFilter_Data.RecentQueries[query] = true;
+		table.insert(PremadeFilter_Data.RecentQueriesOrder, query);
+	end
+	
+	while #PremadeFilter_Data.RecentQueriesOrder > 30 do
+		local q = table.remove(PremadeFilter_Data.RecentQueriesOrder, 1);
+		PremadeFilter_Data.RecentQueries[q] = nil;
+	end
 end
 
 function PremadeFilter_AddRecentWords(words)
@@ -2098,28 +2136,53 @@ function PremadeFilter_Name_OnTextChanged(self)
 		PremadeFilter_Frame.AutoCompleteFrame:Hide();
 		return
 	end
+
+	local results = {};
 	
 	-- literalize
 	word = word:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", function(c) return "%" .. c end);
 	
-	local WordList, strWordList = PremadeFilter_GetRecentWords();
-	local WordsFound = {};
-	local i = 0;
+	-- words
+	local strWordList = PremadeFilter_GetRecentWords();
 	for w in strWordList:gmatch("%s"..word.."[^%s]*%s") do
-		table.insert(WordsFound, w);
+		table.insert(results, { index = 1, text = w:gsub("^%s*(.-)%s*$", "%1") });
+	end
+	
+	-- queries
+	local strQueryList = PremadeFilter_GetRecentQueries();
+	for q in strQueryList:gmatch("\n[^\n]*"..word.."[^\n]*\n") do
+		table.insert(results, { index = 2, text = q:gsub("^%s*(.-)%s*$", "%1") });
 	end
 	
 	--Sort results
-	table.sort(WordsFound);
+	table.sort(results, 
+		function(v1, v2)
+			if v2.index > v1.index then
+				return true;
+			elseif v2.index == v1.index then
+				return v2.text > v1.text;
+			else
+				return false;
+			end
+		end
+	);
 	
-	--Update the buttons
-	local numResults = #WordsFound;
+	-- check if there is only 1 result
+	local numResults = #results;
+	if numResults == 1 and results[1].text == word then
+		PremadeFilter_Frame.AutoCompleteFrame:Hide();
+		return
+	end
+	
+	-- check max results
 	if numResults > PremadeFilter_Data.Settings.MaxRecentWords then
 		numResults = PremadeFilter_Data.Settings.MaxRecentWords;
 	end
 	
+	--Update the buttons
 	for i=1, numResults do
-		local w = WordsFound[i]:gsub("^%s*(.-)%s*$", "%1");
+	local r = results[i];
+		local t = r.text:gsub("^%s*(.-)%s*$", "%1");
 		local button = PremadeFilter_Frame.AutoCompleteFrame.Results[i];
 		
 		if ( not button ) then
@@ -2129,14 +2192,16 @@ function PremadeFilter_Name_OnTextChanged(self)
 			PremadeFilter_Frame.AutoCompleteFrame.Results[i] = button;
 		end
 		
-		if ( w == PremadeFilter_Frame.AutoCompleteFrame.selected ) then
+		button.result = r;
+		
+		if ( t == PremadeFilter_Frame.AutoCompleteFrame.selected ) then
 			button.Selected:Show();
 			foundSelected = true;
 		else
 			button.Selected:Hide();
 		end
 		
-		button:SetText(w);
+		button:SetText(t);
 		button:Show();
 	end
 	
@@ -2155,25 +2220,32 @@ function PremadeFilter_AutoCompleteButton_OnClick(self)
 	local word = text:sub(1, position):gmatch("%s*[^%s]+$")();
 	
 	word = word:gsub("^%s*(.-)%s*$", "%1");
-	local firstChar = word:sub(1,1);
 	
 	if word == "" then
 		return
 	end
 	
-	-- remove prefix
-	local firstChar = word:sub(1,1);
-	if firstChar ~= "+" and firstChar ~= "-" and firstChar ~= "?" then
-		firstChar = "";
+	local textNew;
+	
+	-- query or word?
+	if self.result.index == 2 then
+		textNew = self.result.text.." ";
+		position = textNew:len();
+	else
+		-- remove prefix
+		local firstChar = word:sub(1,1);
+		if firstChar ~= "+" and firstChar ~= "-" and firstChar ~= "?" then
+			firstChar = "";
+		end
+		
+		local wordNew = self.result.text;
+		local textStart = text:sub(1, position);
+		local textEnd = text:sub(position+1);
+		
+		textNew = textStart:gsub("%s*"..word.."$", " "..firstChar..wordNew.." ");
+		position = textNew:len();
+		textNew = textNew..textEnd;
 	end
-	
-	local wordNew = self:GetText();
-	local textStart = text:sub(1, position);
-	local textEnd = text:sub(position+1);
-	
-	local textNew = textStart:gsub("%s*"..word.."$", " "..firstChar..wordNew.." ");
-	position = textNew:len();
-	textNew = textNew..textEnd;
 	
 	PremadeFilter_Frame.Name:SetText(textNew:gsub("^%s*(.-)$", "%1"));
 	PremadeFilter_Frame.Name:SetCursorPosition(position);
