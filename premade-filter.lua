@@ -825,8 +825,13 @@ function PremadeFilter_Frame_OnLoad(self)
 		end
 	);
 	
-	self.oldHyperlinkScript = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick");
+	self.oldHyperlinkClick = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick");
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkClick", PremadeFilter_Hyperlink_OnClick);
+	
+	--self.oldHyperlinkEnter = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkEnter");
+	--self.oldHyperlinkLeave = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkLeave");
+	--DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkEnter", PremadeFilter_Hyperlink_OnEnter);
+	--DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
 	
 	--SendAddonMessage("D4", "M\tPremadeFilter\trevision\tevent", "RAID", "Мезитха")
 end
@@ -1366,7 +1371,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 					
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification();
-						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name));
+						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name, { id = resultID }));
 					end
 				end
 			end
@@ -1583,6 +1588,11 @@ end
 function PremadeFilter_SearchEntry_OnEnter(self)
 	local resultID = self.resultID;
 	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
+	
+	if not activityID then
+		return nil;
+	end
+	
 	local activityName, shortName, categoryID, groupID, minItemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 	local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 25, 0);
@@ -1861,11 +1871,9 @@ function PremadeFilter_Experimental(self)
 end
 
 function PremadeFilter_StartMonitoring()
-	--output("START: monitoring");
 end
 
 function PremadeFilter_StopMonitoring()
-	--output("STOP: monitoring");
 	PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
 end
 
@@ -1892,19 +1900,16 @@ function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
 	self.LastUpdate = self.LastUpdate + elapsed;
 	
 	if (self.LastUpdate > PremadeFilter_Settings.UpdateInterval) then
-		--output("update");
 		self.LastUpdate = 0;
 		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 	end
 end
 
 function PremadeFilter_StartNotification()
-	--output("START: notification");
 	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", true);
 end;
 
 function PremadeFilter_StopNotification()
-	--output("STOP: notification");
 	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", false);
 end;
 
@@ -1912,12 +1917,54 @@ function PremadeFilter_PrintMessage(frame, str)
 	frame:AddMessage(COLOR_GREEN.."PremadeFilter "..COLOR_RESET..str..COLOR_RESET);
 end
 
-function PremadeFilter_GetHyperlink(str)
-	return COLOR_BLUE.."|Hpremade|h["..str.."]|h";
+function PremadeFilter_GetHyperlink(str, data)
+	local linkType = "premade";
+	local linkData = {};
+	
+	for k,v in pairs(data) do
+		table.insert(linkData, k..":"..v);
+	end
+	linkData = table.concat(linkData, ":");
+	
+	if linkData ~= "" then
+		linkData = ":"..linkData;
+	end
+	
+	return COLOR_BLUE.."|H"..linkType..linkData.."|h["..str.."]|h";
+end
+
+function PremadeFilter_Hyperlink_OnLeave(self, linkData, link)
+	local prefix = linkData:sub(1, 7);
+	if prefix == "premade" then
+		GameTooltip:Hide();
+	elseif PremadeFilter_Frame.oldHyperlinkLeave then
+		PremadeFilter_Frame.oldHyperlinkLeave(self, linkData, link, button);
+	end
+end
+
+function PremadeFilter_Hyperlink_OnEnter(self, linkData, link)
+	local prefix = linkData:sub(1, 7);
+	if prefix == "premade" then
+		local data = {};
+		local dataStr = linkData:sub(8);
+		
+		local i = 1;
+		local k, v;
+		for v in dataStr:gmatch("([^:]+)") do 
+			if i % 2 == 0 then data[k] = v; else k = v; end
+			i = i + 1;
+		end
+		
+		self.resultID = data.id;
+		PremadeFilter_SearchEntry_OnEnter(self)
+	elseif PremadeFilter_Frame.oldHyperlinkEnter then
+		PremadeFilter_Frame.oldHyperlinkEnter(self, linkData, link, button);
+	end
 end
 
 function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
-	if linkData == "premade" then
+	local prefix = linkData:sub(1, 7);
+	if prefix == "premade" then
 		local name = link:match("%[([^%]]+)%]");
 		if name and PremadeFilter_MinimapButton:IsVisible() then
 			if button == "LeftButton" then
@@ -1927,8 +1974,8 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 				PremadeFilter_StopNotification();
 			end
 		end
-	elseif PremadeFilter_Frame.oldHyperlinkScript then
-		PremadeFilter_Frame.oldHyperlinkScript(self, linkData, link, button);
+	elseif PremadeFilter_Frame.oldHyperlinkClick then
+		PremadeFilter_Frame.oldHyperlinkClick(self, linkData, link, button);
 	end
 end
 
@@ -1958,7 +2005,7 @@ function PremadeFilter_OnEvent(self, event, ...)
 							roles = roles..", ".._G[role2];
 						end
 						
-						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new player: ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
+						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
 					end
 				end
 			end
