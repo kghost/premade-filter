@@ -2046,10 +2046,20 @@ function PremadeFilter_AddRecentWords(words)
 		PremadeFilter_Data.RecentWords = {};
 	end
 	
+	if not PremadeFilter_Data.RecentWordsOrder then
+		PremadeFilter_Data.RecentWordsOrder = {};
+	end
+	
 	for k,v in pairs(words) do
 		if not PremadeFilter_Data.RecentWords[v] then
 			PremadeFilter_Data.RecentWords[v] = true;
+			table.insert(PremadeFilter_Data.RecentWordsOrder, v);
 		end
+	end
+	
+	while #PremadeFilter_Data.RecentWordsOrder > 30 do
+		local word = table.remove(PremadeFilter_Data.RecentWordsOrder, 1);
+		PremadeFilter_Data.RecentWords[word] = nil;
 	end
 end
 
