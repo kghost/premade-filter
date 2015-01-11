@@ -13,6 +13,30 @@
 		</Scripts>
 	</Frame>
 	
+	<Button name="PremadeFilter_AutoCompleteButtonTemplate" useParentLevel="true" virtual="true">
+		<Size x="275" y="22"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Selected" atlas="search-select" hidden="true" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+		<NormalTexture atlas="_search-rowbg"/>
+		<PushedTexture atlas="_search-rowbg"/>
+		<HighlightTexture atlas="search-highlight"/>
+		<ButtonText parentKey="Label" setAllPoints="true" justifyH="LEFT" wordWrap="false">
+			<Anchors>
+				<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="5" y="0"/>
+				<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+			</Anchors>
+		</ButtonText>
+		<NormalFont style="GameFontHighlightSmall"/>
+		<HighlightFont style="GameFontHighlightSmall"/>
+		<DisabledFont style="GameFontDisableSmall"/>
+		<Scripts>
+			<OnClick function="PremadeFilter_AutoCompleteButton_OnClick"/>
+		</Scripts>
+	</Button>
+	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
 		<Size x="578" y="409" />
 		<Layers>
@@ -199,10 +223,7 @@
 						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 						self:ClearFocus();
 					</OnEnterPressed>
-					<OnTextChanged>
-						InputBoxInstructions_OnTextChanged(self);
-						LFGListFrame.SearchPanel.SearchBox:SetText(self:GetText());
-					</OnTextChanged>
+					<OnTextChanged function="PremadeFilter_Name_OnTextChanged"/>
 				</Scripts>
 				<Frames>
 					<Button parentKey="BuildButton" inherits="UIPanelButtonTemplate" text="+">
@@ -218,7 +239,65 @@
 						</Scripts>
 					</Button>
 				</Frames>
+				<Scripts>
+					<OnEditFocusLost>
+						self:GetParent().AutoCompleteFrame:Hide();
+					</OnEditFocusLost>
+				</Scripts>
 			</EditBox>
+			
+			<Frame parentKey="AutoCompleteFrame" frameLevel="20" hidden="true">
+				<Size x="0" y="30"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Name" relativePoint="BOTTOMLEFT" x="-6" y="2"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.Name" relativePoint="BOTTOMRIGHT" x="-22" y="2"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture parentKey="BottomLeftBorder" inherits="UI-Frame-BotCornerLeft">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="BottomRightBorder" inherits="UI-Frame-BotCornerRight">
+							<Anchors>
+								<Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="BottomBorder" inherits="_UI-Frame-Bot">
+							<Anchors>
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.BottomLeftBorder" relativePoint="BOTTOMRIGHT" x="0" y="0"/>
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BottomRightBorder" relativePoint="BOTTOMLEFT" x="0" y="0"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="LeftBorder" inherits="!UI-Frame-LeftTile">
+							<Anchors>
+								<Anchor point="TOPLEFT" x="0" y="0" />
+								<Anchor point="BOTTOMLEFT" relativeKey="$parent.BottomLeftBorder" relativePoint="TOPLEFT"/>
+							</Anchors>
+						</Texture>
+						<Texture parentKey="RightBorder" inherits="!UI-Frame-RightTile">
+							<Anchors>
+								<Anchor point="TOPRIGHT" x="1" y="0" />
+								<Anchor point="BOTTOMRIGHT" relativeKey="$parent.BottomRightBorder" relativePoint="TOPRIGHT" x="1" y="0"/>
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Button parentArray="Results" inherits="PremadeFilter_AutoCompleteButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.LeftBorder" relativePoint="TOPRIGHT" x="-8" y="0"/>
+							<Anchor point="TOPRIGHT" relativeKey="$parent.RightBorder" relativePoint="TOPLEFT" x="5" y="0"/>
+						</Anchors>
+					</Button>
+				</Frames>
+				<Scripts>
+					<OnHide>
+						self.selected = nil;
+					</OnHide>
+				</Scripts>
+			</Frame>
 			
 			<Frame parentKey="CategoryDropDown" name="PremadeFilter_CategoryDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="320" y="32"/>

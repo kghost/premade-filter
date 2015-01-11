@@ -757,6 +757,7 @@ end
 
 function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
+	self:RegisterEvent("ADDON_LOADED");
 	
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
@@ -834,6 +835,19 @@ function PremadeFilter_Frame_OnLoad(self)
 	--DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
 	
 	--SendAddonMessage("D4", "M\tPremadeFilter\trevision\tevent", "RAID", "Мезитха")
+end
+
+function PremadeFilter_OnEvent(self, event, ...)
+	if event == "ADDON_LOADED" then
+		local addonName = ...;
+		if addonName == "premade-filter" then
+			if not PremadeFilter_Data then
+				PremadeFilter_Data = {};
+			end
+		end
+	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
+		PremadeFilter_OnApplicantListApdated(self, event, ...);
+	end
 end
 
 function PremadeFilter_OnShow(self)
@@ -1250,15 +1264,19 @@ end
 
 function LFGListSearchPanel_UpdateResultList(self)
 	if not self.searching then
-		--print("LFGListSearchPanel_UpdateResultList");
 		self.totalResults, self.results = C_LFGList.GetSearchResults();
 		self.applications = C_LFGList.GetApplications();
 		
 		local searchText = self.SearchBox:GetText():lower();
 		local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
-		local extraFilters = PremadeFilter_Frame.extraFilters;
+		
+		PremadeFilter_AddRecentWords(include);
+		PremadeFilter_AddRecentWords(exclude);
+		PremadeFilter_AddRecentWords(possible);
 		
 		local numResults = 0;
+		local extraFilters = PremadeFilter_Frame.extraFilters;
+		
 		local newResults = {};
 		
 		local minAge = nil;
@@ -1401,7 +1419,6 @@ function LFGListSearchPanel_UpdateResults(self)
 			buttons[i]:Hide();
 		end
 	else
-		--print("LFGListSearchPanel_UpdateResults");
 		self.SearchingSpinner:Hide();
 		local results = self.results;
 		local apps = self.applications;
@@ -1730,17 +1747,17 @@ function PremadeFilter_ParseQuery(searchText)
 		for i,w in pairs(words) do
 			local firstChar = w:sub(1,1);
 			if firstChar == "+" then
-				w = w:sub(2, w:len());
+				w = w:sub(2);
 				if w ~= "" then
 					table.insert(include, w);
 				end
 			elseif firstChar == "-" then
-				w = w:sub(2, w:len());
+				w = w:sub(2);
 				if w ~= "" then
 					table.insert(exclude, w);
 				end
 			elseif firstChar == "?" then
-				w = w:sub(2, w:len());
+				w = w:sub(2);
 				if w ~= "" then
 					table.insert(possible, w);
 				end
@@ -1979,8 +1996,7 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 	end
 end
 
-function PremadeFilter_OnEvent(self, event, ...)
-	if event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
+function PremadeFilter_OnApplicantListApdated(self, event, ...)
 		local hasNewPending, hasNewPendingWithData = ...;
 		
 		if ( hasNewPending and hasNewPendingWithData ) then
@@ -2010,5 +2026,136 @@ function PremadeFilter_OnEvent(self, event, ...)
 				end
 			end
 		end
+end
+
+function PremadeFilter_GetRecentWords()
+	if not PremadeFilter_Data.RecentWords then
+		PremadeFilter_Data.RecentWords = {};
 	end
+	
+	local strRecentWords = "";
+	for k,v in pairs(PremadeFilter_Data.RecentWords) do
+		strRecentWords = strRecentWords.." "..k.." ";
+	end
+	
+	return PremadeFilter_Data.RecentWords, strRecentWords;
+end
+
+function PremadeFilter_AddRecentWords(words)
+	if not PremadeFilter_Data.RecentWords then
+		PremadeFilter_Data.RecentWords = {};
+	end
+	
+	for k,v in pairs(words) do
+		if not PremadeFilter_Data.RecentWords[v] then
+			PremadeFilter_Data.RecentWords[v] = true;
+		end
+	end
+end
+
+function PremadeFilter_Name_OnTextChanged(self)
+	local text = self:GetText();
+	
+	if text == "" then
+		PremadeFilter_Frame.AutoCompleteFrame:Hide();
+		return
+	end
+	
+	local position = self:GetCursorPosition();
+	local word = text:sub(1, position):gmatch("%s*[^%s]+$")();
+	
+	if not word then
+		PremadeFilter_Frame.AutoCompleteFrame:Hide();
+		return
+	end
+	
+	-- remove prefix
+	word = word:gsub("^%s*(.-)%s*$", "%1");
+	local firstChar = word:sub(1,1);
+	if firstChar == "+" or firstChar == "-" or firstChar == "?" then
+		word = word:sub(2);
+	end
+	
+	if word == "" then
+		PremadeFilter_Frame.AutoCompleteFrame:Hide();
+	end
+	
+	-- literalize
+	word = word:gsub("[%(%)%.%%%+%-%*%?%[%]%^%$]", function(c) return "%" .. c end);
+	
+	local WordList, strWordList = PremadeFilter_GetRecentWords();
+	local WordsFound = {};
+	local i = 0;
+	for w in strWordList:gmatch("%s"..word.."[^%s]*%s") do
+		table.insert(WordsFound, w);
+	end
+	
+	--Sort results
+	table.sort(WordsFound);
+	
+	--Update the buttons
+	local numResults = #WordsFound;
+	for i=1, numResults do
+		local w = WordsFound[i]:gsub("^%s*(.-)%s*$", "%1");
+		local button = PremadeFilter_Frame.AutoCompleteFrame.Results[i];
+		
+		if ( not button ) then
+			button = CreateFrame("BUTTON", nil, PremadeFilter_Frame.AutoCompleteFrame, "PremadeFilter_AutoCompleteButtonTemplate");
+			button:SetPoint("TOPLEFT", PremadeFilter_Frame.AutoCompleteFrame.Results[i-1], "BOTTOMLEFT", 0, 0);
+			button:SetPoint("TOPRIGHT", PremadeFilter_Frame.AutoCompleteFrame.Results[i-1], "BOTTOMRIGHT", 0, 0);
+			PremadeFilter_Frame.AutoCompleteFrame.Results[i] = button;
+		end
+		
+		if ( w == PremadeFilter_Frame.AutoCompleteFrame.selected ) then
+			button.Selected:Show();
+			foundSelected = true;
+		else
+			button.Selected:Hide();
+		end
+		
+		button:SetText(w);
+		button:Show();
+	end
+	
+	--Hide unused buttons
+	for i=numResults + 1, #PremadeFilter_Frame.AutoCompleteFrame.Results do
+		PremadeFilter_Frame.AutoCompleteFrame.Results[i]:Hide();
+	end
+	
+	PremadeFilter_Frame.AutoCompleteFrame:SetHeight(numResults * PremadeFilter_Frame.AutoCompleteFrame.Results[1]:GetHeight() + 8);
+	PremadeFilter_Frame.AutoCompleteFrame:SetShown(numResults > 0);
+	
+	InputBoxInstructions_OnTextChanged(self);
+	LFGListFrame.SearchPanel.SearchBox:SetText(text);
+end
+
+function PremadeFilter_AutoCompleteButton_OnClick(self)
+	local text = PremadeFilter_Frame.Name:GetText();
+	local position = PremadeFilter_Frame.Name:GetCursorPosition();
+	local word = text:sub(1, position):gmatch("%s*[^%s]+$")();
+	
+	-- remove prefix
+	word = word:gsub("^%s*(.-)%s*$", "%1");
+	local firstChar = word:sub(1,1);
+	
+	if word == "" then
+		return
+	end
+	
+	local firstChar = word:sub(1,1);
+	if firstChar ~= "+" and firstChar ~= "-" and firstChar ~= "?" then
+		firstChar = "";
+	end
+	
+	local wordNew = self:GetText();
+	local textStart = text:sub(1, position);
+	local textEnd = text:sub(position+1);
+	
+	local textNew = textStart:gsub("%s*"..word.."$", " "..firstChar..wordNew);
+	position = textNew:len();
+	textNew = textNew..textEnd;
+	
+	PremadeFilter_Frame.Name:SetText(textNew);
+	PremadeFilter_Frame.Name:SetCursorPosition(position);
+	PremadeFilter_Frame.AutoCompleteFrame:Hide();
 end

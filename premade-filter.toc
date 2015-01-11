@@ -5,6 +5,7 @@
 ## Author: PremadeFilter
 ## Notes: Advanced premade filtering
 ## Notes-ruRU: Расширенный фильтр премейдов
+## SavedVariables: PremadeFilter_Data
 
 localization\core.lua
 localization\ruRU.lua
