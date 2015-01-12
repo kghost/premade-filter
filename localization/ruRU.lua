@@ -12,6 +12,10 @@ if GetLocale() == "ruRU" then
 	L["found new group "] = "найдена новая группа ";
 	L["found new player "] = "найден новый игрок ";
 	
+	L["More options"] = "Дополнительно";
+	L["Save filters"] = "Сохранить фильтры";
+	L["Load filters"] = "Загрузить фильтры";
+	
 	L["Notifications"] = "Оповещения";
 	L["Enable chat notifications"] = "Включить оповещение в чат";
 	L["Enable sound notifications"] = "Включить звуковые оповещения";

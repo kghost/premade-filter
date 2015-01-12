@@ -703,54 +703,6 @@ StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
 	preferredIndex = 3
 }
 
-function PremadeFilter_GetRegionRealms(realmInfo)
-	if not realmInfo then
-		return nil;
-	end
-	
-	local realmList = {};
-	local chapter = nil;
-	local currentChapterIndex = nil;
-	
-	for index, info in pairs(PremadeFilter_Relams) do
-		if info.region == realmInfo.region then
-			if info.chapter ~= chapter then
-				chapter = info.chapter;
-				currentChapterIndex = #realmList + 1;
-				
-				-- add chapter
-				table.insert(realmList, {
-					isChapter = true,
-					isCollapsed = true,
-					name = PremadeFilter_RealmChapters[info.region][info.chapter],
-					region = info.region,
-					chapter = info.chapter,
-					index = currentChapterIndex,
-					isChecked = true
-				});
-			end
-			
-			-- add realm
-			info.index = #realmList + 1;
-			info.chapterIndex = currentChapterIndex;
-			info.isChecked = true;
-			table.insert(realmList, info);
-		end
-	end
-	
-	return realmList;
-end
-
-function PremadeFilter_GetRealmInfo(region, realmName)
-	for index, info in pairs(PremadeFilter_Relams) do
-		if info.region == region and info.name == realmName then
-			return info;
-		end
-	end
-	
-	return nil;
-end
-
 function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
 	self:RegisterEvent("ADDON_LOADED");
@@ -984,6 +936,54 @@ end
 function PremadeFilter_FilterButton_OnClick(self)
 	LFGListSearchPanel_SetCategory(LFGListFrame.SearchPanel, PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedFilters, PremadeFilter_Frame.baseFilters);
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+end
+
+function PremadeFilter_GetRealmInfo(region, realmName)
+	for index, info in pairs(PremadeFilter_Relams) do
+		if info.region == region and info.name == realmName then
+			return info;
+		end
+	end
+	
+	return nil;
+end
+
+function PremadeFilter_GetRegionRealms(realmInfo)
+	if not realmInfo then
+		return nil;
+	end
+	
+	local realmList = {};
+	local chapter = nil;
+	local currentChapterIndex = nil;
+	
+	for index, info in pairs(PremadeFilter_Relams) do
+		if info.region == realmInfo.region then
+			if info.chapter ~= chapter then
+				chapter = info.chapter;
+				currentChapterIndex = #realmList + 1;
+				
+				-- add chapter
+				table.insert(realmList, {
+					isChapter = true,
+					isCollapsed = true,
+					name = PremadeFilter_RealmChapters[info.region][info.chapter],
+					region = info.region,
+					chapter = info.chapter,
+					index = currentChapterIndex,
+					isChecked = true
+				});
+			end
+			
+			-- add realm
+			info.index = #realmList + 1;
+			info.chapterIndex = currentChapterIndex;
+			info.isChecked = true;
+			table.insert(realmList, info);
+		end
+	end
+	
+	return realmList;
 end
 
 function PremadeFilter_GetVisibleRealms()

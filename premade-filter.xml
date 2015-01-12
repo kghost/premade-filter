@@ -53,9 +53,9 @@
 						<Anchor point="BOTTOMRIGHT" x="-2" y="3" />
 					</Anchors>
 				</Texture>
-				<FontString parentKey="Label" inherits="QuestFont_Huge" text="LFG_LIST_FIND_A_GROUP">
+				<FontString parentKey="Label" inherits="QuestFont_Huge" text="LFG_LIST_FIND_A_GROUP" justifyH="LEFT">
 					<Anchors>
-						<Anchor point="TOP" x="-3" y="-15"/>
+						<Anchor point="TOPLEFT" x="17" y="-15"/>
 					</Anchors>
 					<Color r="1.0" g="0.82" b="0"/>
 					<Shadow>
@@ -1104,29 +1104,67 @@
 			</Button>	
 			
 			<Button name="PremadeFilter_OptionsButton" parentKey="OptionsButton">
-				<Size x="32" y="32"/>
+				<Size x="152" y="32"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-10" y="-10"/>
 				</Anchors>
 				<Layers>
 					<Layer level="OVERLAY" textureSubLevel="1">
-						<FontString name="$parentSpellName" inherits="GameFontNormal" maxLines="2" justifyH="RIGHT" parentKey="spellname" text="SETTINGS">
-							<Size x="170" y="0"/>
+						<FontString name="$parentTitle" parentKey="Title" inherits="GameFontNormal" maxLines="2" justifyH="RIGHT" text="More options">
+							<Size x="120" y="0"/>
 							<Color r="1" g="1" b="1"/>
 							<Anchors>
-								<Anchor point="RIGHT" relativePoint="LEFT" relativeTo="$parent" x="-5"/>
+								<Anchor point="RIGHT" relativePoint="RIGHT" relativeTo="$parent" x="-32"/>
 							</Anchors>
 						</FontString>
 					</Layer>
 				</Layers>
-				<NormalTexture file="Interface\Worldmap\Gear_64">
-					<TexCoords left="0" top="0.5" right="0.5" bottom="1"/>
+				<NormalTexture file="Interface\Buttons\UI-MicroStream-Yellow">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="RIGHT" relativeTo="$parent" x="0"/>
+					</Anchors>
 				</NormalTexture>
-				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD"/>
+				<HighlightTexture file="Interface\Buttons\UI-MicroStream-Red" alphaMode="ADD">
+					<Size>
+						<AbsDimension x="32" y="32"/>
+					</Size>
+					<Anchors>
+						<Anchor point="RIGHT" relativePoint="RIGHT" relativeTo="$parent" x="0"/>
+					</Anchors>
+				</HighlightTexture>
+				<Frames>
+					<Frame name="$parentMenu" parentKey="Menu" inherits="UIDropDownMenuTemplate" hidden="true"/>
+				</Frames>
 				<Scripts>
+					<OnLoad>
+						self.Title:SetText(PremadeFilter_GetMessage(self.Title:GetText()));
+					</OnLoad>
 					<OnClick>
-						InterfaceOptionsFrame_Show();
-						InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
+						local menuList = {
+							{
+								disabled	= true,
+								text		= PremadeFilter_GetMessage("Save filters"),
+							},
+							{
+								disabled	= true,
+								text		= PremadeFilter_GetMessage("Load filters"),
+								hasArrow	= true,
+								menuList	= {}
+							},
+							{
+								text		= SETTINGS,
+								func		= 
+									function()
+										InterfaceOptionsFrame_Show();
+										InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
+									end
+							}
+						}
+						
+						local tmp = EasyMenu(menuList, self.Menu, self, 117 , 0, "MENU");
 					</OnClick>
 				</Scripts>
 			</Button>
