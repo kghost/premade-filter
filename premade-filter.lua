@@ -846,13 +846,25 @@ function PremadeFilter_OnEvent(self, event, ...)
 	end
 end
 
+function PremadeFilter_SetSettings(name, value)
+	if not PremadeFilter_Data.Settings then
+		PremadeFilter_Data.Settings = {};
+	end
+	
+	if name then
+		PremadeFilter_Data.Settings[name] = value;
+	else
+		PremadeFilter_Data.Settings = value;
+	end
+end
+
 function PremadeFilter_GetSettings(name, default)
 	if not PremadeFilter_Data.Settings then
 		PremadeFilter_Data.Settings = {};
 	end
 	
 	if name then
-		if not PremadeFilter_Data.Settings[name] then
+		if PremadeFilter_Data.Settings[name] == nil then
 			PremadeFilter_Data.Settings[name] = default;
 		end
 		return PremadeFilter_Data.Settings[name];
@@ -1401,7 +1413,10 @@ function LFGListSearchPanel_UpdateResultList(self)
 					
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification();
-						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name, { id = resultID }));
+						
+						if PremadeFilter_GetSettings("ChatNotifications", true) then
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name, { id = resultID }));
+						end
 					end
 				end
 			end
@@ -2033,7 +2048,9 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 							roles = roles..", ".._G[role2];
 						end
 						
-						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
+						if PremadeFilter_GetSettings("ChatNotifications", true) then
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
+						end
 					end
 				end
 			end
@@ -2302,4 +2319,29 @@ function PremadeFilter_AutoCompleteAdvance(offset)
 	
 	PremadeFilter_Frame.AutoCompleteFrame.selectedIndex = newIndex;
 	PremadeFilter_Frame.AutoCompleteFrame.selected = button:GetText();
+end
+
+function PremadeFilter_Options_OnLoad(self)
+	self.name = "Premade Filter ";--..GetAddOnMetadata("premade-filter", "Version");
+	
+	-- setup localization
+	self.NotificationsHeader:SetText(PremadeFilter_GetMessage(self.NotificationsHeader:GetText()));
+	self.ChatNotificationsHeader:SetText(PremadeFilter_GetMessage(self.ChatNotificationsHeader:GetText()));
+	self.SoundNotificationsHeader:SetText(PremadeFilter_GetMessage(self.SoundNotificationsHeader:GetText()));
+	self.MonitoringHeader:SetText(PremadeFilter_GetMessage(self.MonitoringHeader:GetText()));
+	self.UpdateIntervalHeader:SetText(PremadeFilter_GetMessage(self.UpdateIntervalHeader:GetText()));
+	
+	-- temp
+	self.SoundNotifications:Disable();
+	self.SoundNotificationsHeader:SetTextColor(GRAY_FONT_COLOR.r, GRAY_FONT_COLOR.g, GRAY_FONT_COLOR.b);
+	
+	-- save options
+	self.okay = function (self)
+		PremadeFilter_SetSettings("ChatNotifications", self.ChatNotifications:GetChecked());
+		PremadeFilter_SetSettings("SoundNotifications", self.SoundNotifications:GetChecked());
+		PremadeFilter_SetSettings("UpdateInterval", self.UpdateInterval:GetValue());
+	end;
+	
+	-- add panel
+	InterfaceOptions_AddCategory(self);
 end

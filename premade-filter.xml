@@ -37,6 +37,12 @@
 		</Scripts>
 	</Button>
 	
+	<CheckButton name="PremadeFilter_OptionsCheckButtonTemplate" inherits="OptionsBaseCheckButtonTemplate" virtual="true">
+		<HitRectInsets>
+			<AbsInset left="0" right="-200" top="0" bottom="0"/>
+		</HitRectInsets>
+	</CheckButton>
+	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
 		<Size x="578" y="409" />
 		<Layers>
@@ -1029,6 +1035,7 @@
 					</Onshow>
 				</Scripts>
 			</Frame>
+			
 			<Button name="PremadeFilter_MinimapButton" parent="MinimapBackdrop" inherits="MiniMapButtonTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="33" y="33"/>
@@ -1095,6 +1102,102 @@
 				</Scripts>
 				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 			</Button>	
+			
+			<Frame name="PremadeFilter_Options">
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="NotificationsHeader" inherits="OptionsFontLarge" justifyH="LEFT" justifyV="TOP" text="Notifications">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="16" y="-16"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="ChatNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Enable chat notifications">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="42" y="-50"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="SoundNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Enable sound notifications">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="42" y="-83"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="MonitoringHeader" inherits="OptionsFontLarge" justifyH="LEFT" justifyV="TOP" text="Monitoring">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="16" y="-126"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+						<FontString parentKey="UpdateIntervalHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Update interval (sec.)">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="16" y="-160"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<CheckButton parentKey="ChatNotifications" inherits="PremadeFilter_OptionsCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent.ChatNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
+						</Anchors>
+					</CheckButton>	
+					<CheckButton parentKey="SoundNotifications" inherits="PremadeFilter_OptionsCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent.SoundNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
+						</Anchors>
+					</CheckButton>	
+					<Slider name="PremadeFilter_UpdateIntervalSlider" parentKey="UpdateInterval" inherits="OptionsSliderTemplate" minValue="15" maxValue="60" stepsPerPage="3" valueStep="5">
+						<Size x="200" y="17"/>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeKey="$parent.UpdateIntervalHeader" relativePoint="TOPLEFT" x="0" y="-18" />
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								local minValue, maxValue = self:GetMinMaxValues();
+								PremadeFilter_UpdateIntervalSliderLow:SetText(minValue);
+								PremadeFilter_UpdateIntervalSliderHigh:SetText(maxValue);
+							</OnLoad>
+							<OnValueChanged>
+								if not self._onsetting then   -- is single threaded 
+									self._onsetting = true
+									self:SetValue(self:GetValue())
+									value = self:GetValue()     -- cant use original 'value' parameter
+									self._onsetting = false
+								else 
+									return
+								end               -- ignore recursion for actual event handler
+							</OnValueChanged>
+						</Scripts>
+					</Slider>
+				</Frames>
+				<Scripts>
+					<OnLoad function="PremadeFilter_Options_OnLoad"/>
+					<OnShow>
+						-- setup option values
+						self.ChatNotifications:SetChecked(PremadeFilter_GetSettings("ChatNotifications", true));
+						self.SoundNotifications:SetChecked(PremadeFilter_GetSettings("SoundNotifications", true));
+						self.UpdateInterval:SetValue(PremadeFilter_GetSettings("UpdateInterval", 15));
+					</OnShow>
+				</Scripts>
+			</Frame>
 			
 			<!-- MOVES INSIDE ENTITY CREATION FRAME -->
 			<Frame name="PremadeFilter_Roles" parentKey="PremadeRoles">

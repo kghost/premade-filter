@@ -12,5 +12,11 @@ if GetLocale() == "ruRU" then
 	L["found new group "] = "найдена новая группа ";
 	L["found new player "] = "найден новый игрок ";
 	
+	L["Notifications"] = "Оповещения";
+	L["Enable chat notifications"] = "Включить оповещение в чат";
+	L["Enable sound notifications"] = "Включить звуковые оповещения";
+	L["Monitoring"] = "Отслеживание";
+	L["Update interval (sec.)"] = "Интервал обновления (сек.)";
+	
 	L["EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"] = "ЭКСПЕРЕМЕНТАЛЬНО:\nРаботает только для премейдов, созданных с помощью аддона Premade Filter";
 end
