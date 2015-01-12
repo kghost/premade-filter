@@ -838,16 +838,26 @@ function PremadeFilter_OnEvent(self, event, ...)
 		local addonName = ...;
 		if addonName == "premade-filter" then
 			if not PremadeFilter_Data then
-				PremadeFilter_Data = {
-					Settings = {
-						UpdateInterval = 15,
-						MaxRecentWords = 10,
-					}
-				};
+				PremadeFilter_Data = {};
 			end
 		end
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
 		PremadeFilter_OnApplicantListApdated(self, event, ...);
+	end
+end
+
+function PremadeFilter_GetSettings(name, default)
+	if not PremadeFilter_Data.Settings then
+		PremadeFilter_Data.Settings = {};
+	end
+	
+	if name then
+		if not PremadeFilter_Data.Settings[name] then
+			PremadeFilter_Data.Settings[name] = default;
+		end
+		return PremadeFilter_Data.Settings[name];
+	else
+		return PremadeFilter_Data.Settings;
 	end
 end
 
@@ -1918,7 +1928,7 @@ end
 function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
 	self.LastUpdate = self.LastUpdate + elapsed;
 	
-	if (self.LastUpdate > PremadeFilter_Data.Settings.UpdateInterval) then
+	if (self.LastUpdate > PremadeFilter_GetSettings("UpdateInterval", 15)) then
 		self.LastUpdate = 0;
 		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 	end
@@ -2175,8 +2185,9 @@ function PremadeFilter_Name_OnTextChanged(self)
 	end
 	
 	-- check max results
-	if numResults > PremadeFilter_Data.Settings.MaxRecentWords then
-		numResults = PremadeFilter_Data.Settings.MaxRecentWords;
+	local maxResults = PremadeFilter_GetSettings("MaxRecentWords", 10);
+	if numResults > maxResults then
+		numResults = maxResults;
 	end
 	
 	--Update the buttons
