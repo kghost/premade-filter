@@ -1103,6 +1103,34 @@
 				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 			</Button>	
 			
+			<Button name="PremadeFilter_OptionsButton" parentKey="OptionsButton">
+				<Size x="32" y="32"/>
+				<Anchors>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="-10" y="-10"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY" textureSubLevel="1">
+						<FontString name="$parentSpellName" inherits="GameFontNormal" maxLines="2" justifyH="RIGHT" parentKey="spellname" text="SETTINGS">
+							<Size x="170" y="0"/>
+							<Color r="1" g="1" b="1"/>
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="LEFT" relativeTo="$parent" x="-5"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<NormalTexture file="Interface\Worldmap\Gear_64">
+					<TexCoords left="0" top="0.5" right="0.5" bottom="1"/>
+				</NormalTexture>
+				<HighlightTexture file="Interface\Buttons\UI-PlusButton-Hilight" alphaMode="ADD"/>
+				<Scripts>
+					<OnClick>
+						InterfaceOptionsFrame_Show();
+						InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
+					</OnClick>
+				</Scripts>
+			</Button>
+			
 			<Frame name="PremadeFilter_Options">
 				<Layers>
 					<Layer level="ARTWORK">
