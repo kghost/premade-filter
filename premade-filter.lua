@@ -1,7 +1,7 @@
 local _, L = ...;
 
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
-LFG_LIST_FRESH_FONT_COLOR = {r=0.3, g=0.9, b=0.3};
+LFG_LIST_FRESH_FONT_COLOR = { r=0.3, g=0.9, b=0.3 };
 
 local COLOR_RESET	= "|r"
 local COLOR_WHITE	= "|cffffffff"
@@ -12,6 +12,14 @@ local COLOR_ORANGE	= "|cffffaa66"
 local COLOR_RED		= "|cffff6666"
 
 table.insert(UIChildWindows, "PremadeFilter_Frame");
+
+local PremadeFilter_DefaultSettings = {
+	Version				= GetAddOnMetadata("premade-filter", "Version"),
+	MaxRecentWords		= 10,
+	UpdateInterval		= 15,
+	ChatNotifications	= true,
+	SoundNotifications	= true,
+}
 
 local PremadeFilter_RealmChapters = {
 	-- US
@@ -798,9 +806,34 @@ function PremadeFilter_OnEvent(self, event, ...)
 	end
 end
 
+function PremadeFilter_FixSettings()
+	if not PremadeFilter_Data.Settings then
+		PremadeFilter_Data.Settings = PremadeFilter_DefaultSettings;
+	end
+	
+	if not PremadeFilter_Data.Settings.Version then
+		PremadeFilter_Data.Settings = PremadeFilter_DefaultSettings;
+		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version");
+	end
+	
+	if type(PremadeFilter_Data.Settings.UpdateInterval) ~= "number"
+		  or PremadeFilter_Data.Settings.UpdateInterval < 15
+		  or PremadeFilter_Data.Settings.UpdateInterval > 60
+	then
+		PremadeFilter_Data.Settings.UpdateInterval = PremadeFilter_DefaultSettings.UpdateInterval;
+	end
+	
+	if type(PremadeFilter_Data.Settings.MaxRecentWords) ~= "number"
+		  or PremadeFilter_Data.Settings.MaxRecentWords < 5
+		  or PremadeFilter_Data.Settings.MaxRecentWords > 20
+	then
+		PremadeFilter_Data.Settings.MaxRecentWords = PremadeFilter_DefaultSettings.MaxRecentWords;
+	end
+end
+
 function PremadeFilter_SetSettings(name, value)
 	if not PremadeFilter_Data.Settings then
-		PremadeFilter_Data.Settings = {};
+		PremadeFilter_Data.Settings = PremadeFilter_DefaultSettings;
 	end
 	
 	if name then
@@ -808,16 +841,16 @@ function PremadeFilter_SetSettings(name, value)
 	else
 		PremadeFilter_Data.Settings = value;
 	end
+	
+	PremadeFilter_FixSettings();
 end
 
-function PremadeFilter_GetSettings(name, default)
-	if not PremadeFilter_Data.Settings then
-		PremadeFilter_Data.Settings = {};
-	end
+function PremadeFilter_GetSettings(name)
+	PremadeFilter_FixSettings();
 	
 	if name then
 		if PremadeFilter_Data.Settings[name] == nil then
-			PremadeFilter_Data.Settings[name] = default;
+			PremadeFilter_Data.Settings[name] = PremadeFilter_DefaultSettings[name];
 		end
 		return PremadeFilter_Data.Settings[name];
 	else
@@ -1414,7 +1447,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification();
 						
-						if PremadeFilter_GetSettings("ChatNotifications", true) then
+						if PremadeFilter_GetSettings("ChatNotifications") then
 							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name, { id = resultID }));
 						end
 					end
@@ -1943,7 +1976,7 @@ end
 function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
 	self.LastUpdate = self.LastUpdate + elapsed;
 	
-	if (self.LastUpdate > PremadeFilter_GetSettings("UpdateInterval", 15)) then
+	if (self.LastUpdate > PremadeFilter_GetSettings("UpdateInterval")) then
 		self.LastUpdate = 0;
 		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 	end
@@ -2048,7 +2081,7 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 							roles = roles..", ".._G[role2];
 						end
 						
-						if PremadeFilter_GetSettings("ChatNotifications", true) then
+						if PremadeFilter_GetSettings("ChatNotifications") then
 							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
 						end
 					end
@@ -2202,7 +2235,7 @@ function PremadeFilter_Name_OnTextChanged(self)
 	end
 	
 	-- check max results
-	local maxResults = PremadeFilter_GetSettings("MaxRecentWords", 10);
+	local maxResults = PremadeFilter_GetSettings("MaxRecentWords");
 	if numResults > maxResults then
 		numResults = maxResults;
 	end
@@ -2322,7 +2355,7 @@ function PremadeFilter_AutoCompleteAdvance(offset)
 end
 
 function PremadeFilter_Options_OnLoad(self)
-	self.name = "Premade Filter ";--..GetAddOnMetadata("premade-filter", "Version");
+	self.name = "Premade Filter ";
 	
 	-- setup localization
 	self.NotificationsHeader:SetText(PremadeFilter_GetMessage(self.NotificationsHeader:GetText()));
