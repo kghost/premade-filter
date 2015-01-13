@@ -673,12 +673,12 @@ local PremadeFilter_Relams = {
 		
 };
 
-function PremadeFilter_GetMessage(str)
+function T(str)
 	return L[str];
 end
 
 StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
-	text = PremadeFilter_GetMessage("Monitor new groups in background?"),
+	text = T("Monitor new groups in background?"),
 	button1 = YES,
 	button2 = NO,
 	OnShow = function(self)
@@ -1448,7 +1448,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 						PremadeFilter_StartNotification();
 						
 						if PremadeFilter_GetSettings("ChatNotifications") then
-							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new group ")..PremadeFilter_GetHyperlink(name, { id = resultID }));
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new group ")..PremadeFilter_GetHyperlink(name, { id = resultID }));
 						end
 					end
 				end
@@ -1943,7 +1943,7 @@ end
 
 function PremadeFilter_Experimental(self)
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT");
-	GameTooltip:SetText(PremadeFilter_GetMessage("EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"), nil, nil, nil, nil, true);
+	GameTooltip:SetText(T("EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"), nil, nil, nil, nil, true);
 	GameTooltip:Show();
 end
 
@@ -2082,7 +2082,7 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 						end
 						
 						if PremadeFilter_GetSettings("ChatNotifications") then
-							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, PremadeFilter_GetMessage("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
 						end
 					end
 				end
@@ -2358,11 +2358,11 @@ function PremadeFilter_Options_OnLoad(self)
 	self.name = "Premade Filter ";
 	
 	-- setup localization
-	self.NotificationsHeader:SetText(PremadeFilter_GetMessage(self.NotificationsHeader:GetText()));
-	self.ChatNotificationsHeader:SetText(PremadeFilter_GetMessage(self.ChatNotificationsHeader:GetText()));
-	self.SoundNotificationsHeader:SetText(PremadeFilter_GetMessage(self.SoundNotificationsHeader:GetText()));
-	self.MonitoringHeader:SetText(PremadeFilter_GetMessage(self.MonitoringHeader:GetText()));
-	self.UpdateIntervalHeader:SetText(PremadeFilter_GetMessage(self.UpdateIntervalHeader:GetText()));
+	self.NotificationsHeader:SetText(T(self.NotificationsHeader:GetText()));
+	self.ChatNotificationsHeader:SetText(T(self.ChatNotificationsHeader:GetText()));
+	self.SoundNotificationsHeader:SetText(T(self.SoundNotificationsHeader:GetText()));
+	self.MonitoringHeader:SetText(T(self.MonitoringHeader:GetText()));
+	self.UpdateIntervalHeader:SetText(T(self.UpdateIntervalHeader:GetText()));
 	
 	-- temp
 	self.SoundNotifications:Disable();

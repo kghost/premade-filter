@@ -222,7 +222,7 @@
 				<Scripts>
 					<OnEditFocusGained function="nop"/>
 					<OnLoad>
-						self.Instructions:SetText(PremadeFilter_GetMessage("The words you don't want"));
+						self.Instructions:SetText(T("The words you don't want"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 					</OnLoad>
 					<OnEnterPressed>
@@ -945,7 +945,7 @@
 								</KeyValues>
 								<Scripts>
 									<OnLoad>
-										self.Instructions:SetText(PremadeFilter_GetMessage("The words you want"));
+										self.Instructions:SetText(T("The words you want"));
 										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 									</OnLoad>
 									<OnTextChanged>
@@ -963,7 +963,7 @@
 								</KeyValues>
 								<Scripts>
 									<OnLoad>
-										self.Instructions:SetText(PremadeFilter_GetMessage("The words you don't want"));
+										self.Instructions:SetText(T("The words you don't want"));
 										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 									</OnLoad>
 									<OnTextChanged>
@@ -981,7 +981,7 @@
 								</KeyValues>
 								<Scripts>
 									<OnLoad>
-										self.Instructions:SetText(PremadeFilter_GetMessage("You want at least one of these words"));
+										self.Instructions:SetText(T("You want at least one of these words"));
 										LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 									</OnLoad>
 									<OnTextChanged>
@@ -1018,9 +1018,9 @@
 						</Frames>
 						<Scripts>
 							<OnLoad>
-								self.IncludeLabel:SetText(PremadeFilter_GetMessage("Include words"));
-								self.ExcludeLabel:SetText(PremadeFilter_GetMessage("Exclude words"));
-								self.PossibleLabel:SetText(PremadeFilter_GetMessage("At least one word"));
+								self.IncludeLabel:SetText(T("Include words"));
+								self.ExcludeLabel:SetText(T("Exclude words"));
+								self.PossibleLabel:SetText(T("At least one word"));
 							</OnLoad>
 						</Scripts>
 					</Frame>
@@ -1140,7 +1140,7 @@
 				</Frames>
 				<Scripts>
 					<OnLoad>
-						self.Title:SetText(PremadeFilter_GetMessage(self.Title:GetText()));
+						self.Title:SetText(T(self.Title:GetText()));
 					</OnLoad>
 					<OnClick function="PremadeFilter_OptionsMenu"/>
 				</Scripts>
