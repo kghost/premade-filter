@@ -2379,103 +2379,115 @@ function PremadeFilter_Options_OnLoad(self)
 	InterfaceOptions_AddCategory(self);
 end
 
+function PremadeFilter_MenuTitleItem(text)
+	return {
+		isTitle			= true,
+		notCheckable	= true,
+		text			= text,
+	};
+end
+
+function PremadeFilter_MenuSpacerItem()
+	return {
+		isTitle			= true,
+		notCheckable	= true,
+		text			= "",
+	};
+end
+
+function PremadeFilter_MenuActionItem(text, func)
+	return {
+		notCheckable	= true,
+		text			= text,
+		func			= func,
+	};
+end
+
+function PremadeFilter_MenuRadioItem(text, checked, func, disabled)
+	return {
+		checked			= checked,
+		disabled		= disabled,
+		text			= text,
+		func			= func,
+	};
+end
+
+function PremadeFilter_MenuCheckboxItem(text, checked, func, disabled)
+	return {
+		isNotRadio		= true,
+		checked			= checked,
+		disabled		= disabled,
+		text			= text,
+		func			= func,
+	};
+end
+
+function PremadeFilter_SubMenuItem(text, menuList)
+	return {
+		notCheckable	= true,
+		hasArrow		= true,
+		text			= text,
+		menuList		= menuList,
+	};
+end
+
 function PremadeFilter_OptionsMenu(self)
 	local menuList = {
-		{
-			isTitle			= true,
-			notCheckable	= true,
-			text			= "Набор фильтров",
-		},
-		{
-			text			= "Новый",
-			checked			= true,
-		},
-		{
-			text			= "Верховный молот (гер)",
-		},
-		{
-			text			= "Верховный молот фарм бое (гер)",
-		},
-		{
-			text			= "Шаттрат (дейлик)",
-		},
-		{
-			text			= "Шаттрат (дейлик)",
-		},
-		{
-			text			= "Шаттрат (дейлик)",
-		},
-		{
-			notCheckable	= true,
-			hasArrow		= true,
-			text			= "Еще",
-			menuList		= {
-				{
-					text			= "Шаттрат (дейлик)",
-				},
-				{
-					text			= "Шаттрат (дейлик)",
-				},
-			}
-		},
-		{
-			isTitle			= true,
-			notCheckable	= true,
-			text			= "",
-		},
-		{
-			isTitle			= true,
-			notCheckable	= true,
-			text			= "Действия",
-		},
-		{
-			notCheckable	= true,
-			text			= "Сохранить",
-		},
-		{
-			notCheckable	= true,
-			text			= "Сбросить",
-		},
-		{
-			notCheckable	= true,
-			text			= "Удалить",
-		},
-		{
-			isTitle			= true,
-			notCheckable	= true,
-			text			= "",
-		},
-		{
-			isTitle			= true,
-			notCheckable	= true,
-			text			= "Настройки",
-		},
-		{
-			isNotRadio		= true,
-			checked			= PremadeFilter_GetSettings("ChatNotifications"),
-			text			= "Включить оповещение в чат",
-			func			= 
-				function(self, arg1, arg2, checked)
-					self.checked = not checked;
-					PremadeFilter_SetSettings("ChatNotifications", self.checked);
-				end
-		},
-		{
-			isNotRadio		= true,
-			disabled		= true,
-			checked			= PremadeFilter_GetSettings("SoundNotifications"),
-			text			= "Включить звуковые оповещения",
-		},
-		{
-			notCheckable	= true,
-			text			= "Показать все",
-			func			= 
-				function()
-					InterfaceOptionsFrame_Show();
-					InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
-				end
-		},
-	}
+		PremadeFilter_MenuTitleItem("Набор фильтров"),
+		PremadeFilter_MenuSpacerItem(),
+		PremadeFilter_MenuTitleItem("Действия"),
+		PremadeFilter_MenuActionItem("Сохранить"),
+		PremadeFilter_MenuActionItem("Сбросить"),
+		PremadeFilter_MenuActionItem("Удалить"),
+		PremadeFilter_MenuSpacerItem(),
+		PremadeFilter_MenuTitleItem("Настройки"),
+		PremadeFilter_MenuCheckboxItem("Включить оповещение в чат", PremadeFilter_GetSettings("ChatNotifications"),
+			function(self, arg1, arg2, checked)
+				self.checked = not checked;
+				PremadeFilter_SetSettings("ChatNotifications", self.checked);
+			end
+		),
+		PremadeFilter_MenuCheckboxItem("Включить звуковые оповещения", PremadeFilter_GetSettings("SoundNotifications"), nil, true),
+		PremadeFilter_MenuActionItem("Все настройки",
+			function()
+				InterfaceOptionsFrame_Show();
+				InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
+			end
+		),
+	};
+	
+	local recentSets = PremadeFilter_GetRecentFilterSets();
+	for index,text in pairs(recentSets) do
+		local checked = (index == 1);
+		table.insert(menuList, index+1, PremadeFilter_MenuRadioItem(text, checked));
+	end
+	
+	local restSets = PremadeFilter_GetRestFilterSets();
+	if #restSets > 0 then
+		local moreItems = {};
+		for index,text in pairs(restSets) do
+			table.insert(moreItems, PremadeFilter_MenuRadioItem(text));
+		end
+		table.insert(menuList, #recentSets+2, PremadeFilter_SubMenuItem("Остальные", moreItems));
+	end
 	
 	EasyMenu(menuList, self.Menu, self, 117 , 0, "MENU");
+end
+
+function PremadeFilter_GetRecentFilterSets()
+	return {
+		"Новый",
+		"Верховный молот (гер)",
+		"Верховный молот фарм бое (гер)",
+		"Шаттрат (дейлик)",
+		"Шаттрат (дейлик)",
+		"Шаттрат (дейлик)",
+	};
+end
+
+function PremadeFilter_GetRestFilterSets()
+	return {
+		"Шаттрат (дейлик)",
+		"Шаттрат (дейлик)",
+	};
 end
