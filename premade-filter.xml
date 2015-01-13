@@ -1142,30 +1142,7 @@
 					<OnLoad>
 						self.Title:SetText(PremadeFilter_GetMessage(self.Title:GetText()));
 					</OnLoad>
-					<OnClick>
-						local menuList = {
-							{
-								disabled	= true,
-								text		= PremadeFilter_GetMessage("Save filters"),
-							},
-							{
-								disabled	= true,
-								text		= PremadeFilter_GetMessage("Load filters"),
-								hasArrow	= true,
-								menuList	= {}
-							},
-							{
-								text		= SETTINGS,
-								func		= 
-									function()
-										InterfaceOptionsFrame_Show();
-										InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
-									end
-							}
-						}
-						
-						local tmp = EasyMenu(menuList, self.Menu, self, 117 , 0, "MENU");
-					</OnClick>
+					<OnClick function="PremadeFilter_OptionsMenu"/>
 				</Scripts>
 			</Button>
 			

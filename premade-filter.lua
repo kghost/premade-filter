@@ -2378,3 +2378,104 @@ function PremadeFilter_Options_OnLoad(self)
 	-- add panel
 	InterfaceOptions_AddCategory(self);
 end
+
+function PremadeFilter_OptionsMenu(self)
+	local menuList = {
+		{
+			isTitle			= true,
+			notCheckable	= true,
+			text			= "Набор фильтров",
+		},
+		{
+			text			= "Новый",
+			checked			= true,
+		},
+		{
+			text			= "Верховный молот (гер)",
+		},
+		{
+			text			= "Верховный молот фарм бое (гер)",
+		},
+		{
+			text			= "Шаттрат (дейлик)",
+		},
+		{
+			text			= "Шаттрат (дейлик)",
+		},
+		{
+			text			= "Шаттрат (дейлик)",
+		},
+		{
+			notCheckable	= true,
+			hasArrow		= true,
+			text			= "Еще",
+			menuList		= {
+				{
+					text			= "Шаттрат (дейлик)",
+				},
+				{
+					text			= "Шаттрат (дейлик)",
+				},
+			}
+		},
+		{
+			isTitle			= true,
+			notCheckable	= true,
+			text			= "",
+		},
+		{
+			isTitle			= true,
+			notCheckable	= true,
+			text			= "Действия",
+		},
+		{
+			notCheckable	= true,
+			text			= "Сохранить",
+		},
+		{
+			notCheckable	= true,
+			text			= "Сбросить",
+		},
+		{
+			notCheckable	= true,
+			text			= "Удалить",
+		},
+		{
+			isTitle			= true,
+			notCheckable	= true,
+			text			= "",
+		},
+		{
+			isTitle			= true,
+			notCheckable	= true,
+			text			= "Настройки",
+		},
+		{
+			isNotRadio		= true,
+			checked			= PremadeFilter_GetSettings("ChatNotifications"),
+			text			= "Включить оповещение в чат",
+			func			= 
+				function(self, arg1, arg2, checked)
+					self.checked = not checked;
+					PremadeFilter_SetSettings("ChatNotifications", self.checked);
+				end
+		},
+		{
+			isNotRadio		= true,
+			disabled		= true,
+			checked			= PremadeFilter_GetSettings("SoundNotifications"),
+			text			= "Включить звуковые оповещения",
+		},
+		{
+			notCheckable	= true,
+			text			= "Показать все",
+			func			= 
+				function()
+					InterfaceOptionsFrame_Show();
+					InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
+				end
+		},
+	}
+	
+	EasyMenu(menuList, self.Menu, self, 117 , 0, "MENU");
+end
