@@ -767,6 +767,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.visibleRealms = PremadeFilter_GetVisibleRealms();
 	self.query = "";
 	self.freshResults = {};
+	self.selectedFilterSet = 1;
 	
 	PremadeFilter_RealmList_Update();
 	
@@ -807,7 +808,7 @@ function PremadeFilter_OnEvent(self, event, ...)
 end
 
 function PremadeFilter_FixSettings()
-	if not PremadeFilter_Data.Settings then
+	if type(PremadeFilter_Data.Settings) ~= "table" then
 		PremadeFilter_Data.Settings = PremadeFilter_DefaultSettings;
 	end
 	
@@ -832,9 +833,7 @@ function PremadeFilter_FixSettings()
 end
 
 function PremadeFilter_SetSettings(name, value)
-	if not PremadeFilter_Data.Settings then
-		PremadeFilter_Data.Settings = PremadeFilter_DefaultSettings;
-	end
+	PremadeFilter_FixSettings();
 	
 	if name then
 		PremadeFilter_Data.Settings[name] = value;
@@ -1257,6 +1256,17 @@ function PremadeFilter_GetFilters()
 	-- activity
 	filters.activity = PremadeFilter_Frame.selectedActivity;
 	
+	-- name
+	local nameText = PremadeFilter_Frame.Name:GetText();
+	if nameText ~= "" then
+		local nameInclude, nameExclude, namePossible = PremadeFilter_ParseQuery(nameText);
+		filters.name = {
+			include = nameInclude,
+			exclude = nameExclude,
+			possible = namePossible,
+		}
+	end
+	
 	-- description
 	local descrText = PremadeFilter_Frame.Description.EditBox:GetText();
 	if descrText ~= "" then
@@ -1316,6 +1326,143 @@ function PremadeFilter_GetFilters()
 	end
 	
 	return filters;
+end
+
+function PremadeFilter_SetFilters(filters)
+	PremadeFilter_Frame.selectedCategory = filters.category;
+	LFGListEntryCreation_Select(PremadeFilter_Frame, PremadeFilter_Frame.selectedFilters, filters.category, filters.group, filters.activity);
+	
+	-- name
+	if type(filters.name) == "table" then
+		local include  = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.include, " "),  "");
+		local exclude  = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.exclude, " "),  "-");
+		local possible = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.possible, " "), "?");
+		local query = include.." "..exclude.." "..possible;
+		
+		LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
+	else
+		LFGListFrame.SearchPanel.SearchBox:SetText("");
+	end
+	
+	-- description
+	if type(filters.description) == "table" then
+		local include  = PremadeFilter_BuildQueryPrefix(table.concat(filters.description.include, " "),  "");
+		local exclude  = PremadeFilter_BuildQueryPrefix(table.concat(filters.description.exclude, " "),  "-");
+		local possible = PremadeFilter_BuildQueryPrefix(table.concat(filters.description.possible, " "), "?");
+		local query = include.." "..exclude.." "..possible;
+		
+		PremadeFilter_Frame.Description.EditBox:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
+	else
+		PremadeFilter_Frame.Description.EditBox:SetText("");
+	end
+	
+	-- item level
+	if type(filters.ilvl) == "number" and filters.ilvl > 0 then
+		PremadeFilter_Frame.ItemLevel.CheckButton:SetChecked(true);
+		PremadeFilter_Frame.ItemLevel.EditBox:SetText(filters.ilvl);
+		PremadeFilter_Frame.ItemLevel.EditBox:Show();
+	else
+		PremadeFilter_Frame.ItemLevel.CheckButton:SetChecked(false);
+		PremadeFilter_Frame.ItemLevel.EditBox:SetText("");
+		PremadeFilter_Frame.ItemLevel.EditBox:Hide();
+	end
+	
+	-- voice chat
+	if type(filters.vc) == "table" then
+		PremadeFilter_Frame.VoiceChat.CheckButton.CheckedNone = filters.vc.none;
+		PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
+		PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(false);
+		PremadeFilter_Frame.VoiceChat.EditBox:SetText(filters.vc.text);
+		PremadeFilter_Frame.VoiceChat.EditBox:Hide();
+		
+		if filters.vc.none then
+			PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up");
+			PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(true);
+		elseif filters.vc.text ~= "" then
+			PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(true);
+			PremadeFilter_Frame.VoiceChat.EditBox:Show();
+		end
+	end
+	
+	-- roles
+	if type(filters.roles) == "number" then
+		local tank = (bit.band(filters.roles, 4) ~= 0);
+		local heal = (bit.band(filters.roles, 2) ~= 0);
+		local dps  = (bit.band(filters.roles, 1) ~= 0);
+		
+		PremadeFilter_Frame.TankCheckButton:SetChecked(tank);
+		PremadeFilter_Frame.HealerCheckButton:SetChecked(heal);
+		PremadeFilter_Frame.DamagerCheckButton:SetChecked(dps);
+	end
+	
+	-- realm
+	if filters.realms and PremadeFilter_Frame.realmList then
+		local noneChecked;
+		for i=1, #PremadeFilter_Frame.realmList do
+			if PremadeFilter_Frame.realmList[i].isChapter then
+				if i > 1 then
+					local chapter = PremadeFilter_Frame.realmList[i-1].chapterIndex;
+					if noneChecked then
+						PremadeFilter_Frame.realmList[chapter].isCollapsed = true;
+					end
+				end
+				PremadeFilter_Frame.realmList[i].isChecked = true;
+				PremadeFilter_Frame.realmList[i].isCollapsed = true;
+				noneChecked = true;
+			else
+				local chapter	= PremadeFilter_Frame.realmList[i].chapterIndex;
+				local name		= PremadeFilter_Frame.realmList[i].name:gsub("[%s]+", "");
+				local checked	= (filters.realms:find("-"..name:lower(), 1, true) ~= nil);
+				
+				PremadeFilter_Frame.realmList[i].isChecked = checked;
+				
+				if not checked then
+					PremadeFilter_Frame.realmList[chapter].isChecked = false;
+					PremadeFilter_Frame.realmList[chapter].isCollapsed = false;
+				else
+					noneChecked = false;
+				end
+			end
+		end
+		
+		if noneChecked then
+			local lastRealm = #PremadeFilter_Frame.realmList;
+			local lastChapter = PremadeFilter_Frame.realmList[lastRealm].chapterIndex;
+			PremadeFilter_Frame.realmList[lastChapter].isCollapsed = true;
+		end
+		
+		PremadeFilter_Frame.visibleRealms = PremadeFilter_GetVisibleRealms();
+		
+		PremadeFilter_RealmList_Update();
+	end
+	
+	-- members
+	if type(filters.minTanks) == "number" then
+		PremadeFilter_Frame.PlayersTankCheckButton:SetChecked(true);
+		PremadeFilter_Frame.MinTanks:GetText(filters.minTanks);
+	end
+	if type(filters.maxTanks) == "number" then
+		PremadeFilter_Frame.PlayersTankCheckButton:SetChecked(true);
+		PremadeFilter_Frame.MaxTanks:GetText(filters.maxTanks);
+	end
+	
+	if type(filters.minHealers) == "number" then
+		PremadeFilter_Frame.PlayersHealerCheckButton:SetChecked(true);
+		PremadeFilter_Frame.MinHealers:GetText(filters.minHealers);
+	end
+	if type(filters.maxHealers) == "number" then
+		PremadeFilter_Frame.PlayersHealerCheckButton:SetChecked(true);
+		PremadeFilter_Frame.MaxHealers:GetText(filters.maxHealers);
+	end
+	
+	if type(filters.minDamagers) == "number" then
+		PremadeFilter_Frame.PlayersDamagerCheckButton:SetChecked(true);
+		PremadeFilter_Frame.MinDamagers:GetText(filters.minDamagers);
+	end
+	if type(filters.maxDamagers) == "number" then
+		PremadeFilter_Frame.PlayersDamagerCheckButton:SetChecked(true);
+		PremadeFilter_Frame.MaxDamagers:GetText(filters.maxDamagers);
+	end
 end
 
 function LFGListSearchPanel_UpdateResultList(self)
@@ -1410,7 +1557,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 					if not leaderRealm then
 						leaderRealm = "-"..PremadeFilter_Frame.realmName;
 					end
-					matches = extraFilters.realms:match(leaderRealm:lower());
+					matches = extraFilters.realms:find(leaderRealm:lower(), 1, true);
 				end
 				
 				-- members
@@ -2090,10 +2237,26 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 		end
 end
 
-function PremadeFilter_GetRecentQueries()
-	if not PremadeFilter_Data.RecentQueries then
+function PremadeFilter_FixRecentQueries()
+	if type(PremadeFilter_Data.RecentQueries) ~= "table" then
 		PremadeFilter_Data.RecentQueries = {};
 	end
+	
+	if type(PremadeFilter_Data.RecentQueriesOrder) ~= "table" then
+		PremadeFilter_Data.RecentQueriesOrder = {};
+		for k,v in pairs(PremadeFilter_Data.RecentQueries) do
+			table.insert(PremadeFilter_Data.RecentQueriesOrder, k);
+		end
+	end
+	
+	while #PremadeFilter_Data.RecentQueriesOrder > 30 do
+		local q = table.remove(PremadeFilter_Data.RecentQueriesOrder, 1);
+		PremadeFilter_Data.RecentQueries[q] = nil;
+	end
+end
+
+function PremadeFilter_GetRecentQueries()
+	PremadeFilter_FixRecentQueries();
 	
 	local strRecentQueries = "";
 	for k,v in pairs(PremadeFilter_Data.RecentQueries) do
@@ -2103,10 +2266,26 @@ function PremadeFilter_GetRecentQueries()
 	return strRecentQueries;
 end
 
-function PremadeFilter_GetRecentWords()
-	if not PremadeFilter_Data.RecentWords then
+function PremadeFilter_FixRecentWords()
+	if type(PremadeFilter_Data.RecentWords) ~= "table" then
 		PremadeFilter_Data.RecentWords = {};
 	end
+	
+	if type(PremadeFilter_Data.RecentWordsOrder) ~= "table" then
+		PremadeFilter_Data.RecentWordsOrder = {};
+		for k,v in pairs(PremadeFilter_Data.RecentWords) do
+			table.insert(PremadeFilter_Data.RecentWordsOrder, k);
+		end
+	end
+	
+	while #PremadeFilter_Data.RecentWordsOrder > 30 do
+		local word = table.remove(PremadeFilter_Data.RecentWordsOrder, 1);
+		PremadeFilter_Data.RecentWords[word] = nil;
+	end
+end
+
+function PremadeFilter_GetRecentWords()
+	PremadeFilter_FixRecentWords();
 	
 	local strRecentWords = "";
 	for k,v in pairs(PremadeFilter_Data.RecentWords) do
@@ -2117,16 +2296,10 @@ function PremadeFilter_GetRecentWords()
 end
 
 function PremadeFilter_AddRecentQuery(query)
-	if not PremadeFilter_Data.RecentQueries then
-		PremadeFilter_Data.RecentQueries = {};
-	end
+	PremadeFilter_FixRecentWords();
 	
 	if query == "" then
 		return
-	end
-	
-	if not PremadeFilter_Data.RecentQueriesOrder then
-		PremadeFilter_Data.RecentQueriesOrder = {};
 	end
 	
 	if not PremadeFilter_Data.RecentQueries[query] then
@@ -2134,20 +2307,11 @@ function PremadeFilter_AddRecentQuery(query)
 		table.insert(PremadeFilter_Data.RecentQueriesOrder, query);
 	end
 	
-	while #PremadeFilter_Data.RecentQueriesOrder > 30 do
-		local q = table.remove(PremadeFilter_Data.RecentQueriesOrder, 1);
-		PremadeFilter_Data.RecentQueries[q] = nil;
-	end
+	PremadeFilter_FixRecentWords();
 end
 
 function PremadeFilter_AddRecentWords(words)
-	if not PremadeFilter_Data.RecentWords then
-		PremadeFilter_Data.RecentWords = {};
-	end
-	
-	if not PremadeFilter_Data.RecentWordsOrder then
-		PremadeFilter_Data.RecentWordsOrder = {};
-	end
+	PremadeFilter_FixRecentWords();
 	
 	for k,v in pairs(words) do
 		if not PremadeFilter_Data.RecentWords[v] then
@@ -2156,10 +2320,7 @@ function PremadeFilter_AddRecentWords(words)
 		end
 	end
 	
-	while #PremadeFilter_Data.RecentWordsOrder > 30 do
-		local word = table.remove(PremadeFilter_Data.RecentWordsOrder, 1);
-		PremadeFilter_Data.RecentWords[word] = nil;
-	end
+	PremadeFilter_FixRecentWords();
 end
 
 function PremadeFilter_Name_OnTextChanged(self)
@@ -2383,7 +2544,7 @@ function PremadeFilter_MenuTitleItem(text)
 	return {
 		isTitle			= true,
 		notCheckable	= true,
-		text			= text,
+		text			= T(text),
 	};
 end
 
@@ -2398,7 +2559,7 @@ end
 function PremadeFilter_MenuActionItem(text, func)
 	return {
 		notCheckable	= true,
-		text			= text,
+		text			= T(text),
 		func			= func,
 	};
 end
@@ -2407,7 +2568,7 @@ function PremadeFilter_MenuRadioItem(text, checked, func, disabled)
 	return {
 		checked			= checked,
 		disabled		= disabled,
-		text			= text,
+		text			= T(text),
 		func			= func,
 	};
 end
@@ -2417,7 +2578,7 @@ function PremadeFilter_MenuCheckboxItem(text, checked, func, disabled)
 		isNotRadio		= true,
 		checked			= checked,
 		disabled		= disabled,
-		text			= text,
+		text			= T(text),
 		func			= func,
 	};
 end
@@ -2426,68 +2587,139 @@ function PremadeFilter_SubMenuItem(text, menuList)
 	return {
 		notCheckable	= true,
 		hasArrow		= true,
-		text			= text,
+		text			= T(text),
 		menuList		= menuList,
 	};
 end
 
 function PremadeFilter_OptionsMenu(self)
 	local menuList = {
-		PremadeFilter_MenuTitleItem("Набор фильтров"),
+		PremadeFilter_MenuTitleItem("Filter set"),
 		PremadeFilter_MenuSpacerItem(),
-		PremadeFilter_MenuTitleItem("Действия"),
-		PremadeFilter_MenuActionItem("Сохранить"),
-		PremadeFilter_MenuActionItem("Сбросить"),
-		PremadeFilter_MenuActionItem("Удалить"),
+		PremadeFilter_MenuTitleItem("Actions"),
+		PremadeFilter_MenuActionItem(SAVE, PremadeFilter_SaveFilterSet),
+		PremadeFilter_MenuActionItem("Reset"),
+		PremadeFilter_MenuActionItem(DELETE),
 		PremadeFilter_MenuSpacerItem(),
-		PremadeFilter_MenuTitleItem("Настройки"),
-		PremadeFilter_MenuCheckboxItem("Включить оповещение в чат", PremadeFilter_GetSettings("ChatNotifications"),
+		PremadeFilter_MenuTitleItem(SETTINGS),
+		PremadeFilter_MenuCheckboxItem("Enable chat notifications", PremadeFilter_GetSettings("ChatNotifications"),
 			function(self, arg1, arg2, checked)
 				self.checked = not checked;
 				PremadeFilter_SetSettings("ChatNotifications", self.checked);
 			end
 		),
-		PremadeFilter_MenuCheckboxItem("Включить звуковые оповещения", PremadeFilter_GetSettings("SoundNotifications"), nil, true),
-		PremadeFilter_MenuActionItem("Все настройки",
+		PremadeFilter_MenuCheckboxItem("Enable sound notifications", PremadeFilter_GetSettings("SoundNotifications"), nil, true),
+		PremadeFilter_MenuActionItem(ADVANCED_OPTIONS,
 			function()
 				InterfaceOptionsFrame_Show();
 				InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options);
+			end
+		),
+		PremadeFilter_MenuActionItem(CANCEL,
+			function()
+				CloseDropDownMenus();
 			end
 		),
 	};
 	
 	local recentSets = PremadeFilter_GetRecentFilterSets();
 	for index,text in pairs(recentSets) do
-		local checked = (index == 1);
-		table.insert(menuList, index+1, PremadeFilter_MenuRadioItem(text, checked));
+		local checked = (index == PremadeFilter_Frame.selectedFilterSet);
+		table.insert(menuList, index+1, PremadeFilter_MenuRadioItem(text, checked, PremadeFilter_OnFilterSetSelected));
 	end
 	
 	local restSets = PremadeFilter_GetRestFilterSets();
 	if #restSets > 0 then
 		local moreItems = {};
 		for index,text in pairs(restSets) do
-			table.insert(moreItems, PremadeFilter_MenuRadioItem(text));
+			table.insert(moreItems, PremadeFilter_MenuRadioItem(text, false, PremadeFilter_OnFilterSetSelected));
 		end
-		table.insert(menuList, #recentSets+2, PremadeFilter_SubMenuItem("Остальные", moreItems));
+		table.insert(menuList, #recentSets+2, PremadeFilter_SubMenuItem("More", moreItems));
 	end
 	
 	EasyMenu(menuList, self.Menu, self, 117 , 0, "MENU");
 end
 
+function PremadeFilter_FixFilterSets()
+	if type(PremadeFilter_Data.FilterSets) ~= "table" then
+		PremadeFilter_Data.FilterSets = {};
+	end
+	
+	if type(PremadeFilter_Data.FilterSetsOrder) ~= "table" then
+		PremadeFilter_Data.FilterSetsOrder = {};
+		for k,v in pairs(PremadeFilter_Data.FilterSets) do
+			table.insert(PremadeFilter_Data.FilterSetsOrder, k);
+		end
+	end
+	
+	while #PremadeFilter_Data.FilterSetsOrder > 30 do
+		local word = table.remove(PremadeFilter_Data.FilterSetsOrder, 1);
+		PremadeFilter_Data.FilterSets[word] = nil;
+	end
+end
+
 function PremadeFilter_GetRecentFilterSets()
-	return {
-		"Новый",
-		"Верховный молот (гер)",
-		"Верховный молот фарм бое (гер)",
-		"Шаттрат (дейлик)",
-		"Шаттрат (дейлик)",
-		"Шаттрат (дейлик)",
-	};
+	PremadeFilter_FixFilterSets();
+	
+	local recentSets = { T("New filter set") };
+	local index = #PremadeFilter_Data.FilterSetsOrder;
+	
+	while index > 0 and index > #PremadeFilter_Data.FilterSetsOrder-5 do
+		table.insert(recentSets, PremadeFilter_Data.FilterSetsOrder[index]);
+		index = index - 1;
+	end
+	
+	return recentSets;
 end
 
 function PremadeFilter_GetRestFilterSets()
-	return {
-		"Шаттрат (дейлик)",
-		"Шаттрат (дейлик)",
-	};
+	PremadeFilter_FixFilterSets();
+	
+	local restSets = {};
+	local index = #PremadeFilter_Data.FilterSetsOrder - 5;
+	
+	while index > 0 do
+		table.insert(restSets, PremadeFilter_Data.FilterSetsOrder[index]);
+		index = index - 1;
+	end
+	
+	return restSets;
+end
+
+function PremadeFilter_SaveFilterSet()
+	PremadeFilter_FixFilterSets();
+	
+	local index = #PremadeFilter_Data.FilterSetsOrder+1;
+	local text = "Test set "..index;
+	local filters	= PremadeFilter_GetFilters();
+	
+	PremadeFilter_Data.FilterSets[text] = filters;
+	table.insert(PremadeFilter_Data.FilterSetsOrder, text);
+	
+	PremadeFilter_Frame.selectedFilterSet = 2;
+	
+	PremadeFilter_FixFilterSets();
+end
+
+function PremadeFilter_OnFilterSetSelected(self, arg1, arg2, checked)
+	local index = self:GetID();
+	
+	if UIDROPDOWNMENU_MENU_LEVEL == 1 then
+		PremadeFilter_Frame.selectedFilterSet = index - 2;
+	elseif UIDROPDOWNMENU_MENU_LEVEL == 2 then
+		PremadeFilter_Frame.selectedFilterSet = 2;
+		local order = #PremadeFilter_Data.FilterSetsOrder - index - 5;
+		local text = table.remove(PremadeFilter_Data.FilterSetsOrder, order);
+		table.insert(PremadeFilter_Data.FilterSetsOrder, text);
+	end
+	
+	CloseDropDownMenus();
+	
+	local setIndex = PremadeFilter_Frame.selectedFilterSet;
+	local setName = PremadeFilter_Data.FilterSetsOrder[setIndex];
+	local filters = PremadeFilter_Data.FilterSets[setName];
+	
+	PremadeFilter_SetFilters(filters);
+	
+	PremadeFilter_FilterButton_OnClick(PremadeFilter_Frame.FilterButton);
 end
