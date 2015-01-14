@@ -1,5 +1,9 @@
 local _, L = ...;
 
+function T(str)
+	return L[str];
+end
+
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 LFG_LIST_FRESH_FONT_COLOR = { r=0.3, g=0.9, b=0.3 };
 
@@ -673,10 +677,6 @@ local PremadeFilter_Relams = {
 		
 };
 
-function T(str)
-	return L[str];
-end
-
 StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
 	text = T("Monitor new groups in background?"),
 	button1 = YES,
@@ -704,6 +704,51 @@ StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
 		PremadeFilter_Frame.ShowNextTime = false;
 		PremadeFilter_Frame:Hide();
 		PremadeFilter_Frame.AdvancedButton:Enable();
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
+
+StaticPopupDialogs["PREMADEFILTER_SAVE_FILTERSET"] = {
+	text = T("Enter filter set name"),
+	hasEditBox = true,
+	maxLetters = 100,
+	editBoxWidth = 350,
+	button1 = SAVE,
+	button2 = CANCEL,
+	OnShow = function(self)
+		local defaultText = T("New filter set");
+		local index = PremadeFilter_Frame.selectedFilterSet;
+		local text;
+		if index <= #PremadeFilter_Data.FilterSetsOrder then
+			text = PremadeFilter_Data.FilterSetsOrder[index];
+		else
+			text = defaultText;
+		end
+		self.editBox:SetText(text);
+	end,
+	OnAccept = function(self, arg1, reason)
+		local defaultText = T("New filter set");
+		local text = self.editBox:GetText():gsub("^%s*(.-)%s*$", "%1");
+		
+		if text == defaultText or text == "" then
+			local index = 2;
+			repeat
+				text = string.format("%s %d", defaultText, index);
+				index = index + 1;
+			until not PremadeFilter_Data.FilterSets[text];
+		end
+		
+		if type(PremadeFilter_Data.FilterSets[text]) ~= "table" then
+			table.insert(PremadeFilter_Data.FilterSetsOrder, text);
+			PremadeFilter_Frame.selectedFilterSet = #PremadeFilter_Data.FilterSetsOrder;
+		end
+
+		PremadeFilter_Data.FilterSets[text] = PremadeFilter_GetFilters();
+		
+		PremadeFilter_FixFilterSets();
 	end,
 	timeout = 0,
 	whileDead = true,
@@ -767,7 +812,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.visibleRealms = PremadeFilter_GetVisibleRealms();
 	self.query = "";
 	self.freshResults = {};
-	self.selectedFilterSet = 1;
+	self.selectedFilterSet = 0;
 	
 	PremadeFilter_RealmList_Update();
 	
@@ -914,6 +959,7 @@ function PremadeFilter_OnHide(self)
 	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
 	
 	StaticPopup_Hide("PREMADEFILTER_CONFIGM_CLOSE");
+	StaticPopup_Hide("PREMADEFILTER_SAVE_FILTERSET");
 end
 
 function PremadeFilter_Toggle()
@@ -1339,7 +1385,7 @@ function PremadeFilter_SetFilters(filters)
 		local possible = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.possible, " "), "?");
 		local query = include.." "..exclude.." "..possible;
 		
-		LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
+		LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1").." ");
 	else
 		LFGListFrame.SearchPanel.SearchBox:SetText("");
 	end
@@ -1368,12 +1414,13 @@ function PremadeFilter_SetFilters(filters)
 	end
 	
 	-- voice chat
+	PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
+	PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(false);
+	PremadeFilter_Frame.VoiceChat.EditBox:Hide();
+	
 	if type(filters.vc) == "table" then
 		PremadeFilter_Frame.VoiceChat.CheckButton.CheckedNone = filters.vc.none;
-		PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
-		PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(false);
 		PremadeFilter_Frame.VoiceChat.EditBox:SetText(filters.vc.text);
-		PremadeFilter_Frame.VoiceChat.EditBox:Hide();
 		
 		if filters.vc.none then
 			PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up");
@@ -1393,6 +1440,10 @@ function PremadeFilter_SetFilters(filters)
 		PremadeFilter_Frame.TankCheckButton:SetChecked(tank);
 		PremadeFilter_Frame.HealerCheckButton:SetChecked(heal);
 		PremadeFilter_Frame.DamagerCheckButton:SetChecked(dps);
+	else
+		PremadeFilter_Frame.TankCheckButton:SetChecked(false);
+		PremadeFilter_Frame.HealerCheckButton:SetChecked(false);
+		PremadeFilter_Frame.DamagerCheckButton:SetChecked(false);
 	end
 	
 	-- realm
@@ -1430,38 +1481,86 @@ function PremadeFilter_SetFilters(filters)
 			local lastChapter = PremadeFilter_Frame.realmList[lastRealm].chapterIndex;
 			PremadeFilter_Frame.realmList[lastChapter].isCollapsed = true;
 		end
-		
-		PremadeFilter_Frame.visibleRealms = PremadeFilter_GetVisibleRealms();
-		
-		PremadeFilter_RealmList_Update();
+	else
+		for i=1, #PremadeFilter_Frame.realmList do
+			PremadeFilter_Frame.realmList[i].isChecked = true;
+			PremadeFilter_Frame.realmList[i].isCollapsed = true;
+		end
 	end
+	PremadeFilter_Frame.visibleRealms = PremadeFilter_GetVisibleRealms();
+	PremadeFilter_RealmList_Update();
 	
 	-- members
+	PremadeFilter_Frame.PlayersTankCheckButton:SetChecked(false);
+	PremadeFilter_Frame.MinTanks:SetText("");
+	PremadeFilter_Frame.MaxTanks:SetText("");
+	PremadeFilter_Frame.PlayersNoTankMinLabel:Show();
+	PremadeFilter_Frame.PlayersNoTankMaxLabel:Show();
+	PremadeFilter_Frame.MinTanks:Hide();
+	PremadeFilter_Frame.MaxTanks:Hide();
 	if type(filters.minTanks) == "number" then
 		PremadeFilter_Frame.PlayersTankCheckButton:SetChecked(true);
-		PremadeFilter_Frame.MinTanks:GetText(filters.minTanks);
+		PremadeFilter_Frame.MinTanks:SetText(filters.minTanks);
+		PremadeFilter_Frame.PlayersNoTankMinLabel:Hide();
+		PremadeFilter_Frame.PlayersNoTankMaxLabel:Hide();
+		PremadeFilter_Frame.MinTanks:Show();
+		PremadeFilter_Frame.MaxTanks:Show();
 	end
 	if type(filters.maxTanks) == "number" then
 		PremadeFilter_Frame.PlayersTankCheckButton:SetChecked(true);
-		PremadeFilter_Frame.MaxTanks:GetText(filters.maxTanks);
+		PremadeFilter_Frame.MaxTanks:SetText(filters.maxTanks);
+		PremadeFilter_Frame.PlayersNoTankMinLabel:Hide();
+		PremadeFilter_Frame.PlayersNoTankMaxLabel:Hide();
+		PremadeFilter_Frame.MinTanks:Show();
+		PremadeFilter_Frame.MaxTanks:Show();
 	end
 	
+	PremadeFilter_Frame.PlayersHealerCheckButton:SetChecked(false);
+	PremadeFilter_Frame.MinHealers:SetText("");
+	PremadeFilter_Frame.MaxHealers:SetText("");
+	PremadeFilter_Frame.PlayersNoHealerMinLabel:Show();
+	PremadeFilter_Frame.PlayersNoHealerMaxLabel:Show();
+	PremadeFilter_Frame.MinHealers:Hide();
+	PremadeFilter_Frame.MaxHealers:Hide();
 	if type(filters.minHealers) == "number" then
 		PremadeFilter_Frame.PlayersHealerCheckButton:SetChecked(true);
-		PremadeFilter_Frame.MinHealers:GetText(filters.minHealers);
+		PremadeFilter_Frame.MinHealers:SetText(filters.minHealers);
+		PremadeFilter_Frame.PlayersNoHealerMinLabel:Hide();
+		PremadeFilter_Frame.PlayersNoHealerMaxLabel:Hide();
+		PremadeFilter_Frame.MinHealers:Show();
+		PremadeFilter_Frame.MaxHealers:Show();
 	end
 	if type(filters.maxHealers) == "number" then
 		PremadeFilter_Frame.PlayersHealerCheckButton:SetChecked(true);
-		PremadeFilter_Frame.MaxHealers:GetText(filters.maxHealers);
+		PremadeFilter_Frame.MaxHealers:SetText(filters.maxHealers);
+		PremadeFilter_Frame.PlayersNoHealerMinLabel:Hide();
+		PremadeFilter_Frame.PlayersNoHealerMaxLabel:Hide();
+		PremadeFilter_Frame.MinHealers:Show();
+		PremadeFilter_Frame.MaxHealers:Show();
 	end
 	
+	PremadeFilter_Frame.PlayersDamagerCheckButton:SetChecked(false);
+	PremadeFilter_Frame.MinDamagers:SetText("");
+	PremadeFilter_Frame.MaxDamagers:SetText("");
+	PremadeFilter_Frame.PlayersNoDamagerMinLabel:Show();
+	PremadeFilter_Frame.PlayersNoDamagerMaxLabel:Show();
+	PremadeFilter_Frame.MinDamagers:Hide();
+	PremadeFilter_Frame.MaxDamagers:Hide();
 	if type(filters.minDamagers) == "number" then
 		PremadeFilter_Frame.PlayersDamagerCheckButton:SetChecked(true);
-		PremadeFilter_Frame.MinDamagers:GetText(filters.minDamagers);
+		PremadeFilter_Frame.MinDamagers:SetText(filters.minDamagers);
+		PremadeFilter_Frame.PlayersNoDamagerMinLabel:Hide();
+		PremadeFilter_Frame.PlayersNoDamagerMaxLabel:Hide();
+		PremadeFilter_Frame.MinDamagers:Show();
+		PremadeFilter_Frame.MaxDamagers:Show();
 	end
 	if type(filters.maxDamagers) == "number" then
 		PremadeFilter_Frame.PlayersDamagerCheckButton:SetChecked(true);
-		PremadeFilter_Frame.MaxDamagers:GetText(filters.maxDamagers);
+		PremadeFilter_Frame.MaxDamagers:SetText(filters.maxDamagers);
+		PremadeFilter_Frame.PlayersNoDamagerMinLabel:Hide();
+		PremadeFilter_Frame.PlayersNoDamagerMaxLabel:Hide();
+		PremadeFilter_Frame.MinDamagers:Show();
+		PremadeFilter_Frame.MaxDamagers:Show();
 	end
 end
 
@@ -2556,9 +2655,10 @@ function PremadeFilter_MenuSpacerItem()
 	};
 end
 
-function PremadeFilter_MenuActionItem(text, func)
+function PremadeFilter_MenuActionItem(text, func, disabled)
 	return {
 		notCheckable	= true,
+		disabled		= disabled,
 		text			= T(text),
 		func			= func,
 	};
@@ -2598,8 +2698,7 @@ function PremadeFilter_OptionsMenu(self)
 		PremadeFilter_MenuSpacerItem(),
 		PremadeFilter_MenuTitleItem("Actions"),
 		PremadeFilter_MenuActionItem(SAVE, PremadeFilter_SaveFilterSet),
-		PremadeFilter_MenuActionItem("Reset"),
-		PremadeFilter_MenuActionItem(DELETE),
+		PremadeFilter_MenuActionItem(DELETE, PremadeFilter_DeleteFilterSet, true),
 		PremadeFilter_MenuSpacerItem(),
 		PremadeFilter_MenuTitleItem(SETTINGS),
 		PremadeFilter_MenuCheckboxItem("Enable chat notifications", PremadeFilter_GetSettings("ChatNotifications"),
@@ -2624,7 +2723,8 @@ function PremadeFilter_OptionsMenu(self)
 	
 	local recentSets = PremadeFilter_GetRecentFilterSets();
 	for index,text in pairs(recentSets) do
-		local checked = (index == PremadeFilter_Frame.selectedFilterSet);
+		local selectedIndex = #PremadeFilter_Data.FilterSetsOrder - PremadeFilter_Frame.selectedFilterSet + 2;
+		local checked = (index == selectedIndex);
 		table.insert(menuList, index+1, PremadeFilter_MenuRadioItem(text, checked, PremadeFilter_OnFilterSetSelected));
 	end
 	
@@ -2655,6 +2755,10 @@ function PremadeFilter_FixFilterSets()
 	while #PremadeFilter_Data.FilterSetsOrder > 30 do
 		local word = table.remove(PremadeFilter_Data.FilterSetsOrder, 1);
 		PremadeFilter_Data.FilterSets[word] = nil;
+	end
+	
+	if type(PremadeFilter_Frame.selectedFilterSet) ~= "number" or PremadeFilter_Frame.selectedFilterSet < 1 or PremadeFilter_Frame.selectedFilterSet > #PremadeFilter_Data.FilterSetsOrder then
+		PremadeFilter_Frame.selectedFilterSet = #PremadeFilter_Data.FilterSetsOrder + 1;
 	end
 end
 
@@ -2687,37 +2791,40 @@ function PremadeFilter_GetRestFilterSets()
 end
 
 function PremadeFilter_SaveFilterSet()
-	PremadeFilter_FixFilterSets();
+	StaticPopup_Show("PREMADEFILTER_SAVE_FILTERSET");
+end
+
+function PremadeFilter_DeleteFilterSet()
 	
-	local index = #PremadeFilter_Data.FilterSetsOrder+1;
-	local text = "Test set "..index;
-	local filters	= PremadeFilter_GetFilters();
-	
-	PremadeFilter_Data.FilterSets[text] = filters;
-	table.insert(PremadeFilter_Data.FilterSetsOrder, text);
-	
-	PremadeFilter_Frame.selectedFilterSet = 2;
-	
-	PremadeFilter_FixFilterSets();
 end
 
 function PremadeFilter_OnFilterSetSelected(self, arg1, arg2, checked)
 	local index = self:GetID();
 	
 	if UIDROPDOWNMENU_MENU_LEVEL == 1 then
-		PremadeFilter_Frame.selectedFilterSet = index - 2;
+		PremadeFilter_Frame.selectedFilterSet = #PremadeFilter_Data.FilterSetsOrder - index + 3;
 	elseif UIDROPDOWNMENU_MENU_LEVEL == 2 then
-		PremadeFilter_Frame.selectedFilterSet = 2;
-		local order = #PremadeFilter_Data.FilterSetsOrder - index - 5;
+		local order = #PremadeFilter_Data.FilterSetsOrder - 5 + index - 1;
 		local text = table.remove(PremadeFilter_Data.FilterSetsOrder, order);
 		table.insert(PremadeFilter_Data.FilterSetsOrder, text);
+		PremadeFilter_Frame.selectedFilterSet = #PremadeFilter_Data.FilterSetsOrder;
 	end
 	
 	CloseDropDownMenus();
 	
 	local setIndex = PremadeFilter_Frame.selectedFilterSet;
-	local setName = PremadeFilter_Data.FilterSetsOrder[setIndex];
-	local filters = PremadeFilter_Data.FilterSets[setName];
+	local filters;
+	
+	if setIndex <= #PremadeFilter_Data.FilterSetsOrder then
+		local setName = PremadeFilter_Data.FilterSetsOrder[setIndex];
+		filters = PremadeFilter_Data.FilterSets[setName];
+	else
+		filters = {
+			category	= PremadeFilter_Frame.selectedCategory,
+			group		= PremadeFilter_Frame.selectedGroup,
+			activity	= PremadeFilter_Frame.selectedActivity,
+		};
+	end
 	
 	PremadeFilter_SetFilters(filters);
 	
