@@ -837,6 +837,8 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.visibleRealms = PremadeFilter_GetVisibleRealms();
 	self.query = "";
 	self.freshResults = {};
+	self.resultInfo = {};
+	self.chatNotifications = {};
 	self.selectedFilterSet = 0;
 	
 	PremadeFilter_RealmList_Update();
@@ -856,10 +858,10 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.oldHyperlinkClick = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick");
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkClick", PremadeFilter_Hyperlink_OnClick);
 	
-	--self.oldHyperlinkEnter = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkEnter");
-	--self.oldHyperlinkLeave = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkLeave");
-	--DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkEnter", PremadeFilter_Hyperlink_OnEnter);
-	--DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
+	self.oldHyperlinkEnter = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkEnter");
+	self.oldHyperlinkLeave = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkLeave");
+	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkEnter", PremadeFilter_Hyperlink_OnEnter);
+	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
 	
 	--SendAddonMessage("D4", "M\tPremadeFilter\trevision\tevent", "RAID", "Мезитха")
 end
@@ -1589,6 +1591,10 @@ function PremadeFilter_SetFilters(filters)
 	end
 end
 
+function PremadeFilter_GetInfoName(activityID, name, leaderName)
+	return activityID.."-"..name.."-"..(leaderName or "");
+end
+
 function LFGListSearchPanel_UpdateResultList(self)
 	if not self.searching then
 		self.totalResults, self.results = C_LFGList.GetSearchResults();
@@ -1610,6 +1616,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local minAge = nil;
 	
 		PremadeFilter_Frame.freshResults = {};
+		PremadeFilter_Frame.resultInfo = {};
 		
 		for i=1, #self.results do
 			local resultID = self.results[i];
@@ -1621,6 +1628,9 @@ function LFGListSearchPanel_UpdateResultList(self)
 				minAge = age;
 			end
 			
+			local infoName = PremadeFilter_GetInfoName(activityID, name);
+			PremadeFilter_Frame.resultInfo[infoName] = PremadeFilter_GetTooltipInfo(resultID);
+				
 			local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 			
 			-- check additional filters
@@ -1718,8 +1728,9 @@ function LFGListSearchPanel_UpdateResultList(self)
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification();
 						
-						if PremadeFilter_GetSettings("ChatNotifications") then
-							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new group ")..PremadeFilter_GetHyperlink(name, { id = resultID }));
+						if PremadeFilter_GetSettings("ChatNotifications") and not PremadeFilter_Frame.chatNotifications[infoName] then
+							PremadeFilter_Frame.chatNotifications[infoName] = true;
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new group ")..PremadeFilter_GetHyperlink(name, { infoName = infoName }));
 						end
 					end
 				end
@@ -1760,13 +1771,17 @@ function LFGListSearchPanel_UpdateResults(self)
 			local result = (idx <= #apps) and apps[idx] or results[idx - #apps];
 
 			if ( result ) then
+				local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(result);
+				local infoName = PremadeFilter_GetInfoName(activityID, name);
 				button.resultID = result;
+				button.infoName = infoName;
 				button.fresh = PremadeFilter_Frame.freshResults[result];
 				LFGListSearchEntry_Update(button);
 				button:Show();
 			else
 				button.created = 0;
 				button.resultID = nil;
+				button.infoName = nil;
 				button:Hide();
 			end
 			button:SetScript("OnEnter", PremadeFilter_SearchEntry_OnEnter);
@@ -1876,10 +1891,12 @@ function LFGListSearchEntry_Update(self)
 
 	local panel = self:GetParent():GetParent():GetParent();
 
-	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted = C_LFGList.GetSearchResultInfo(resultID);
+	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
 	local activityName = C_LFGList.GetActivityInfo(activityID);
-
+	local infoName = PremadeFilter_GetInfoName(activityID, name);
+	
 	self.resultID = resultID;
+	self.infoName = infoName;
 	self.Selected:SetShown(panel.selectedResult == resultID and not isApplication and not isDelisted);
 	self.Highlight:SetShown(panel.selectedResult ~= resultID and not isApplication and not isDelisted);
 	local nameColor = NORMAL_FONT_COLOR;
@@ -1933,8 +1950,7 @@ function LFGListSearchEntry_OnEnter(self)
 	PremadeFilter_SearchEntry_OnEnter(self);
 end
 
-function PremadeFilter_SearchEntry_OnEnter(self)
-	local resultID = self.resultID;
+function PremadeFilter_GetTooltipInfo(resultID)
 	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
 	
 	if not activityID then
@@ -1943,80 +1959,121 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	
 	local activityName, shortName, categoryID, groupID, minItemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 	local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
+	
+	local classCount = {};
+	local memberList = {};
+	
+	for i=1, numMembers do
+		local role, class, classLocalized = C_LFGList.GetSearchResultMemberInfo(resultID, i);
+		local info = {
+			role	= _G[role],
+			title	= classLocalized,
+			color	= RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR,
+		};
+		
+		table.insert(memberList, info);
+		
+		if not classCount[class] then
+			classCount[class] = {
+				title = info.title,
+				color = info.color,
+				count = 0,
+			};
+		end
+		classCount[class].count = classCount[class].count + 1;
+	end
+	
+	local friendList = {};
+	if ( numBNetFriends + numCharFriends + numGuildMates > 0 ) then
+		friendList = LFGListSearchEntryUtil_GetFriendList(resultID);
+	end
+	
+	local completedEncounters = C_LFGList.GetSearchResultEncounterInfo(resultID);
+	
+	return {
+		displayType			= displayType,
+		isDelisted			= isDelisted,
+		name				= name,
+		activityID			= activityID,
+		activityName		= activityName,
+		comment				= comment,
+		iLvl				= iLvl,
+		voiceChat			= voiceChat,
+		leaderName			= leaderName,
+		age					= age,
+		numMembers			= numMembers,
+		memberCounts		= memberCounts,
+		classCount			= classCount,
+		friendList			= friendList,
+		completedEncounters	= completedEncounters,
+	};
+end
+
+function PremadeFilter_SearchEntry_OnEnter(self)
+	local info = PremadeFilter_Frame.resultInfo[self.infoName];
+	
+	if not info then
+		return nil;
+	end
+	
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 25, 0);
-	GameTooltip:SetText(name, 1, 1, 1, true);
-	GameTooltip:AddLine(activityName);
-	if ( comment ~= "" ) then
-		GameTooltip:AddLine(string.format(LFG_LIST_COMMENT_FORMAT, comment), GRAY_FONT_COLOR.r, GRAY_FONT_COLOR.g, GRAY_FONT_COLOR.b, true);
+	GameTooltip:SetText(info.name, 1, 1, 1, true);
+	GameTooltip:AddLine(info.activityName);
+	if ( info.comment ~= "" ) then
+		GameTooltip:AddLine(string.format(LFG_LIST_COMMENT_FORMAT, info.comment), GRAY_FONT_COLOR.r, GRAY_FONT_COLOR.g, GRAY_FONT_COLOR.b, true);
 	end
 	GameTooltip:AddLine(" ");
-	if ( iLvl > 0 ) then
-		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_ILVL, iLvl));
+	if ( info.iLvl > 0 ) then
+		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_ILVL, info.iLvl));
 	end
-	if ( voiceChat ~= "" ) then
-		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_VOICE_CHAT, voiceChat), nil, nil, nil, true);
+	if ( info.voiceChat ~= "" ) then
+		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_VOICE_CHAT, info.voiceChat), nil, nil, nil, true);
 	end
-	if ( iLvl > 0 or voiceChat ~= "" ) then
+	if ( info.iLvl > 0 or info.voiceChat ~= "" ) then
 		GameTooltip:AddLine(" ");
 	end
 
-	if ( leaderName ) then
-		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_LEADER, leaderName));
+	if ( info.leaderName ) then
+		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_LEADER, info.leaderName));
 	end
-	if ( age > 0 ) then
-		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_AGE, SecondsToTime(age, false, false, 1, false)));
+	if ( info.age > 0 ) then
+		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_AGE, SecondsToTime(info.age, false, false, 1, false)));
 	end
 
-	if ( leaderName or age > 0 ) then
+	if ( info.leaderName or info.age > 0 ) then
 		GameTooltip:AddLine(" ");
 	end
 	
-	if ( displayType == LE_LFG_LIST_DISPLAY_TYPE_CLASS_ENUMERATE ) then
+	if ( info.displayType == LE_LFG_LIST_DISPLAY_TYPE_CLASS_ENUMERATE ) then
+		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS_SIMPLE, info.numMembers));
 		
-		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS_SIMPLE, numMembers));
-		for i=1, numMembers do
-			local role, class, classLocalized = C_LFGList.GetSearchResultMemberInfo(resultID, i);
-			local classColor = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR;
-			GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_CLASS_ROLE, classLocalized, _G[role]), classColor.r, classColor.g, classColor.b);
+		for i, memberInfo in pairs(info.memberList) do
+			GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_CLASS_ROLE, memberInfo.title, memberInfo.role), memberInfo.color.r, memberInfo.color.g, memberInfo.color.b);
 		end
 	else
-		local classCount = {};
-		for i=1, numMembers do
-			local role, class, classLocalized = C_LFGList.GetSearchResultMemberInfo(resultID, i);
-			if not classCount[class] then
-				classCount[class] = {
-					title = classLocalized,
-					color = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR,
-					count = 0
-				};
-			end
-			classCount[class].count = classCount[class].count + 1;
-		end
-		
-		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS, numMembers, memberCounts.TANK, memberCounts.HEALER, memberCounts.DAMAGER));
+		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS, info.numMembers, info.memberCounts.TANK, info.memberCounts.HEALER, info.memberCounts.DAMAGER));
 		
 		local classHint = "";
-		for i, info in pairs(classCount) do
-			GameTooltip:AddLine(string.format("%s (%d)", info.title, info.count), info.color.r, info.color.g, info.color.b);
+		for i, classInfo in pairs(info.classCount) do
+			GameTooltip:AddLine(string.format("%s (%d)", classInfo.title, classInfo.count), classInfo.color.r, classInfo.color.g, classInfo.color.b);
 		end
 	end
 	
-	if ( numBNetFriends + numCharFriends + numGuildMates > 0 ) then
+	if ( #info.friendList > 0 ) then
 		GameTooltip:AddLine(" ");
 		GameTooltip:AddLine(LFG_LIST_TOOLTIP_FRIENDS_IN_GROUP);
-		GameTooltip:AddLine(LFGListSearchEntryUtil_GetFriendList(resultID), 1, 1, 1, true);
+		GameTooltip:AddLine(info.friendList, 1, 1, 1, true);
 	end
 
-	local completedEncounters = C_LFGList.GetSearchResultEncounterInfo(resultID);
-	if ( completedEncounters and #completedEncounters > 0 ) then
+	if ( info.completedEncounters and #info.completedEncounters > 0 ) then
 		GameTooltip:AddLine(" ");
 		GameTooltip:AddLine(LFG_LIST_BOSSES_DEFEATED);
-		for i=1, #completedEncounters do
-			GameTooltip:AddLine(completedEncounters[i], RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
+		for i=1, #info.completedEncounters do
+			GameTooltip:AddLine(info.completedEncounters[i], RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
 		end
 	end
 
-	if ( isDelisted ) then
+	if ( info.isDelisted ) then
 		GameTooltip:AddLine(" ");
 		GameTooltip:AddLine(LFG_LIST_ENTRY_DELISTED, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b, true);
 	end
@@ -2219,9 +2276,11 @@ function PremadeFilter_Experimental(self)
 end
 
 function PremadeFilter_StartMonitoring()
+	PremadeFilter_Frame.chatNotifications = {};
 end
 
 function PremadeFilter_StopMonitoring()
+	PremadeFilter_Frame.chatNotifications = {};
 	PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
 end
 
@@ -2292,6 +2351,7 @@ end
 
 function PremadeFilter_Hyperlink_OnEnter(self, linkData, link)
 	local prefix = linkData:sub(1, 7);
+	
 	if prefix == "premade" then
 		local data = {};
 		local dataStr = linkData:sub(8);
@@ -2303,7 +2363,8 @@ function PremadeFilter_Hyperlink_OnEnter(self, linkData, link)
 			i = i + 1;
 		end
 		
-		self.resultID = data.id;
+		self.infoName = data.infoName;
+		
 		PremadeFilter_SearchEntry_OnEnter(self)
 	elseif PremadeFilter_Frame.oldHyperlinkEnter then
 		PremadeFilter_Frame.oldHyperlinkEnter(self, linkData, link, button);
