@@ -18,6 +18,7 @@ if GetLocale() == "ruRU" then
 	L["New filter set"] = "Новый набор фильтров";
 	L["More"] = "Еще";
 	L["Actions"] = "Действия";
+	L["Are you sure you want to delete filter set?"] = "Вы действительно хотите удалить набор фильтров?";
 	
 	L["Notifications"] = "Оповещения";
 	L["Enable chat notifications"] = "Включить оповещение в чат";

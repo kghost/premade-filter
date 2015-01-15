@@ -677,7 +677,7 @@ local PremadeFilter_Relams = {
 		
 };
 
-StaticPopupDialogs["PREMADEFILTER_CONFIGM_CLOSE"] = {
+StaticPopupDialogs["PREMADEFILTER_CONFIRM_CLOSE"] = {
 	text = T("Monitor new groups in background?"),
 	button1 = YES,
 	button2 = NO,
@@ -749,6 +749,31 @@ StaticPopupDialogs["PREMADEFILTER_SAVE_FILTERSET"] = {
 		PremadeFilter_Data.FilterSets[text] = PremadeFilter_GetFilters();
 		
 		PremadeFilter_FixFilterSets();
+	end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3
+}
+
+StaticPopupDialogs["PREMADEFILTER_CONFIRM_DELETE"] = {
+	text = T("Are you sure you want to delete filter set?"),
+	button1 = YES,
+	button2 = NO,
+	OnAccept = function(self, arg1, reason)
+		local index = PremadeFilter_Frame.selectedFilterSet;
+	
+		if index <= #PremadeFilter_Data.FilterSetsOrder then
+			local text = table.remove(PremadeFilter_Data.FilterSetsOrder, index);
+			PremadeFilter_Data.FilterSets[text] = nil;
+			
+			PremadeFilter_Frame.selectedFilterSet = #PremadeFilter_Data.FilterSetsOrder + 1;
+			PremadeFilter_SetFilters({
+				category	= PremadeFilter_Frame.selectedCategory,
+				group		= PremadeFilter_Frame.selectedGroup,
+				activity	= PremadeFilter_Frame.selectedActivity,
+			});
+		end
 	end,
 	timeout = 0,
 	whileDead = true,
@@ -958,7 +983,7 @@ function PremadeFilter_OnHide(self)
 	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
 	
-	StaticPopup_Hide("PREMADEFILTER_CONFIGM_CLOSE");
+	StaticPopup_Hide("PREMADEFILTER_CONFIRM_CLOSE");
 	StaticPopup_Hide("PREMADEFILTER_SAVE_FILTERSET");
 end
 
@@ -967,7 +992,7 @@ function PremadeFilter_Toggle()
 		if QueueStatusMinimapButton:IsVisible() or PremadeFilter_Frame.closeConfirmation then
 			PremadeFilter_Frame:Hide();
 		else
-			StaticPopup_Show("PREMADEFILTER_CONFIGM_CLOSE");
+			StaticPopup_Show("PREMADEFILTER_CONFIRM_CLOSE");
 		end
 	else
 		PremadeFilter_Frame:Show();
@@ -2698,7 +2723,7 @@ function PremadeFilter_OptionsMenu(self)
 		PremadeFilter_MenuSpacerItem(),
 		PremadeFilter_MenuTitleItem("Actions"),
 		PremadeFilter_MenuActionItem(SAVE, PremadeFilter_SaveFilterSet),
-		PremadeFilter_MenuActionItem(DELETE, PremadeFilter_DeleteFilterSet, true),
+		PremadeFilter_MenuActionItem(DELETE, PremadeFilter_DeleteFilterSet),
 		PremadeFilter_MenuSpacerItem(),
 		PremadeFilter_MenuTitleItem(SETTINGS),
 		PremadeFilter_MenuCheckboxItem("Enable chat notifications", PremadeFilter_GetSettings("ChatNotifications"),
@@ -2795,7 +2820,11 @@ function PremadeFilter_SaveFilterSet()
 end
 
 function PremadeFilter_DeleteFilterSet()
+	local index = PremadeFilter_Frame.selectedFilterSet;
 	
+	if index <= #PremadeFilter_Data.FilterSetsOrder then
+		StaticPopup_Show("PREMADEFILTER_CONFIRM_DELETE");
+	end
 end
 
 function PremadeFilter_OnFilterSetSelected(self, arg1, arg2, checked)
