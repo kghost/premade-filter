@@ -1036,7 +1036,7 @@
 				</Scripts>
 			</Frame>
 			
-			<Button name="PremadeFilter_MinimapButton" parent="MinimapBackdrop" inherits="MiniMapButtonTemplate" hidden="true">
+			<Button name="PremadeFilter_MinimapButton" parent="Minimap" inherits="MiniMapButtonTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="33" y="33"/>
 				</Size>
@@ -1096,7 +1096,7 @@
 				</Frames>
 				<Scripts>
 					<OnLoad function="PremadeFilter_MinimapButton_OnLoad"/>
-					<OnShow function="QueueStatusMinimapButton_OnShow"/>
+					<OnShow function="PremadeFilter_MinimapButton_OnShow"/>
 					<OnClick function="PremadeFilter_MinimapButton_OnClick"/>
 					<OnUpdate function="PremadeFilter_MinimapButton_OnUpdate"/>
 				</Scripts>

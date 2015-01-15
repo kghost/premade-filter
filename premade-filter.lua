@@ -9,6 +9,7 @@ LFG_LIST_FRESH_FONT_COLOR = { r=0.3, g=0.9, b=0.3 };
 
 local COLOR_RESET	= "|r"
 local COLOR_WHITE	= "|cffffffff"
+local COLOR_GRAY	= "|cffbbbbbb"
 local COLOR_BLUE	= "|cff88ccff"
 local COLOR_GREEN	= "|cff88ff88"
 local COLOR_YELLOW	= "|cffffff66"
@@ -2063,7 +2064,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		for i, classInfo in pairs(info.classCounts) do
 			local counts = {};
 			for role, count in pairs(classInfo.counts) do
-				table.insert(counts, role..": "..count);
+				table.insert(counts, COLOR_GRAY..role..": "..COLOR_ORANGE..count..COLOR_RESET);
 			end
 			GameTooltip:AddLine(string.format("%s (%s)", classInfo.title, table.concat(counts, ", ")), classInfo.color.r, classInfo.color.g, classInfo.color.b);
 		end
@@ -2297,6 +2298,16 @@ end
 function PremadeFilter_MinimapButton_OnLoad(self)
 	QueueStatusMinimapButton_OnLoad(self);
 	self.LastUpdate = 0;
+end
+
+function PremadeFilter_MinimapButton_OnShow(self)
+	QueueStatusMinimapButton_OnShow(self);
+	
+	local point, anchor, relativePoint, x, y = QueueStatusMinimapButton:GetPoint();
+	
+	self:ClearAllPoints();
+	self:SetParent(QueueStatusMinimapButton:GetParent());
+	self:SetPoint(point, anchor, relativePoint, x, y);
 end
 
 function PremadeFilter_MinimapButton_OnClick()
