@@ -728,6 +728,7 @@ StaticPopupDialogs["PREMADEFILTER_SAVE_FILTERSET"] = {
 			text = defaultText;
 		end
 		self.editBox:SetText(text);
+		self.editBox:SetFocus();
 	end,
 	OnAccept = function(self, arg1, reason)
 		local defaultText = T("New filter set");
@@ -1960,7 +1961,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 	local activityName, shortName, categoryID, groupID, minItemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 	local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 	
-	local classCount = {};
+	local classCounts = {};
 	local memberList = {};
 	
 	for i=1, numMembers do
@@ -1973,14 +1974,19 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		
 		table.insert(memberList, info);
 		
-		if not classCount[class] then
-			classCount[class] = {
+		if not classCounts[class] then
+			classCounts[class] = {
 				title = info.title,
 				color = info.color,
-				count = 0,
+				counts = {},
 			};
 		end
-		classCount[class].count = classCount[class].count + 1;
+		
+		if not classCounts[class].counts[role] then
+			classCounts[class].counts[info.role] = 0;
+		end
+		
+		classCounts[class].counts[info.role] = classCounts[class].counts[info.role] + 1;
 	end
 	
 	local friendList = {};
@@ -2003,7 +2009,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		age					= age,
 		numMembers			= numMembers,
 		memberCounts		= memberCounts,
-		classCount			= classCount,
+		classCounts			= classCounts,
 		friendList			= friendList,
 		completedEncounters	= completedEncounters,
 	};
@@ -2054,8 +2060,12 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS, info.numMembers, info.memberCounts.TANK, info.memberCounts.HEALER, info.memberCounts.DAMAGER));
 		
 		local classHint = "";
-		for i, classInfo in pairs(info.classCount) do
-			GameTooltip:AddLine(string.format("%s (%d)", classInfo.title, classInfo.count), classInfo.color.r, classInfo.color.g, classInfo.color.b);
+		for i, classInfo in pairs(info.classCounts) do
+			local counts = {};
+			for role, count in pairs(classInfo.counts) do
+				table.insert(counts, role..": "..count);
+			end
+			GameTooltip:AddLine(string.format("%s (%s)", classInfo.title, table.concat(counts, ", ")), classInfo.color.r, classInfo.color.g, classInfo.color.b);
 		end
 	end
 	
