@@ -867,6 +867,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkEnter", PremadeFilter_Hyperlink_OnEnter);
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
 	
+	RegisterAddonMessagePrefix("PREMADE_FILTER");
 	SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
 end
 
@@ -882,6 +883,7 @@ function PremadeFilter_OnEvent(self, event, ...)
 		PremadeFilter_OnApplicantListApdated(self, event, ...);
 	elseif event == "CHAT_MSG_ADDON" then
 		local prefix, msg, channel, sender, senderName = ...;
+		
 		if msg == "VER?" then
 			local player = UnitName("player");
 			local version = GetAddOnMetadata("premade-filter", "Version");
