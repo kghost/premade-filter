@@ -864,8 +864,6 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.oldHyperlinkLeave = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkLeave");
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkEnter", PremadeFilter_Hyperlink_OnEnter);
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
-	
-	--SendAddonMessage("D4", "M\tPremadeFilter\trevision\tevent", "RAID", "Мезитха")
 end
 
 function PremadeFilter_OnEvent(self, event, ...)
@@ -1983,7 +1981,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 			};
 		end
 		
-		if not classCounts[class].counts[role] then
+		if not classCounts[class].counts[info.role] then
 			classCounts[class].counts[info.role] = 0;
 		end
 		
