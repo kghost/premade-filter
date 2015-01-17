@@ -105,6 +105,7 @@ local PremadeFilter_Relams = {
 		{ name = "Lightbringer", region = 1, chapter = 2 },
 		{ name = "Maiev", region = 1, chapter = 2 },
 		{ name = "Misha", region = 1, chapter = 2 },
+		{ name = "Mok'Nathal", region = 1, chapter = 2 },
 		{ name = "Moonrunner", region = 1, chapter = 2 },
 		{ name = "Nazjatar", region = 1, chapter = 2 },
 		{ name = "Ner'zhul", region = 1, chapter = 2 },
