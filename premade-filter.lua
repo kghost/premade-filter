@@ -884,24 +884,30 @@ function PremadeFilter_OnEvent(self, event, ...)
 	elseif event == "CHAT_MSG_ADDON" then
 		local prefix, msg, channel, sender, senderName = ...;
 		
-		if msg == "VER?" then
-			local player = UnitName("player");
-			local version = GetAddOnMetadata("premade-filter", "Version");
-			
-			SendAddonMessage("PREMADE_FILTER", "VER!"..player..":"..version, "GUILD");
-		elseif msg:sub(1,4) == "VER!" then
-			local version = GetAddOnMetadata("premade-filter", "Version");
-			
-			if SLASH_PF1 then
-				print(msg:sub(5));
-			else
-				local recievedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2");
+		if prefix == "PREMADE_FILTER" then
+			if msg == "VER?" then
+				local player = UnitName("player");
+				local version = GetAddOnMetadata("premade-filter", "Version");
 				
-				if recievedVersion > version then
-					if not self.VersionLabel:IsShown() then
-						self.VersionLabel:Show();
-						self.VersionLabel:SetText(T("New version available"));
-						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"));
+				if SLASH_PF1 then
+					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, sender.." requested addon version");
+				end
+				
+				SendAddonMessage("PREMADE_FILTER", "VER!"..player..":"..version, "WHISPER", sender);
+			elseif msg:sub(1,4) == "VER!" then
+				local version = GetAddOnMetadata("premade-filter", "Version");
+				
+				if SLASH_PF1 then
+					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, msg:sub(5));
+				else
+					local recievedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2");
+					
+					if recievedVersion > version then
+						if not self.VersionLabel:IsShown() then
+							self.VersionLabel:Show();
+							self.VersionLabel:SetText(T("New version available"));
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"));
+						end
 					end
 				end
 			end
