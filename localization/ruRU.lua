@@ -1,6 +1,8 @@
 local _, L = ...;
 
 if GetLocale() == "ruRU" then
+	L["New version available"] = "Доступна новая версия";
+	
 	L["Include words"] = "Включить слова";
 	L["Exclude words"] = "Исключить слова";
 	L["At least one word"] = "Любое из слов";

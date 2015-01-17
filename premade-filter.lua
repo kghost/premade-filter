@@ -787,6 +787,7 @@ StaticPopupDialogs["PREMADEFILTER_CONFIRM_DELETE"] = {
 function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
 	self:RegisterEvent("ADDON_LOADED");
+	self:RegisterEvent("CHAT_MSG_ADDON");
 	
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
@@ -865,6 +866,8 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.oldHyperlinkLeave = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkLeave");
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkEnter", PremadeFilter_Hyperlink_OnEnter);
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
+	
+	SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
 end
 
 function PremadeFilter_OnEvent(self, event, ...)
@@ -877,6 +880,30 @@ function PremadeFilter_OnEvent(self, event, ...)
 		end
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
 		PremadeFilter_OnApplicantListApdated(self, event, ...);
+	elseif event == "CHAT_MSG_ADDON" then
+		local prefix, msg, channel, sender, senderName = ...;
+		if msg == "VER?" then
+			local player = UnitName("player");
+			local version = GetAddOnMetadata("premade-filter", "Version");
+			
+			SendAddonMessage("PREMADE_FILTER", "VER!"..player..":"..version, "GUILD");
+		elseif msg:sub(1,4) == "VER!" then
+			local version = GetAddOnMetadata("premade-filter", "Version");
+			
+			if SLASH_PF1 then
+				print(msg:sub(5));
+			else
+				local recievedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2");
+				
+				if recievedVersion > version then
+					if not self.VersionLabel:IsShown() then
+						self.VersionLabel:Show();
+						self.VersionLabel:SetText(T("New version available"));
+						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"));
+					end
+				end
+			end
+		end
 	end
 end
 
