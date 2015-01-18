@@ -23,7 +23,8 @@ if GetLocale() == "ruRU" then
 	L["Are you sure you want to delete filter set?"] = "Вы действительно хотите удалить набор фильтров?";
 	
 	L["Notifications"] = "Оповещения";
-	L["Enable chat notifications"] = "Включить оповещение в чат";
+	L["Notify in chat on new group"] = "Оповещать в чат о новой группе";
+	L["Notify in chat on new player"] = "Оповещать в чат о новом игроке";
 	L["Enable sound notifications"] = "Включить звуковые оповещения";
 	L["Monitoring"] = "Отслеживание";
 	L["Update interval (sec.)"] = "Интервал обновления (сек.)";

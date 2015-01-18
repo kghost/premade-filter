@@ -22,7 +22,9 @@ local PremadeFilter_DefaultSettings = {
 	Version				= GetAddOnMetadata("premade-filter", "Version"),
 	MaxRecentWords		= 10,
 	UpdateInterval		= 15,
-	ChatNotifications	= true,
+	ChatNotifications	= nil,
+	NewGroupChatNotifications	= true,
+	NewPlayerChatNotifications	= true,
 	SoundNotifications	= true,
 }
 
@@ -868,7 +870,6 @@ function PremadeFilter_Frame_OnLoad(self)
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
 	
 	RegisterAddonMessagePrefix("PREMADE_FILTER");
-	SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
 end
 
 function PremadeFilter_OnEvent(self, event, ...)
@@ -889,26 +890,25 @@ function PremadeFilter_OnEvent(self, event, ...)
 				local player = UnitName("player");
 				local version = GetAddOnMetadata("premade-filter", "Version");
 				
-				if SLASH_PF1 then
+				SendAddonMessage("PREMADE_FILTER", "VER!"..player..":"..version, "WHISPER", sender);
+				
+				if SLASH_PFD1 then
 					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, sender.." requested addon version");
 				end
-				
-				SendAddonMessage("PREMADE_FILTER", "VER!"..player..":"..version, "WHISPER", sender);
 			elseif msg:sub(1,4) == "VER!" then
 				local version = GetAddOnMetadata("premade-filter", "Version");
+				local recievedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2");
 				
-				if SLASH_PF1 then
-					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, msg:sub(5));
-				else
-					local recievedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2");
-					
-					if recievedVersion > version then
-						if not self.VersionLabel:IsShown() then
-							self.VersionLabel:Show();
-							self.VersionLabel:SetText(T("New version available"));
-							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"));
-						end
+				if recievedVersion > version then
+					if not self.VersionLabel:IsShown() then
+						self.VersionLabel:Show();
+						self.VersionLabel:SetText(T("New version available"));
+						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"));
 					end
+				end
+				
+				if SLASH_PFD1 then
+					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, msg:sub(5));
 				end
 			end
 		end
@@ -922,6 +922,11 @@ function PremadeFilter_FixSettings()
 	
 	if not PremadeFilter_Data.Settings.Version then
 		PremadeFilter_Data.Settings = PremadeFilter_DefaultSettings;
+		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version");
+	elseif PremadeFilter_Data.Settings.Version == "0.8.4" then
+		PremadeFilter_Data.Settings.NewGroupChatNotifications = PremadeFilter_DefaultSettings.NewGroupChatNotifications;
+		PremadeFilter_Data.Settings.NewPlayerChatNotifications = PremadeFilter_Data.Settings.ChatNotifications;
+		PremadeFilter_Data.Settings.ChatNotifications = nil;
 		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version");
 	end
 	
@@ -1009,6 +1014,8 @@ function PremadeFilter_OnShow(self)
 	end
 	
 	PremadeFilter_StopNotification();
+	
+	SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
 	
 	PlaySound("igMainMenuOpen");
 end
@@ -1764,7 +1771,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification();
 						
-						if PremadeFilter_GetSettings("ChatNotifications") and not PremadeFilter_Frame.chatNotifications[infoName] then
+						if PremadeFilter_GetSettings("NewGroupChatNotifications") and not PremadeFilter_Frame.chatNotifications[infoName] then
 							PremadeFilter_Frame.chatNotifications[infoName] = true;
 							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new group ")..PremadeFilter_GetHyperlink(name, { infoName = infoName }));
 						end
@@ -2468,7 +2475,7 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 							roles = roles..", ".._G[role2];
 						end
 						
-						if PremadeFilter_GetSettings("ChatNotifications") then
+						if PremadeFilter_GetSettings("NewPlayerChatNotifications") then
 							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
 						end
 					end
@@ -2760,7 +2767,8 @@ function PremadeFilter_Options_OnLoad(self)
 	
 	-- setup localization
 	self.NotificationsHeader:SetText(T(self.NotificationsHeader:GetText()));
-	self.ChatNotificationsHeader:SetText(T(self.ChatNotificationsHeader:GetText()));
+	self.NewGroupChatNotificationsHeader:SetText(T(self.NewGroupChatNotificationsHeader:GetText()));
+	self.NewPlayerChatNotificationsHeader:SetText(T(self.NewPlayerChatNotificationsHeader:GetText()));
 	self.SoundNotificationsHeader:SetText(T(self.SoundNotificationsHeader:GetText()));
 	self.MonitoringHeader:SetText(T(self.MonitoringHeader:GetText()));
 	self.UpdateIntervalHeader:SetText(T(self.UpdateIntervalHeader:GetText()));
@@ -2771,7 +2779,8 @@ function PremadeFilter_Options_OnLoad(self)
 	
 	-- save options
 	self.okay = function (self)
-		PremadeFilter_SetSettings("ChatNotifications", self.ChatNotifications:GetChecked());
+		PremadeFilter_SetSettings("NewGroupChatNotifications", self.NewGroupChatNotifications:GetChecked());
+		PremadeFilter_SetSettings("NewPlayerChatNotifications", self.NewPlayerChatNotifications:GetChecked());
 		PremadeFilter_SetSettings("SoundNotifications", self.SoundNotifications:GetChecked());
 		PremadeFilter_SetSettings("UpdateInterval", self.UpdateInterval:GetValue());
 	end;
@@ -2842,10 +2851,16 @@ function PremadeFilter_OptionsMenu(self)
 		PremadeFilter_MenuActionItem(DELETE, PremadeFilter_DeleteFilterSet),
 		PremadeFilter_MenuSpacerItem(),
 		PremadeFilter_MenuTitleItem(SETTINGS),
-		PremadeFilter_MenuCheckboxItem("Enable chat notifications", PremadeFilter_GetSettings("ChatNotifications"),
+		PremadeFilter_MenuCheckboxItem("Notify in chat on new group", PremadeFilter_GetSettings("NewGroupChatNotifications"),
 			function(self, arg1, arg2, checked)
 				self.checked = not checked;
-				PremadeFilter_SetSettings("ChatNotifications", self.checked);
+				PremadeFilter_SetSettings("NewGroupChatNotifications", self.checked);
+			end
+		),
+		PremadeFilter_MenuCheckboxItem("Notify in chat on new player", PremadeFilter_GetSettings("NewPlayerChatNotifications"),
+			function(self, arg1, arg2, checked)
+				self.checked = not checked;
+				PremadeFilter_SetSettings("NewPlayerChatNotifications", self.checked);
 			end
 		),
 		PremadeFilter_MenuCheckboxItem("Enable sound notifications", PremadeFilter_GetSettings("SoundNotifications"), nil, true),

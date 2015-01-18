@@ -1165,7 +1165,7 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-						<FontString parentKey="ChatNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Enable chat notifications">
+						<FontString parentKey="NewGroupChatNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Notify in chat on new group">
 							<Anchors>
 								<Anchor point="TOPLEFT">
 									<Offset>
@@ -1174,7 +1174,7 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-						<FontString parentKey="SoundNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Enable sound notifications">
+						<FontString parentKey="NewPlayerChatNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Notify in chat on new player">
 							<Anchors>
 								<Anchor point="TOPLEFT">
 									<Offset>
@@ -1183,11 +1183,20 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
+						<FontString parentKey="SoundNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Enable sound notifications">
+							<Anchors>
+								<Anchor point="TOPLEFT">
+									<Offset>
+										<AbsDimension x="42" y="-116"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
 						<FontString parentKey="MonitoringHeader" inherits="OptionsFontLarge" justifyH="LEFT" justifyV="TOP" text="Monitoring">
 							<Anchors>
 								<Anchor point="TOPLEFT">
 									<Offset>
-										<AbsDimension x="16" y="-126"/>
+										<AbsDimension x="16" y="-159"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -1196,7 +1205,7 @@
 							<Anchors>
 								<Anchor point="TOPLEFT">
 									<Offset>
-										<AbsDimension x="16" y="-160"/>
+										<AbsDimension x="16" y="-193"/>
 									</Offset>
 								</Anchor>
 							</Anchors>
@@ -1204,16 +1213,21 @@
 					</Layer>
 				</Layers>
 				<Frames>
-					<CheckButton parentKey="ChatNotifications" inherits="PremadeFilter_OptionsCheckButtonTemplate">
+					<CheckButton parentKey="NewGroupChatNotifications" inherits="PremadeFilter_OptionsCheckButtonTemplate">
 						<Anchors>
-							<Anchor point="TOPRIGHT" relativeKey="$parent.ChatNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
+							<Anchor point="TOPRIGHT" relativeKey="$parent.NewGroupChatNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
 						</Anchors>
-					</CheckButton>	
+					</CheckButton>
+					<CheckButton parentKey="NewPlayerChatNotifications" inherits="PremadeFilter_OptionsCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent.NewPlayerChatNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
+						</Anchors>
+					</CheckButton>
 					<CheckButton parentKey="SoundNotifications" inherits="PremadeFilter_OptionsCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeKey="$parent.SoundNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
 						</Anchors>
-					</CheckButton>	
+					</CheckButton>
 					<Slider name="PremadeFilter_UpdateIntervalSlider" parentKey="UpdateInterval" inherits="OptionsSliderTemplate" minValue="15" maxValue="60" stepsPerPage="3" valueStep="5">
 						<Size x="200" y="17"/>
 						<Anchors>
@@ -1242,7 +1256,8 @@
 					<OnLoad function="PremadeFilter_Options_OnLoad"/>
 					<OnShow>
 						-- setup option values
-						self.ChatNotifications:SetChecked(PremadeFilter_GetSettings("ChatNotifications", true));
+						self.NewGroupChatNotifications:SetChecked(PremadeFilter_GetSettings("NewGroupChatNotifications", true));
+						self.NewPlayerChatNotifications:SetChecked(PremadeFilter_GetSettings("NewPlayerChatNotifications", true));
 						self.SoundNotifications:SetChecked(PremadeFilter_GetSettings("SoundNotifications", true));
 						self.UpdateInterval:SetValue(PremadeFilter_GetSettings("UpdateInterval", 15));
 					</OnShow>
