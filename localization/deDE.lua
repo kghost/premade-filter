@@ -1,6 +1,6 @@
 local _, L = ...;
 
-if GetLocale() == "ruRU" then
+if GetLocale() == "deDE" then
 	L["Include words"] = "Wörter miteinbeziehen";
 	L["Exclude words"] = "Wörter auslassen";
 	L["At least one word"] = "Mindestens ein Wort";
