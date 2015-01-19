@@ -11,6 +11,10 @@ if GetLocale() == "deDE" then
 	L["Monitor new groups in background?"] = "Neue Gruppen im Hintergrund überwachen?";
 	L["found new group "] = "hat eine neue Gruppe gefunden ";
 	L["found new player "] = "hat einen neuen Spieler gefunden ";
+
+	L["Enable sound notifications"] = "Benachrichtigungston aktivieren";
+	L["Monitoring"] = "Überwachung";
+	L["Update interval (sec.)"] = "Updateintervall (Sek.)";
 	
 	L["EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"] = "Experimentell:\nFunktioniert nur mit Gruppen, die über das Premade Filter AddOn erstellt wurden";
 end
