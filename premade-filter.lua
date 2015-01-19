@@ -2543,7 +2543,7 @@ function PremadeFilter_GetRecentWords()
 end
 
 function PremadeFilter_AddRecentQuery(query)
-	PremadeFilter_FixRecentWords();
+	PremadeFilter_FixRecentQueries();
 	
 	if query == "" then
 		return
@@ -2554,7 +2554,7 @@ function PremadeFilter_AddRecentQuery(query)
 		table.insert(PremadeFilter_Data.RecentQueriesOrder, query);
 	end
 	
-	PremadeFilter_FixRecentWords();
+	PremadeFilter_FixRecentQueries();
 end
 
 function PremadeFilter_AddRecentWords(words)
