@@ -870,6 +870,14 @@ function PremadeFilter_Frame_OnLoad(self)
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkLeave", PremadeFilter_Hyperlink_OnLeave);
 	
 	RegisterAddonMessagePrefix("PREMADE_FILTER");
+	
+	JoinChannelByName("PremadeFilter");
+	--ChatFrame_AddChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
+	--RemoveChatWindowChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
+	
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL_JOIN", PremadeFilter_ChatFilter);
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL_LEAVE", PremadeFilter_ChatFilter);
+	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", PremadeFilter_ChatFilter);
 end
 
 function PremadeFilter_OnEvent(self, event, ...)
@@ -883,7 +891,7 @@ function PremadeFilter_OnEvent(self, event, ...)
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
 		PremadeFilter_OnApplicantListApdated(self, event, ...);
 	elseif event == "CHAT_MSG_ADDON" then
-		local prefix, msg, channel, sender, senderName = ...;
+		local prefix, msg, channel, sender = ...;
 		
 		if prefix == "PREMADE_FILTER" then
 			if msg == "VER?" then
@@ -911,6 +919,74 @@ function PremadeFilter_OnEvent(self, event, ...)
 					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, msg:sub(5));
 				end
 			end
+		end
+	end
+end
+
+function PremadeFilter_ChatFilter(self, event, msg, author, arg5, arg6, arg7, arg8, arg9, arg10, channelName, ...)
+	if channelName == "PremadeFilter" then
+		if self == DEFAULT_CHAT_FRAME and event == "CHAT_MSG_CHANNEL" then
+			PremadeFilter_OnEvent(PremadeFilter_Frame, "CHAT_MSG_ADDON", "PREMADE_FILTER", msg, channel, author);
+		end
+		return true;
+	else
+		return false, msg, author, arg5, arg6, arg7, arg8, arg9, arg10, channelName, ...
+	end
+end
+
+local OldChatEdit_HandleChatType = ChatEdit_HandleChatType;
+function ChatEdit_HandleChatType(editBox, msg, command, send)
+	local channel = strmatch(command, "/([0-9]+)");
+	local addonChannel = GetChannelName("PremadeFilter");
+	
+	if( channel == addonChannel ) then
+		return false;
+	else
+		return OldChatEdit_HandleChatType(editBox, msg, command, send);
+	end
+end
+
+function CreateChatChannelList(self, ...)
+	if ( not FCF_GetCurrentChatFrame() ) then
+		return;
+	end
+	local channelList = FCF_GetCurrentChatFrame().channelList;
+	local zoneChannelList = FCF_GetCurrentChatFrame().zoneChannelList;
+	local channel, channelID, tag;
+	local checked;
+	local count = 1;
+	CHAT_CONFIG_CHANNEL_LIST = {};
+	for i=1, select("#", ...), 2 do
+		channelID = select(i, ...);
+		tag = "CHANNEL"..channelID;
+		channel = select(i+1, ...);
+		
+		if channel ~= "PremadeFilter" then
+			checked = nil;
+			if ( channelList ) then
+				for index, value in pairs(channelList) do
+					if ( value == channel ) then
+						checked = 1;
+					end
+				end
+			end
+			if ( zoneChannelList ) then
+				for index, value in pairs(zoneChannelList) do
+					if ( value == channel ) then
+						checked = 1;
+					end
+				end
+			end
+			CHAT_CONFIG_CHANNEL_LIST[count] = {};
+			CHAT_CONFIG_CHANNEL_LIST[count].text = channelID.."."..channel;
+			CHAT_CONFIG_CHANNEL_LIST[count].channelName = channel;
+			CHAT_CONFIG_CHANNEL_LIST[count].type = tag;
+			CHAT_CONFIG_CHANNEL_LIST[count].maxWidth = CHATCONFIG_CHANNELS_MAXWIDTH;
+			CHAT_CONFIG_CHANNEL_LIST[count].checked = checked;
+			CHAT_CONFIG_CHANNEL_LIST[count].func = function (self, checked) 
+								ToggleChatChannel(checked, CHAT_CONFIG_CHANNEL_LIST[self:GetID()].channelName); 
+								end;
+			count = count+1;
 		end
 	end
 end
@@ -1015,7 +1091,10 @@ function PremadeFilter_OnShow(self)
 	
 	PremadeFilter_StopNotification();
 	
-	SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
+	if not self.VersionLabel:IsShown() then
+		SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
+		--SendChatMessage("VER?", "CHANNEL", nil, GetChannelName("PremadeFilter"));
+	end
 	
 	PlaySound("igMainMenuOpen");
 end
