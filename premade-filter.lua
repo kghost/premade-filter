@@ -1646,7 +1646,10 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local searchText = self.SearchBox:GetText():lower();
 		local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
 		
-		PremadeFilter_AddRecentQuery(searchText);
+		if #include + #exclude + #possible > 1 then
+			PremadeFilter_AddRecentQuery(searchText);
+		end
+		
 		PremadeFilter_AddRecentWords(include);
 		PremadeFilter_AddRecentWords(exclude);
 		PremadeFilter_AddRecentWords(possible);
