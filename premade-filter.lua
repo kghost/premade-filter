@@ -1352,7 +1352,7 @@ function LFGListSearchPanel_DoSearch(self)
 	
 	if not PremadeFilter_MinimapButton:IsVisible() then
 		PremadeFilter_MinimapButton.LastUpdate = 0;
-		PremadeFilter_Frame.updated = time() - self.minAge + 1;
+		PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
 	end
 end
 
@@ -1783,7 +1783,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 		end
 
-		self.minAge = minAge or 0;
+		PremadeFilter_Frame.minAge = minAge or 0;
 		
 		self.totalResults = numResults;
 		self.results = newResults;
