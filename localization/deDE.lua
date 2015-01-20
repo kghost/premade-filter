@@ -1,20 +1,29 @@
 local _, L = ...;
 
 if GetLocale() == "deDE" then
-	L["Include words"] = "Wörter miteinbeziehen";
-	L["Exclude words"] = "Wörter auslassen";
-	L["At least one word"] = "Mindestens ein Wort";
-	L["The words you want"] = "Wörter, die du willst";
-	L["The words you don't want"] = "Wörter, die du nicht willst";
-	L["You want at least one of these words"] = "Mindestens eines der folgenden Wörter soll enthalten sein";
-
-	L["Monitor new groups in background?"] = "Neue Gruppen im Hintergrund überwachen?";
-	L["found new group "] = "hat eine neue Gruppe gefunden ";
-	L["found new player "] = "hat einen neuen Spieler gefunden ";
-
-	L["Enable sound notifications"] = "Benachrichtigungston aktivieren";
-	L["Monitoring"] = "Überwachung";
-	L["Update interval (sec.)"] = "Updateintervall (Sek.)";
-	
-	L["EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"] = "Experimentell:\nFunktioniert nur mit Gruppen, die über das Premade Filter AddOn erstellt wurden";
+	L["Actions"] = "Aktionen"
+	L["Are you sure you want to delete filter set?"] = "Bist du sicher, dass du diesen Filtersatz löschen willst?"
+	L["At least one word"] = "Mindestens ein Wort"
+	L["Enable sound notifications"] = "Benachrichtigungston aktivieren"
+	L["Enter filter set name"] = "Name für Filtersatz eingeben"
+	L["Exclude words"] = "Wörter auslassen"
+	L["EXPERIMENTAL"] = "Experimentell"
+	L["Filter set"] = "Filtersatz"
+	L["found new group"] = "hat eine neue Gruppe gefunden"
+	L["found new player"] = "hat einen neuen Spieler gefunden"
+	L["Include words"] = "Wörter miteinbeziehen"
+	L["Monitoring"] = "Überwachung"
+	L["Monitor new groups in background?"] = "Neue Gruppen im Hintergrund überwachen?"
+	L["More"] = "Mehr"
+	L["More options"] = "Weitere Optionen"
+	L["New filter set"] = "Neuer Filtersatz"
+	-- L["New version available"] = ""
+	L["Notifications"] = "Benachrichtigungen"
+	-- L["Notify in chat on new group"] = ""
+	-- L["Notify in chat on new player"] = ""
+	L["The words you don't want"] = "Wörter, die du nicht willst"
+	L["The words you want"] = "Wörter, die du willst"
+	L["Update interval (sec.)"] = "Updateintervall (Sek.)"
+	L["Works only on premades created with Premade Filter addon"] = "Funktioniert nur mit Gruppen, die über das Premade Filter AddOn erstellt wurden"
+	L["You want at least one of these words"] = "Mindestens eines der folgenden Wörter soll enthalten sein"
 end

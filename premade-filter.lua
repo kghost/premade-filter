@@ -1773,7 +1773,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 						
 						if PremadeFilter_GetSettings("NewGroupChatNotifications") and not PremadeFilter_Frame.chatNotifications[infoName] then
 							PremadeFilter_Frame.chatNotifications[infoName] = true;
-							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new group ")..PremadeFilter_GetHyperlink(name, { infoName = infoName }));
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new group").." "..PremadeFilter_GetHyperlink(name, { infoName = infoName }));
 						end
 					end
 				end
@@ -2323,7 +2323,7 @@ end
 
 function PremadeFilter_Experimental(self)
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT");
-	GameTooltip:SetText(T("EXPERIMENTAL:\nWorks only on premades created with Premade Filter addon"), nil, nil, nil, nil, true);
+	GameTooltip:SetText(T("EXPERIMENTAL")..":\n"..T("Works only on premades created with Premade Filter addon"), nil, nil, nil, nil, true);
 	GameTooltip:Show();
 end
 
@@ -2476,7 +2476,7 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 						end
 						
 						if PremadeFilter_GetSettings("NewPlayerChatNotifications") then
-							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new player ")..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
+							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new player").." "..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
 						end
 					end
 				end
