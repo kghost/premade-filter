@@ -871,9 +871,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	
 	RegisterAddonMessagePrefix("PREMADE_FILTER");
 	
-	JoinChannelByName("PremadeFilter");
-	--ChatFrame_AddChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
-	--RemoveChatWindowChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
+	self.globalChannel = 0;
 	
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL_JOIN", PremadeFilter_ChatFilter);
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL_LEAVE", PremadeFilter_ChatFilter);
@@ -1092,8 +1090,13 @@ function PremadeFilter_OnShow(self)
 	PremadeFilter_StopNotification();
 	
 	if not self.VersionLabel:IsShown() then
-		SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
-		--SendChatMessage("VER?", "CHANNEL", nil, GetChannelName("PremadeFilter"));
+		if self.globalChannel > 1 then
+			SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
+		else
+			JoinPermanentChannel("PremadeFilter");
+			self.globalChannel = GetChannelName("PremadeFilter");
+			SendChatMessage("VER?", "CHANNEL", nil, self.globalChannel);
+		end
 	end
 	
 	PlaySound("igMainMenuOpen");
