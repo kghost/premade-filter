@@ -1940,6 +1940,8 @@ function LFGListSearchEntry_Update(self)
 	
 	self.resultID = resultID;
 	self.infoName = infoName;
+	PremadeFilter_Frame.resultInfo[infoName] = PremadeFilter_GetTooltipInfo(resultID);
+	
 	self.Selected:SetShown(panel.selectedResult == resultID and not isApplication and not isDelisted);
 	self.Highlight:SetShown(panel.selectedResult ~= resultID and not isApplication and not isDelisted);
 	local nameColor = NORMAL_FONT_COLOR;
