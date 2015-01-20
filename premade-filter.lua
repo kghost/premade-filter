@@ -927,7 +927,7 @@ function PremadeFilter_FixSettings()
 		PremadeFilter_Data.Settings.NewGroupChatNotifications = PremadeFilter_DefaultSettings.NewGroupChatNotifications;
 		PremadeFilter_Data.Settings.NewPlayerChatNotifications = PremadeFilter_Data.Settings.ChatNotifications;
 		PremadeFilter_Data.Settings.ChatNotifications = nil;
-		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version");
+		PremadeFilter_Data.Settings.Version = "0.9.94";
 	end
 	
 	if type(PremadeFilter_Data.Settings.UpdateInterval) ~= "number"
@@ -2259,6 +2259,8 @@ function LFGListEntryCreation_ListGroup(self)
 		C_LFGList.UpdateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, self.VoiceChat.EditBox:GetText(), self.Description.EditBox:GetText());
 		LFGListFrame_SetActivePanel(self:GetParent(), self:GetParent().ApplicationViewer);
 	else
+		PremadeFilter_Frame.chatNotifications = {};
+		
 		local description = self.Description.EditBox:GetText();
 		
 		local tank = PremadeFilter_Roles.TankCheckButton:GetChecked();
@@ -2480,7 +2482,8 @@ function PremadeFilter_OnApplicantListApdated(self, event, ...)
 							roles = roles..", ".._G[role2];
 						end
 						
-						if PremadeFilter_GetSettings("NewPlayerChatNotifications") then
+						if PremadeFilter_GetSettings("NewPlayerChatNotifications") and not PremadeFilter_Frame.chatNotifications[name] then
+							PremadeFilter_Frame.chatNotifications[name] = true;
 							PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("found new player").." "..hexColor..displayName..COLOR_RESET.." ("..roles.." - "..math.floor(itemLevel)..")");
 						end
 					end
