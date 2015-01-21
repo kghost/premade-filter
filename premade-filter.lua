@@ -2433,7 +2433,8 @@ end
 
 function PremadeFilter_StopMonitoring()
 	PremadeFilter_Frame.chatNotifications = {};
-	PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
+	
+	PremadeFilter_Frame.updated = time() - (PremadeFilter_Frame.minAge or 0) + 1;
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
@@ -2541,7 +2542,7 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 			if button == "LeftButton" then
 				PremadeFilter_MinimapButton_OnClick();
 			else
-				PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
+				PremadeFilter_Frame.updated = time() - (PremadeFilter_Frame.minAge or 0) + 1;
 				PremadeFilter_StopNotification();
 			end
 		end
