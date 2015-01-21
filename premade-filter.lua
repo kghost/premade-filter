@@ -928,6 +928,12 @@ function PremadeFilter_ChatFilter(self, event, msg, author, arg5, arg6, arg7, ar
 		end
 		return true;
 	else
+		if not PremadeFilter_Frame.VersionLabel:IsShown() and PremadeFilter_Frame.globalChannel <= 1 then
+			JoinPermanentChannel("PremadeFilter");
+			PremadeFilter_Frame.globalChannel = GetChannelName("PremadeFilter");
+			SendChatMessage("VER?", "CHANNEL", nil, PremadeFilter_Frame.globalChannel);
+		end
+		
 		return false, msg, author, arg5, arg6, arg7, arg8, arg9, arg10, channelName, ...
 	end
 end
