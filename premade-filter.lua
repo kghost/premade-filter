@@ -836,7 +836,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
-	self.minAge = 0;
+	self.minAge = nil;
 	self.realmName = GetRealmName();
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
@@ -1428,13 +1428,13 @@ function LFGListSearchPanel_DoSearch(self)
 	self.selectedResult = nil;
 	
 	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters();
+	PremadeFilter_Frame.minAge = nil;
 	
 	LFGListSearchPanel_UpdateResultList(self);
 	LFGListSearchPanel_UpdateResults(self);
 	
 	if not PremadeFilter_MinimapButton:IsVisible() then
 		PremadeFilter_MinimapButton.LastUpdate = 0;
-		PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
 	end
 end
 
@@ -1742,7 +1742,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local newResults = {};
 		
 		local minAge = nil;
-	
+		
 		PremadeFilter_Frame.freshResults = {};
 		PremadeFilter_Frame.resultInfo = {};
 		
@@ -1752,7 +1752,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 			local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 			local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 			
-			if not minAge or age < minAge then
+			if (not minAge) or (age < minAge) then
 				minAge = age;
 			end
 			
@@ -1864,8 +1864,13 @@ function LFGListSearchPanel_UpdateResultList(self)
 				end
 			end
 		end
-
-		PremadeFilter_Frame.minAge = minAge or 0;
+		
+		if not PremadeFilter_Frame.minAge and not PremadeFilter_MinimapButton:IsVisible() then
+			PremadeFilter_Frame.minAge = minAge or 0;
+			
+			PremadeFilter_MinimapButton.LastUpdate = 0;
+			PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
+		end
 		
 		self.totalResults = numResults;
 		self.results = newResults;
