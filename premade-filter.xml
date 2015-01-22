@@ -13,6 +13,40 @@
 		</Scripts>
 	</Frame>
 	
+	<Frame name="PremadeFilter_BossChoiceTemplate" virtual="true">
+		<Size x="195" y="16"/>
+		<Layers>
+			<Layer level="ARTWORK">
+				<FontString name="$parentBossName" inherits="GameFontNormal" justifyH="LEFT" parentKey="bossName">
+					<Size x="160" y="16"/>
+					<Anchors>
+						<Anchor point="LEFT" x="10" y="0"/>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<CheckButton name="$parentStatusButton" parentKey="statusButton">
+				<Size x="22" y="22"/>
+				<HitRectInsets>
+					<AbsInset left="-130" right="0" top="0" bottom="0"/>
+				</HitRectInsets>
+				<Anchors>
+					<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="0" />
+				</Anchors>
+				<Scripts>
+					<OnLoad>self.CheckedNone = false;</OnLoad>
+					<OnClick function="PremadeFilter_CheckButton_Boss_OnClick"/>
+				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
+			</CheckButton>
+		</Frames>
+	</Frame>
+	
 	<Button name="PremadeFilter_AutoCompleteButtonTemplate" useParentLevel="true" virtual="true">
 		<Size x="275" y="22"/>
 		<Layers>
@@ -44,7 +78,7 @@
 	</CheckButton>
 	
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
-		<Size x="578" y="409" />
+		<Size x="817" y="409" />
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -725,10 +759,145 @@
 				</KeyValues>
 			</EditBox>
 			
-			<Frame name="$parent_Realm">
+			<Frame name="$parent_Boss">
 				<Size x="239" y="229"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="319" y="-40" />
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND" textureSubLevel="-1">
+						<FontString parentKey="TypeLabel" inherits="GameFontNormalLeft" text="BOSSES">
+							<Anchors>
+								<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="10" y="-27"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" x="7" y="-41" />
+							<Anchor point="BOTTOMRIGHT" x="-7" y="7" />
+						</Anchors>
+					</Frame>
+					
+					<Frame name="$parentListButton1" inherits="PremadeFilter_BossChoiceTemplate" id="1">
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="10" y="-52"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton2" inherits="PremadeFilter_BossChoiceTemplate" id="2">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton3" inherits="PremadeFilter_BossChoiceTemplate" id="3">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton2" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton4" inherits="PremadeFilter_BossChoiceTemplate" id="4">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton3" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton5" inherits="PremadeFilter_BossChoiceTemplate" id="5">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton4" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton6" inherits="PremadeFilter_BossChoiceTemplate" id="6">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton5" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton7" inherits="PremadeFilter_BossChoiceTemplate" id="7">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton6" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton8" inherits="PremadeFilter_BossChoiceTemplate" id="8">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton7" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton9" inherits="PremadeFilter_BossChoiceTemplate" id="9">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton8" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton10" inherits="PremadeFilter_BossChoiceTemplate" id="10">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton9" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					
+					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
+								<Offset>
+									<AbsDimension x="0" y="7"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton10" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="1" y="-7"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnVerticalScroll>
+								FauxScrollFrame_OnVerticalScroll(self, offset, 16, PremadeFilter_BossList_Update);
+							</OnVerticalScroll>
+						</Scripts>
+					</ScrollFrame>
+				</Frames>
+			</Frame>
+			
+			<Frame name="$parent_Realm">
+				<Size x="239" y="325"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="558" y="-40" />
 				</Anchors>
 				<Layers>
 					<Layer level="BACKGROUND" textureSubLevel="-1">
@@ -745,16 +914,6 @@
 							<Anchor point="TOPLEFT" x="7" y="-41" />
 							<Anchor point="BOTTOMRIGHT" x="-7" y="7" />
 						</Anchors>
-						<Layers>
-							<Layer level="BACKGROUND">
-								<Texture parentKey="CustomBG" atlas="groupfinder-background" useAtlasSize="true">
-									<Anchors>
-										<Anchor point="TOPLEFT" relativePoint="TOPLEFT" x="3" y="-3"/>
-										<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT" x="-3" y="3"/>
-									</Anchors>
-								</Texture>
-							</Layer>
-						</Layers>
 					</Frame>
 					
 					<Frame name="$parentListButton1" inherits="PremadeFilter_RealmChoiceTemplate" id="1">
@@ -847,6 +1006,60 @@
 							</Anchor>
 						</Anchors>
 					</Frame>
+					<Frame name="$parentListButton11" inherits="PremadeFilter_RealmChoiceTemplate" id="11">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton10" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton12" inherits="PremadeFilter_RealmChoiceTemplate" id="12">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton11" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton13" inherits="PremadeFilter_RealmChoiceTemplate" id="13">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton12" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton14" inherits="PremadeFilter_RealmChoiceTemplate" id="14">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton13" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton15" inherits="PremadeFilter_RealmChoiceTemplate" id="15">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton14" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
+					<Frame name="$parentListButton16" inherits="PremadeFilter_RealmChoiceTemplate" id="16">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parentListButton15" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Frame>
 					
 					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
 						<Anchors>
@@ -855,7 +1068,7 @@
 									<AbsDimension x="0" y="7"/>
 								</Offset>
 							</Anchor>
-							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton10" relativePoint="BOTTOMRIGHT">
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parentListButton16" relativePoint="BOTTOMRIGHT">
 								<Offset>
 									<AbsDimension x="1" y="-7"/>
 								</Offset>

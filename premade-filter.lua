@@ -28,6 +28,12 @@ local PremadeFilter_DefaultSettings = {
 	SoundNotifications	= true,
 }
 
+local PremadeFilter_ActivityInfo = {
+	["3-14-37"]		= { tier = 6, instance = 2, raid = true },
+	["3-14-38"]		= { tier = 6, instance = 2, raid = true },
+	["3-0-398"]		= { tier = 6, instance = 1, raid = true },
+}
+
 local PremadeFilter_RealmChapters = {
 	-- US
 	{ "Oceania", "Pacific", "Mountain", "Central", "Eastern", "Latin America", "Brazil" },
@@ -837,6 +843,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
 	self.minAge = nil;
+	self.availableBosses = PremadeFilter_GetAvailableBosses();
 	self.realmName = GetRealmName();
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
@@ -1075,6 +1082,7 @@ function PremadeFilter_OnShow(self)
 	end
 	
 	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, selectedGroup, selectedActivity);
+	PremadeFilter_BossList_Update();
 	
 	self.QueryBuilder:SetParent(self);
 	self.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
@@ -1172,6 +1180,31 @@ end
 function PremadeFilter_FilterButton_OnClick(self)
 	LFGListSearchPanel_SetCategory(LFGListFrame.SearchPanel, PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedFilters, PremadeFilter_Frame.baseFilters);
 	LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+end
+
+function PremadeFilter_GetAvailableBosses()
+	local bossList = {};
+	local activityIndex = string.format("%d-%d-%d", PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedGroup, PremadeFilter_Frame.selectedActivity);
+	local activity = PremadeFilter_ActivityInfo[activityIndex];
+	
+	if type(activity) == "table" then
+		EJ_SelectTier(activity.tier);
+		EJ_SelectInstance(EJ_GetInstanceByIndex(activity.instance, activity.raid));
+		
+		local encounter = 1;
+		repeat
+			boss = EJ_GetEncounterInfoByIndex(encounter);
+			if boss then
+				table.insert(bossList, boss);
+			end
+			encounter = encounter + 1;
+		until not boss;
+	end
+	--output(PremadeFilter_Frame.selectedCategory);
+	--output(PremadeFilter_Frame.selectedGroup);
+	--output(PremadeFilter_Frame.selectedActivity);
+	
+	return bossList;
 end
 
 function PremadeFilter_GetRealmInfo(region, realmName)
@@ -1309,16 +1342,36 @@ function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonLis
 	PlaySound(isChecked and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff");
 end
 
-function PremadeFilter_RealmList_Update()
-	FauxScrollFrame_Update(PremadeFilter_Frame_RealmListScrollFrame, #PremadeFilter_Frame.visibleRealms, 10, 16);
+function PremadeFilter_BossList_Update()
+	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
 	
-	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_RealmListScrollFrame);
+	FauxScrollFrame_Update(PremadeFilter_Frame_BossListScrollFrame, #PremadeFilter_Frame.availableBosses, 10, 16);
 	
-	local enabled, queued = LFGDungeonList_EvaluateListState(LE_LFG_CATEGORY_LFD);
+	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_BossListScrollFrame);
 	
 	checkedList = LFGEnabledList;
 	
 	for i = 1, 10 do
+		local button = _G["PremadeFilter_Frame_BossListButton"..i];
+		local bossName = PremadeFilter_Frame.availableBosses[i+offset];
+		if bossName then
+			button.bossName:SetText(bossName);
+			button:SetWidth(195);
+			button:Show();
+		else
+			button:Hide();
+		end
+	end
+end
+
+function PremadeFilter_RealmList_Update()
+	FauxScrollFrame_Update(PremadeFilter_Frame_RealmListScrollFrame, #PremadeFilter_Frame.visibleRealms, 16, 16);
+	
+	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_RealmListScrollFrame);
+	
+	checkedList = LFGEnabledList;
+	
+	for i = 1, 16 do
 		local button = _G["PremadeFilter_Frame_RealmListButton"..i];
 		local info = PremadeFilter_Frame.visibleRealms[i+offset];
 		if info then
@@ -1353,19 +1406,25 @@ function PremadeFilter_OnCategorySelected(self, id, filters)
 	self.selectedFilters = filters;
 	
 	LFGListCategorySelection_SelectCategory(LFGListFrame.CategorySelection, id, filters);
-	LFGListEntryCreation_OnCategorySelected(self, id, filters)
+	LFGListEntryCreation_OnCategorySelected(self, id, filters);
+	
+	PremadeFilter_BossList_Update();
 end
 
 function PremadeFilter_OnGroupSelected(self, id, buttonType)
 	self.selectedGroup = id;
 	
 	LFGListEntryCreation_OnGroupSelected(self, id, buttonType);
+	
+	PremadeFilter_BossList_Update();
 end
 
 function PremadeFilter_OnActivitySelected(self, id, buttonType)
 	self.selectedActivity = id;
 	
 	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
+	
+	PremadeFilter_BossList_Update();
 end
 
 function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
@@ -1535,6 +1594,7 @@ end
 function PremadeFilter_SetFilters(filters)
 	PremadeFilter_Frame.selectedCategory = filters.category;
 	LFGListEntryCreation_Select(PremadeFilter_Frame, PremadeFilter_Frame.selectedFilters, filters.category, filters.group, filters.activity);
+	PremadeFilter_BossList_Update();
 	
 	-- name
 	if type(filters.name) == "table" then
@@ -2394,6 +2454,30 @@ function PremadeFilter_CheckButton_OnClick(self)
 		self:GetParent().EditBox:Hide();
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
+	end
+end
+
+function PremadeFilter_CheckButton_Boss_OnClick(self)
+	if not self:GetChecked() then
+		PlaySound("igMainMenuOptionCheckBoxOff");
+		
+		if not self.CheckedNone then
+			self.CheckedNone = true;
+			self:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up");
+			self:SetChecked(true);
+			
+			self:GetParent().bossName:SetTextColor(1, 0, 0);
+		else
+			self.CheckedNone = false;
+			self:GetParent().bossName:SetTextColor(1, 0.82, 0);
+		end
+	else
+		PlaySound("igMainMenuOptionCheckBoxOn");
+		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
+		self:SetChecked(true);
+		self.CheckedNone = false;
+		
+		self:GetParent().bossName:SetTextColor(0, 1, 0);
 	end
 end
 
