@@ -13,14 +13,14 @@
 		</Scripts>
 	</Frame>
 	
-	<Frame name="PremadeFilter_BossChoiceTemplate" virtual="true">
+	<Frame name="PremadeFilter_BossChoiceTemplate" enableMouse="true" virtual="true">
 		<Size x="195" y="16"/>
 		<Layers>
 			<Layer level="ARTWORK">
 				<FontString name="$parentBossName" inherits="GameFontNormal" justifyH="LEFT" parentKey="bossName">
 					<Size x="160" y="16"/>
 					<Anchors>
-						<Anchor point="LEFT" x="10" y="0"/>
+						<Anchor point="LEFT" x="32" y="0"/>
 					</Anchors>
 				</FontString>
 			</Layer>
@@ -29,14 +29,21 @@
 			<CheckButton name="$parentStatusButton" parentKey="statusButton">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
-					<AbsInset left="-130" right="0" top="0" bottom="0"/>
+					<AbsInset left="0" right="-160" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="RIGHT" relativeTo="$parent" relativePoint="RIGHT" x="0" />
+					<Anchor point="LEFT" relativeTo="$parent" relativePoint="LEFT" x="5" />
 				</Anchors>
 				<Scripts>
 					<OnLoad>self.CheckedNone = false;</OnLoad>
 					<OnClick function="PremadeFilter_CheckButton_Boss_OnClick"/>
+					<OnEnter>
+						GameTooltip:SetOwner(self:GetParent(), "ANCHOR_BOTTOMRIGHT");
+						GameTooltip:SetText(T("Boss status colors"), nil, nil, nil, nil, true);
+						GameTooltip:AddLine("|cffb3b3b3"..T("Any")..", |cff00ff00"..T("Alive")..", |cffff0000"..T("Defeated"));
+						GameTooltip:Show();
+					</OnEnter>
+					<OnLeave function="GameTooltip_Hide"/>
 				</Scripts>
 				<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>

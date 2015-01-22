@@ -29,9 +29,21 @@ local PremadeFilter_DefaultSettings = {
 }
 
 local PremadeFilter_ActivityInfo = {
+	["3-0-398"]		= { tier = 6, instance = 1, raid = true },
+	
 	["3-14-37"]		= { tier = 6, instance = 2, raid = true },
 	["3-14-38"]		= { tier = 6, instance = 2, raid = true },
-	["3-0-398"]		= { tier = 6, instance = 1, raid = true },
+	
+	["3-0-397"]		= { tier = 5, instance = 1, raid = true },
+	
+	["3-83-347"]	= { tier = 5, instance = 5, raid = true, difficulty = 3 },
+	["3-83-350"]	= { tier = 5, instance = 5, raid = true, difficulty = 4 },
+	["3-83-348"]	= { tier = 5, instance = 5, raid = true, difficulty = 5 },
+	["3-83-349"]	= { tier = 5, instance = 5, raid = true, difficulty = 6 },
+	
+	["3-1-4"]		= { tier = 5, instance = 6, raid = true, difficulty = 14 },
+	["3-1-41"]		= { tier = 5, instance = 6, raid = true, difficulty = 15 },
+	["3-1-42"]		= { tier = 5, instance = 6, raid = true, difficulty = 16 },
 }
 
 local PremadeFilter_RealmChapters = {
@@ -843,7 +855,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
 	self.minAge = nil;
-	self.availableBosses = PremadeFilter_GetAvailableBosses();
+	self.availableBosses = nil;
 	self.realmName = GetRealmName();
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
@@ -894,7 +906,7 @@ function PremadeFilter_OnEvent(self, event, ...)
 			end
 		end
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
-		PremadeFilter_OnApplicantListApdated(self, event, ...);
+		PremadeFilter_OnApplicantListUpdated(self, event, ...);
 	elseif event == "CHAT_MSG_ADDON" then
 		local prefix, msg, channel, sender = ...;
 		
@@ -1082,7 +1094,11 @@ function PremadeFilter_OnShow(self)
 	end
 	
 	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, selectedGroup, selectedActivity);
-	PremadeFilter_BossList_Update();
+	
+	if not self.availableBosses then
+		self.availableBosses = PremadeFilter_GetAvailableBosses();
+		PremadeFilter_BossList_Update();
+	end
 	
 	self.QueryBuilder:SetParent(self);
 	self.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
@@ -1190,6 +1206,10 @@ function PremadeFilter_GetAvailableBosses()
 	if type(activity) == "table" then
 		EJ_SelectTier(activity.tier);
 		EJ_SelectInstance(EJ_GetInstanceByIndex(activity.instance, activity.raid));
+		
+		if activity.difficulty then
+			EJ_SetDifficulty(activity.difficulty);
+		end
 		
 		local encounter = 1;
 		repeat
@@ -1343,8 +1363,6 @@ function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonLis
 end
 
 function PremadeFilter_BossList_Update()
-	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
-	
 	FauxScrollFrame_Update(PremadeFilter_Frame_BossListScrollFrame, #PremadeFilter_Frame.availableBosses, 10, 16);
 	
 	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_BossListScrollFrame);
@@ -1356,6 +1374,7 @@ function PremadeFilter_BossList_Update()
 		local bossName = PremadeFilter_Frame.availableBosses[i+offset];
 		if bossName then
 			button.bossName:SetText(bossName);
+			button.bossName:SetFontObject(QuestDifficulty_Header);
 			button:SetWidth(195);
 			button:Show();
 		else
@@ -1408,6 +1427,7 @@ function PremadeFilter_OnCategorySelected(self, id, filters)
 	LFGListCategorySelection_SelectCategory(LFGListFrame.CategorySelection, id, filters);
 	LFGListEntryCreation_OnCategorySelected(self, id, filters);
 	
+	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
 	PremadeFilter_BossList_Update();
 end
 
@@ -1416,6 +1436,7 @@ function PremadeFilter_OnGroupSelected(self, id, buttonType)
 	
 	LFGListEntryCreation_OnGroupSelected(self, id, buttonType);
 	
+	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
 	PremadeFilter_BossList_Update();
 end
 
@@ -1424,6 +1445,7 @@ function PremadeFilter_OnActivitySelected(self, id, buttonType)
 	
 	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
 	
+	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
 	PremadeFilter_BossList_Update();
 end
 
@@ -1594,7 +1616,8 @@ end
 function PremadeFilter_SetFilters(filters)
 	PremadeFilter_Frame.selectedCategory = filters.category;
 	LFGListEntryCreation_Select(PremadeFilter_Frame, PremadeFilter_Frame.selectedFilters, filters.category, filters.group, filters.activity);
-	PremadeFilter_BossList_Update();
+	
+	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
 	
 	-- name
 	if type(filters.name) == "table" then
@@ -1780,6 +1803,8 @@ function PremadeFilter_SetFilters(filters)
 		PremadeFilter_Frame.MinDamagers:Show();
 		PremadeFilter_Frame.MaxDamagers:Show();
 	end
+	
+	PremadeFilter_BossList_Update();
 end
 
 function PremadeFilter_GetInfoName(activityID, name, leaderName)
@@ -2469,7 +2494,7 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 			self:GetParent().bossName:SetTextColor(1, 0, 0);
 		else
 			self.CheckedNone = false;
-			self:GetParent().bossName:SetTextColor(1, 0.82, 0);
+			self:GetParent().bossName:SetTextColor(0.7, 0.7, 0.7);
 		end
 	else
 		PlaySound("igMainMenuOptionCheckBoxOn");
@@ -2637,7 +2662,7 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 	end
 end
 
-function PremadeFilter_OnApplicantListApdated(self, event, ...)
+function PremadeFilter_OnApplicantListUpdated(self, event, ...)
 		local hasNewPending, hasNewPendingWithData = ...;
 		
 		if ( hasNewPending and hasNewPendingWithData ) then
