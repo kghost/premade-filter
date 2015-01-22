@@ -2193,8 +2193,10 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	if ( info.displayType == LE_LFG_LIST_DISPLAY_TYPE_CLASS_ENUMERATE ) then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS_SIMPLE, info.numMembers));
 		
-		for i, memberInfo in pairs(info.memberList) do
-			GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_CLASS_ROLE, memberInfo.title, memberInfo.role), memberInfo.color.r, memberInfo.color.g, memberInfo.color.b);
+		if info.memberList then
+			for i, memberInfo in pairs(info.memberList) do
+				GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_CLASS_ROLE, memberInfo.title, memberInfo.role), memberInfo.color.r, memberInfo.color.g, memberInfo.color.b);
+			end
 		end
 	else
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS, info.numMembers, info.memberCounts.TANK, info.memberCounts.HEALER, info.memberCounts.DAMAGER));
@@ -2227,7 +2229,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		GameTooltip:AddLine(" ");
 		GameTooltip:AddLine(LFG_LIST_ENTRY_DELISTED, RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b, true);
 	end
-
+	
 	GameTooltip:Show();
 end
 
