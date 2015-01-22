@@ -2,8 +2,12 @@ local _, L = ...;
 
 if GetLocale() == "ruRU" then
 	L["Actions"] = "Действия"
+	L["Alive"] = "Жив"
+	L["Any"] = "Любой"
 	L["Are you sure you want to delete filter set?"] = "Вы действительно хотите удалить набор фильтров?"
 	L["At least one word"] = "Любое из слов"
+	L["Boss status colors"] = "Цветовые статусы боссов"
+	L["Defeated"] = "Убит"
 	L["Enable sound notifications"] = "Включить звуковые оповещения"
 	L["Enter filter set name"] = "Введите название набора фильтров"
 	L["Exclude words"] = "Исключить слова"

@@ -1829,6 +1829,15 @@ function PremadeFilter_SetFilters(filters)
 		PremadeFilter_Frame.MaxDamagers:Show();
 	end
 	
+	-- bosses
+	for index, info in pairs(PremadeFilter_Frame.availableBosses) do
+		if type(filters.bosses) == "table" and type(filters.bosses[info.name]) ~= "nil" then
+			PremadeFilter_Frame.availableBosses[index].isChecked = filters.bosses[info.name];
+		else
+			PremadeFilter_Frame.availableBosses[index].isChecked = nil;
+		end
+	end
+	
 	PremadeFilter_BossList_Update();
 end
 
