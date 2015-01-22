@@ -1215,7 +1215,7 @@ function PremadeFilter_GetAvailableBosses()
 		repeat
 			boss = EJ_GetEncounterInfoByIndex(encounter);
 			if boss then
-				table.insert(bossList, boss);
+				table.insert(bossList, { name = boss });
 			end
 			encounter = encounter + 1;
 		until not boss;
@@ -1367,19 +1367,36 @@ function PremadeFilter_BossList_Update()
 	
 	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_BossListScrollFrame);
 	
-	checkedList = LFGEnabledList;
-	
 	for i = 1, 10 do
 		local button = _G["PremadeFilter_Frame_BossListButton"..i];
-		local bossName = PremadeFilter_Frame.availableBosses[i+offset];
-		if bossName then
-			button.bossName:SetText(bossName);
+		local bossIndex = i+offset;
+		local info = PremadeFilter_Frame.availableBosses[bossIndex];
+		if info then
+			if type(info.isChecked) == "nil" then
+				button.statusButton.CheckedNone = false;
+				button.statusButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
+				button.statusButton:SetChecked(false);
+				button.bossName:SetTextColor(0.7, 0.7, 0.7);
+			elseif info.isChecked then
+				button.statusButton.CheckedNone = false;
+				button.statusButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
+				button.statusButton:SetChecked(true);
+				button.bossName:SetTextColor(0, 1, 0);
+			else
+				button.statusButton.CheckedNone = true;
+				button.statusButton:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up");
+				button.statusButton:SetChecked(true);
+				button.bossName:SetTextColor(1, 0, 0);
+			end
+			
+			button.bossName:SetText(info.name);
 			button.bossName:SetFontObject(QuestDifficulty_Header);
 			button:SetWidth(195);
 			button:Show();
 		else
 			button:Hide();
 		end
+		button.bossIndex = bossIndex;
 	end
 end
 
@@ -1387,8 +1404,6 @@ function PremadeFilter_RealmList_Update()
 	FauxScrollFrame_Update(PremadeFilter_Frame_RealmListScrollFrame, #PremadeFilter_Frame.visibleRealms, 16, 16);
 	
 	local offset = FauxScrollFrame_GetOffset(PremadeFilter_Frame_RealmListScrollFrame);
-	
-	checkedList = LFGEnabledList;
 	
 	for i = 1, 16 do
 		local button = _G["PremadeFilter_Frame_RealmListButton"..i];
@@ -1610,6 +1625,16 @@ function PremadeFilter_GetFilters()
 		filters.maxDamagers = tonumber(PremadeFilter_Frame.MaxDamagers:GetText());
 	end
 	
+	-- bosses
+	if type(PremadeFilter_Frame.availableBosses) == "table" and #PremadeFilter_Frame.availableBosses > 0 then
+		filters.bosses = {};
+		for index, info in pairs(PremadeFilter_Frame.availableBosses) do
+			if type(info.isChecked) ~= "nil" then
+				filters.bosses[info.name] = info.isChecked;
+			end
+		end
+	end
+	
 	return filters;
 end
 
@@ -1820,7 +1845,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
 		
 		if #include + #exclude + #possible > 1 then
-			PremadeFilter_AddRecentQuery(searchText);
+			PremadeFilter_AddRecentQuery(searchText:gsub("^%s*(.-)%s*$", "%1"));
 		end
 		
 		PremadeFilter_AddRecentWords(include);
@@ -1933,6 +1958,27 @@ function LFGListSearchPanel_UpdateResultList(self)
 				end
 				if matches and extraFilters.maxDamagers then
 					matches = (memberCounts.DAMAGER <= extraFilters.maxDamagers);
+				end
+				
+				-- bosses
+				if matches and extraFilters.bosses then
+					local completedEncounters = C_LFGList.GetSearchResultEncounterInfo(resultID);
+					local bossesDefeated = {};
+					
+					if type(completedEncounters) == "table" then
+						for i=1, #completedEncounters do
+							local boss = completedEncounters[i];
+							bossesDefeated[boss] = true;
+						end
+					end
+					
+					for boss, filterStatus in pairs(extraFilters.bosses) do
+						local bossStatus = (type(bossesDefeated[boss]) == "nil");
+						if bossStatus ~= filterStatus then
+							matches = false;
+							break;
+						end
+					end
 				end
 			end
 			
@@ -2483,6 +2529,7 @@ function PremadeFilter_CheckButton_OnClick(self)
 end
 
 function PremadeFilter_CheckButton_Boss_OnClick(self)
+	local bossIndex = self:GetParent().bossIndex;
 	if not self:GetChecked() then
 		PlaySound("igMainMenuOptionCheckBoxOff");
 		
@@ -2491,9 +2538,14 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 			self:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up");
 			self:SetChecked(true);
 			
+			PremadeFilter_Frame.availableBosses[bossIndex].isChecked = false;
+			
 			self:GetParent().bossName:SetTextColor(1, 0, 0);
 		else
 			self.CheckedNone = false;
+			
+			PremadeFilter_Frame.availableBosses[bossIndex].isChecked = nil;
+			
 			self:GetParent().bossName:SetTextColor(0.7, 0.7, 0.7);
 		end
 	else
@@ -2501,6 +2553,8 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 		self:SetChecked(true);
 		self.CheckedNone = false;
+		
+		PremadeFilter_Frame.availableBosses[bossIndex].isChecked = true;
 		
 		self:GetParent().bossName:SetTextColor(0, 1, 0);
 	end
