@@ -36,10 +36,25 @@ local PremadeFilter_ActivityInfo = {
 	
 	["3-0-397"]		= { tier = 5, instance = 1, raid = true },
 	
+	["3-80-335"]	= { tier = 5, instance = 2, raid = true, difficulty = 3 },
+	["3-80-336"]	= { tier = 5, instance = 2, raid = true, difficulty = 5 },
+	["3-80-337"]	= { tier = 5, instance = 2, raid = true, difficulty = 4 },
+	["3-80-338"]	= { tier = 5, instance = 2, raid = true, difficulty = 6 },
+	
+	["3-81-339"]	= { tier = 5, instance = 3, raid = true, difficulty = 3 },
+	["3-81-340"]	= { tier = 5, instance = 3, raid = true, difficulty = 5 },
+	["3-81-341"]	= { tier = 5, instance = 3, raid = true, difficulty = 4 },
+	["3-81-342"]	= { tier = 5, instance = 3, raid = true, difficulty = 6 },
+	
+	["3-82-343"]	= { tier = 5, instance = 4, raid = true, difficulty = 3 },
+	["3-82-344"]	= { tier = 5, instance = 4, raid = true, difficulty = 5 },
+	["3-82-345"]	= { tier = 5, instance = 4, raid = true, difficulty = 4 },
+	["3-82-346"]	= { tier = 5, instance = 4, raid = true, difficulty = 6 },
+	
 	["3-83-347"]	= { tier = 5, instance = 5, raid = true, difficulty = 3 },
-	["3-83-350"]	= { tier = 5, instance = 5, raid = true, difficulty = 4 },
 	["3-83-348"]	= { tier = 5, instance = 5, raid = true, difficulty = 5 },
 	["3-83-349"]	= { tier = 5, instance = 5, raid = true, difficulty = 6 },
+	["3-83-350"]	= { tier = 5, instance = 5, raid = true, difficulty = 4 },
 	
 	["3-1-4"]		= { tier = 5, instance = 6, raid = true, difficulty = 14 },
 	["3-1-41"]		= { tier = 5, instance = 6, raid = true, difficulty = 15 },
@@ -1203,23 +1218,30 @@ function PremadeFilter_GetAvailableBosses()
 	local activityIndex = string.format("%d-%d-%d", PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedGroup, PremadeFilter_Frame.selectedActivity);
 	local activity = PremadeFilter_ActivityInfo[activityIndex];
 	
+	if ( not EncounterJournal ) then
+		EncounterJournal_LoadUI();
+	end
+	
 	if type(activity) == "table" then
-		EJ_SelectTier(activity.tier);
-		EJ_SelectInstance(EJ_GetInstanceByIndex(activity.instance, activity.raid));
+		EncounterJournal_TierDropDown_Select(nil, activity.tier);
+		
+		local instanceID = EJ_GetInstanceByIndex(activity.instance, activity.raid);
+		EncounterJournal_DisplayInstance(instanceID);
 		
 		if activity.difficulty then
-			EJ_SetDifficulty(activity.difficulty);
+			EncounterJournal_SelectDifficulty(nil, activity.difficulty);
 		end
 		
 		local encounter = 1;
 		repeat
-			boss = EJ_GetEncounterInfoByIndex(encounter);
+			boss = EJ_GetEncounterInfoByIndex(encounter, instanceID);
 			if boss then
 				table.insert(bossList, { name = boss });
 			end
 			encounter = encounter + 1;
 		until not boss;
 	end
+	
 	--output(PremadeFilter_Frame.selectedCategory);
 	--output(PremadeFilter_Frame.selectedGroup);
 	--output(PremadeFilter_Frame.selectedActivity);
