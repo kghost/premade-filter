@@ -1977,12 +1977,14 @@ function LFGListSearchPanel_UpdateResultList(self)
 					if type(completedEncounters) == "table" then
 						for i=1, #completedEncounters do
 							local boss = completedEncounters[i];
-							bossesDefeated[boss] = true;
+							local shortName = boss:match("^([^%,%-%s]+)");
+							bossesDefeated[shortName] = true;
 						end
 					end
 					
 					for boss, filterStatus in pairs(extraFilters.bosses) do
-						local bossStatus = (type(bossesDefeated[boss]) == "nil");
+						local shortName = boss:match("^([^%,%-%s]+)");
+						local bossStatus = (type(bossesDefeated[shortName]) == "nil");
 						if bossStatus ~= filterStatus then
 							matches = false;
 							break;
