@@ -2,12 +2,12 @@ local _, L = ...;
 
 if GetLocale() == "zhTW" then
 	L["Actions"] = "動作"
-	-- L["Alive"] = ""
-	-- L["Any"] = ""
+	L["Alive"] = "存活"
+	L["Any"] = "任何"
 	L["Are you sure you want to delete filter set?"] = "您確定要刪除篩選設置嗎？"
 	L["At least one word"] = "至少一個字"
-	-- L["Boss status colors"] = ""
-	-- L["Defeated"] = ""
+	L["Boss status colors"] = "首領狀態顏色"
+	L["Defeated"] = "已擊敗"
 	L["Enable sound notifications"] = "啟用聲音提醒"
 	L["Enter filter set name"] = "輸入篩選設置名稱"
 	L["Exclude words"] = "排除的文字"
