@@ -59,6 +59,22 @@ local PremadeFilter_ActivityInfo = {
 	["3-1-4"]		= { tier = 5, instance = 6, raid = true, difficulty = 14 },
 	["3-1-41"]		= { tier = 5, instance = 6, raid = true, difficulty = 15 },
 	["3-1-42"]		= { tier = 5, instance = 6, raid = true, difficulty = 16 },
+	
+	["3-76-319"]	= { tier = 4, instance = 2, raid = true, difficulty = 3 },
+	["3-76-322"]	= { tier = 4, instance = 2, raid = true, difficulty = 4 },
+	
+	["3-75-313"]	= { tier = 4, instance = 3, raid = true, difficulty = 3 },
+	["3-75-316"]	= { tier = 4, instance = 3, raid = true, difficulty = 4 },
+	
+	["3-77-323"]	= { tier = 4, instance = 4, raid = true, difficulty = 3 },
+	["3-77-326"]	= { tier = 4, instance = 4, raid = true, difficulty = 4 },
+	
+	["3-78-327"]	= { tier = 4, instance = 5, raid = true, difficulty = 3 },
+	["3-78-329"]	= { tier = 4, instance = 5, raid = true, difficulty = 4 },
+	
+	["3-79-331"]	= { tier = 4, instance = 6, raid = true, difficulty = 3 },
+	["3-79-334"]	= { tier = 4, instance = 6, raid = true, difficulty = 4 },
+	
 }
 
 local PremadeFilter_RealmChapters = {
@@ -1151,6 +1167,7 @@ function PremadeFilter_OnHide(self)
 	self.QueryBuilder:SetParent(LFGListFrame);
 	self.QueryBuilder:SetPoint("TOPLEFT", LFGListFrame, "TOPLEFT", -5, -21);
 	self.QueryBuilder:SetPoint("BOTTOMRIGHT", LFGListFrame, "BOTTOMRIGHT", -2, 2);
+	self.QueryBuilder:Hide();
 	
 	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
@@ -1242,9 +1259,7 @@ function PremadeFilter_GetAvailableBosses()
 		until not boss;
 	end
 	
-	--output(PremadeFilter_Frame.selectedCategory);
-	--output(PremadeFilter_Frame.selectedGroup);
-	--output(PremadeFilter_Frame.selectedActivity);
+	--output(PremadeFilter_Frame.selectedCategory.."-"..PremadeFilter_Frame.selectedGroup.."-"..PremadeFilter_Frame.selectedActivity);
 	
 	return bossList;
 end
@@ -3143,6 +3158,17 @@ function PremadeFilter_SubMenuItem(text, menuList)
 end
 
 function PremadeFilter_OptionsMenu(self)
+	local dropDownList = _G["DropDownList"..UIDROPDOWNMENU_MENU_LEVEL];
+	if dropDownList:IsShown() then
+		CloseDropDownMenus();
+		return;
+	end
+	
+	local saveDialog = StaticPopup_FindVisible("PREMADEFILTER_SAVE_FILTERSET");
+	if saveDialog then
+		return;
+	end
+	
 	local menuList = {
 		PremadeFilter_MenuTitleItem("Filter set"),
 		PremadeFilter_MenuSpacerItem(),
