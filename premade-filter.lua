@@ -2664,7 +2664,9 @@ end
 function PremadeFilter_StopMonitoring()
 	PremadeFilter_Frame.chatNotifications = {};
 	
-	PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time() - (PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] or 0) + 1;
+	if PremadeFilter_Frame.selectedCategory then
+		PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time() - (PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] or 0) + 1;
+	end
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
