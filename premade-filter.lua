@@ -885,13 +885,14 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.baseFilters = LE_LFG_LIST_FILTER_PVE;
 	self.selectedFilters = LE_LFG_LIST_FILTER_PVE;
 	self.results = {};
-	self.minAge = nil;
+	self.minAge = {};
 	self.availableBosses = nil;
 	self.realmName = GetRealmName();
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName);
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo);
 	self.visibleRealms = PremadeFilter_GetVisibleRealms();
 	self.query = "";
+	self.updated = {};
 	self.freshResults = {};
 	self.resultInfo = {};
 	self.chatNotifications = {};
@@ -1560,14 +1561,17 @@ function LFGListSearchPanel_DoSearch(self)
 		C_LFGList.Search(category, "", self.filters, self.preferredFilters);
 	else
 		C_LFGList.Search(self.categoryID, "", self.filters, self.preferredFilters);
+		category = self.categoryID;
 	end
 	
 	self.searching = true;
 	self.searchFailed = false;
 	self.selectedResult = nil;
 	
+	PremadeFilter_Frame.addonSearch = true;
+	PremadeFilter_Frame.selectedCategory = category;
+	PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] = nil;
 	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters();
-	PremadeFilter_Frame.minAge = nil;
 	
 	LFGListSearchPanel_UpdateResultList(self);
 	LFGListSearchPanel_UpdateResults(self);
@@ -1908,6 +1912,10 @@ function LFGListSearchPanel_UpdateResultList(self)
 		PremadeFilter_Frame.freshResults = {};
 		PremadeFilter_Frame.resultInfo = {};
 		
+		if not PremadeFilter_Frame.selectedCategory then
+			PremadeFilter_Frame.selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
+		end
+		
 		for i=1, #self.results do
 			local resultID = self.results[i];
 			local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
@@ -2035,7 +2043,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 				numResults = numResults + 1
 				newResults[numResults] = resultID;
 				
-				if time() - age > PremadeFilter_Frame.updated then
+				if PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] and time() - age > PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] then
 					PremadeFilter_Frame.freshResults[resultID] = true;
 					
 					if PremadeFilter_MinimapButton:IsVisible() then
@@ -2050,11 +2058,13 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 		end
 		
-		if not PremadeFilter_Frame.minAge and not PremadeFilter_MinimapButton:IsVisible() then
-			PremadeFilter_Frame.minAge = minAge or 0;
+		if PremadeFilter_Frame.addonSearch and not PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] and not PremadeFilter_MinimapButton:IsVisible() then
+			PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] = minAge or 0;
 			
 			PremadeFilter_MinimapButton.LastUpdate = 0;
-			PremadeFilter_Frame.updated = time() - PremadeFilter_Frame.minAge + 1;
+			PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time() - PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] + 1;
+			
+			PremadeFilter_Frame.addonSearch = false;
 		end
 		
 		self.totalResults = numResults;
@@ -2341,6 +2351,13 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		return nil;
 	end
 	
+	-- update age
+	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.resultID);
+	if name == info.name and activityID == info.activityID then
+		info.age = age;
+	end
+	
+	-- setup tooltip
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 25, 0);
 	GameTooltip:SetText(info.name, 1, 1, 1, true);
 	GameTooltip:AddLine(info.activityName);
@@ -2647,7 +2664,7 @@ end
 function PremadeFilter_StopMonitoring()
 	PremadeFilter_Frame.chatNotifications = {};
 	
-	PremadeFilter_Frame.updated = time() - (PremadeFilter_Frame.minAge or 0) + 1;
+	PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time() - (PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] or 0) + 1;
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
@@ -2755,7 +2772,7 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 			if button == "LeftButton" then
 				PremadeFilter_MinimapButton_OnClick();
 			else
-				PremadeFilter_Frame.updated = time() - (PremadeFilter_Frame.minAge or 0) + 1;
+				PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time() - (PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] or 0) + 1;
 				PremadeFilter_StopNotification();
 			end
 		end
