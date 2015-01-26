@@ -835,6 +835,39 @@ StaticPopupDialogs["PREMADEFILTER_CONFIRM_DELETE"] = {
 	preferredIndex = 3
 }
 
+PremadeFilter_HelpPlate = {
+	FramePos = { x = 0,  y = -22 },
+	FrameSize = { width = 700, height = 580 },
+	
+	--/run PremadeFilter_HelpPlate[10].ButtonPos.x = 791
+	
+	[1]  = { ButtonPos = { x = 280, y = -25  }, HighLightBox = { x = 23, y = -33,  width = 296, height = 84  },  ToolTipDir = "UP",    ToolTipText = T("Group target") },
+	[2]  = { ButtonPos = { x = 280, y = -119 }, HighLightBox = { x = 23, y = -127, width = 296, height = 119 },  ToolTipDir = "RIGHT", ToolTipText = T("Title and comment") },
+	[3]  = { ButtonPos = { x = 148, y = -241 }, HighLightBox = { x = 23, y = -250, width = 296, height = 27  },  ToolTipDir = "UP",    ToolTipText = T("My role") },
+	[4]  = { ButtonPos = { x = 280, y = -302 }, HighLightBox = { x = 23, y = -281, width = 296, height = 60  },  ToolTipDir = "DOWN",  ToolTipText = T("Item level and voice") },
+	
+	[5]  = { ButtonPos = { x = 516, y = -25  }, HighLightBox = { x = 322, y = -33,  width = 233, height = 213 },  ToolTipDir = "UP",   ToolTipText = T("Bosses") },
+	[6]  = { ButtonPos = { x = 516, y = -302 }, HighLightBox = { x = 322, y = -250, width = 233, height = 91  },  ToolTipDir = "DOWN", ToolTipText = T("Group members") },
+	
+	[7]  = { ButtonPos = { x = 655, y = -302 }, HighLightBox = { x = 558, y = -33,  width = 239, height = 308 },  ToolTipDir = "UP",   ToolTipText = T("Realms") },
+	
+	[8]  = { ButtonPos = { x = 793, y = 23   }, HighLightBox = { x = 558, y = 24,   width = 258, height = 47  },  ToolTipDir = "UP",   ToolTipText = T("More options") },
+	
+	[9]  = { ButtonPos = { x = 122, y = -350 }, HighLightBox = { x = 0,   y = -355, width = 145, height = 36  }, ToolTipDir = "DOWN",  ToolTipText = T("Hide and monitor") },
+	
+	[10] = { ButtonPos = { x = 791, y = -350 }, HighLightBox = { x = 669, y = -355, width = 145, height = 36  }, ToolTipDir = "DOWN",  ToolTipText = T("Apply filters") },
+}
+
+function PremadeFilter_ToggleTutorial()
+	local helpPlate = PremadeFilter_HelpPlate;
+	if ( helpPlate and not HelpPlate_IsShowing(helpPlate) ) then
+		HelpPlate_Show( helpPlate, PremadeFilter_Frame, PremadeFilter_Frame.MainHelpButton, true );
+		--SetCVarBitfield( "closedInfoFrames", LE_FRAME_TUTORIAL_PET_JOURNAL, true );
+	else
+		HelpPlate_Hide(true);
+	end
+end
+
 function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
 	self:RegisterEvent("ADDON_LOADED");
@@ -1175,6 +1208,8 @@ function PremadeFilter_OnHide(self)
 	
 	StaticPopup_Hide("PREMADEFILTER_CONFIRM_CLOSE");
 	StaticPopup_Hide("PREMADEFILTER_SAVE_FILTERSET");
+	
+	HelpPlate_Hide();
 end
 
 function PremadeFilter_Toggle()

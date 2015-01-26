@@ -1484,6 +1484,15 @@
 				</Scripts>
 			</Frame>
 			
+			<Button name="$parentTutorialButton" parentKey="MainHelpButton" inherits="MainHelpPlateButton">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent" x="-25" y="25" />
+				</Anchors>
+				<Scripts>
+					<OnClick function="PremadeFilter_ToggleTutorial" />
+				</Scripts>
+			</Button>
+			
 			<!-- MOVES INSIDE ENTITY CREATION FRAME -->
 			<Frame name="PremadeFilter_Roles" parentKey="PremadeRoles">
 				<Size x="352" y="30" />
