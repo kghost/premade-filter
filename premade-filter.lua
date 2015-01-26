@@ -839,50 +839,60 @@ PremadeFilter_HelpPlate = {
 	FramePos = { x = 0,  y = -22 },
 	FrameSize = { width = 817, height = 409 },
 	
-	[1]  = { ButtonPos = { x = 280, y = -25  }, HighLightBox = { x = 23, y = -33,  width = 296, height = 84  },  ToolTipDir = "UP",    ToolTipText = T("Group target") },
-	[2]  = { ButtonPos = { x = 280, y = -119 }, HighLightBox = { x = 23, y = -127, width = 296, height = 119 },  ToolTipDir = "RIGHT", ToolTipText = T("Title and comment") },
-	[3]  = { ButtonPos = { x = 148, y = -241 }, HighLightBox = { x = 23, y = -250, width = 296, height = 27  },  ToolTipDir = "UP",    ToolTipText = T("My role") },
-	[4]  = { ButtonPos = { x = 280, y = -302 }, HighLightBox = { x = 23, y = -281, width = 296, height = 60  },  ToolTipDir = "DOWN",  ToolTipText = T("Item level and voice") },
-	
-	[5]  = { ButtonPos = { x = 516, y = -25  }, HighLightBox = { x = 322, y = -33,  width = 233, height = 213 },  ToolTipDir = "UP",   ToolTipText = T("Bosses") },
-	[6]  = { ButtonPos = { x = 516, y = -302 }, HighLightBox = { x = 322, y = -250, width = 233, height = 91  },  ToolTipDir = "DOWN", ToolTipText = T("Group members") },
-	
-	[7]  = { ButtonPos = { x = 655, y = -302 }, HighLightBox = { x = 558, y = -33,  width = 239, height = 308 },  ToolTipDir = "UP",   ToolTipText = T("Realms") },
-	
-	[8]  = { ButtonPos = { x = 793, y = 23   }, HighLightBox = { x = 558, y = 24,   width = 258, height = 47  },  ToolTipDir = "UP",   ToolTipText = T("More options") },
-	
-	[9]  = { ButtonPos = { x = 122, y = -350 }, HighLightBox = { x = 0,   y = -355, width = 145, height = 36  }, ToolTipDir = "DOWN",  ToolTipText = T("Hide and monitor") },
-	
-	[10] = { ButtonPos = { x = 791, y = -350 }, HighLightBox = { x = 669, y = -355, width = 145, height = 36  }, ToolTipDir = "DOWN",  ToolTipText = T("Apply filters") },
+	[1]  = { ButtonPos = { x = 280, y = -25  }, HighLightBox = { x = 23, y = -33,  width = 296, height = 84  },  ToolTipDir = "UP",    ToolTipText = 
+		T("Select group activity: quest, dungeon, raid, difficulty") },
+	[2]  = { ButtonPos = { x = 280, y = -119 }, HighLightBox = { x = 23, y = -127, width = 296, height = 119 },  ToolTipDir = "RIGHT", ToolTipText = 
+		T("Enter the words you want to be present or absent in group title and comment.").."\n\n"..
+		T("Click [+] to open window within extended features.") },
+	[3]  = { ButtonPos = { x = 148, y = -241 }, HighLightBox = { x = 23, y = -250, width = 296, height = 27  },  ToolTipDir = "UP",    ToolTipText = 
+		T("Select the roles you can fulfill.").."\n\n"..
+		T("If a group is not created by the addon this option is ignored.") },
+	[4]  = { ButtonPos = { x = 280, y = -302 }, HighLightBox = { x = 23, y = -281, width = 296, height = 60  },  ToolTipDir = "DOWN",  ToolTipText = 
+		T("If you want to join a group of highly equipped characters you can setup minimum item level defined for its members.").."\n\n"..
+		T("You can find a group that uses specific voice chat software or a group tha doesn't use voice chat at all.") },
+	[5]  = { ButtonPos = { x = 516, y = -25  }, HighLightBox = { x = 322, y = -33,  width = 233, height = 213 },  ToolTipDir = "UP",   ToolTipText = 
+		T("You can mark the bosses you want to be still alive with [v] and the bosses you want to be already defeated by [-].") },
+	[6]  = { ButtonPos = { x = 516, y = -302 }, HighLightBox = { x = 322, y = -250, width = 233, height = 91  },  ToolTipDir = "DOWN", ToolTipText = 
+		T("Define minimum and/or maximum number of players of any role.").."\n\n"..
+		T("For example if you are a tank you can set maximum number of tanks to 1 and you get the groups you are guaranteed to have a spot.") },
+	[7]  = { ButtonPos = { x = 655, y = -302 }, HighLightBox = { x = 558, y = -33,  width = 239, height = 308 },  ToolTipDir = "UP",   ToolTipText = 
+		T("Want to find a mythic raid? Choose your realm only.") },
+	[8]  = { ButtonPos = { x = 793, y = 22   }, HighLightBox = { x = 558, y = 21,   width = 258, height = 43  },  ToolTipDir = "UP",   ToolTipText = 
+		T("You can save the filters to use them in future.") },
+	[9]  = { ButtonPos = { x = 122, y = -350 }, HighLightBox = { x = 0,   y = -355, width = 145, height = 36  }, ToolTipDir = "DOWN",  ToolTipText = 
+		T("By hiding the window you can activate background search so you can do anything else in the game.").."\n\n"..
+		T("The addon notifies you if it finds a group that matches your requirements.") },
+	[10] = { ButtonPos = { x = 791, y = -350 }, HighLightBox = { x = 669, y = -355, width = 145, height = 36  }, ToolTipDir = "DOWN",  ToolTipText = 
+		T("The filters take effect when you click this button. The changes don't take effect until you do that.") },
 }
 
 PremadeFilter_HelpFilters = {
-			["ilvl"] = 123,
-			["maxHealers"] = 3,
-			["group"] = 14,
-			["minHealers"] = 2,
-			["bosses"] = {},
-			["maxTanks"] = 1,
-			["realms"] = "-aeriepeak-agamaggan-aggra(português)-aggramar-ahn'qiraj-al'akir-alonsus-anachronos-arathor-argentdawn-aszune-auchindoun-azjol-nerub-azuremyst-balnazzar-blade'sedge-bladefist-bloodfeather-bloodhoof-bloodscalp-boulderfist-bronzedragonflight-bronzebeard-burningblade-burninglegion-burningsteppes-chamberofaspects-chromaggus-crushridge-daggerspine-darkmoonfaire-darksorrow-darkspear-deathwing-defiasbrotherhood-dentarg-doomhammer-draenor-dragonblight-dragonmaw-drak'thul-dunemaul-earthenring-emeralddream-emeriss-eonar-executus-frostmane-frostwhisper-genjuros-ghostlands-grimbatol-hakkar-haomarush-hellfire-hellscream-jaedenar-karazhan-kazzak-khadgar-kilrogg-kor'gall-kultiras-laughingskull-lightbringer-lightning'sblade-magtheridon-mazrigos-moltencore-moonglade-nagrand-neptulon-nordrassil-outland-quel'thalas-ragnaros-ravencrest-ravenholdt-runetotem-saurfang-scarshieldlegion-shadowmoon-shadowsong-shatteredhalls-shatteredhand-silvermoon-skullcrusher-spinebreaker-sporeggar-steamwheedlecartel-stonemaul-stormrage-stormreaver-stormscale-sunstrider-sylvanas-talnivarr-tarrenmill-terenas-terokkar-themaelstrom-thesha'tar-theventurecoeu-thunderhorn-trollbane-turalyon-twilight'shammer-twistingnether-vashj-vek'nilash-warsong-wildhammer-xavius-zenedar-c'thun-colinaspardas-dunmodr-exodar-loserrantes-minahonda-sanguino-shen'dralar-tyrande-uldum-zul'jin-aggra-nemesis",
-			["name"] = {
-				["include"] = {
-					"norm", -- [1]
-				},
-				["possible"] = {
-					"tank", -- [1]
-					"dps", -- [2]
-				},
-				["exclude"] = {
-					"farm", -- [1]
-				},
-			},
-			["category"] = 3,
-			["roles"] = 5,
-			["activity"] = 38,
-			["vc"] = {
-				["none"] = true,
-				["text"] = "",
-			},
+	["ilvl"] = 123,
+	["maxHealers"] = 3,
+	["group"] = 14,
+	["minHealers"] = 2,
+	["bosses"] = {},
+	["maxTanks"] = 1,
+	["realms"] = "-aeriepeak-agamaggan-aggra(português)-aggramar-ahn'qiraj-al'akir-alonsus-anachronos-arathor-argentdawn-aszune-auchindoun-azjol-nerub-azuremyst-balnazzar-blade'sedge-bladefist-bloodfeather-bloodhoof-bloodscalp-boulderfist-bronzedragonflight-bronzebeard-burningblade-burninglegion-burningsteppes-chamberofaspects-chromaggus-crushridge-daggerspine-darkmoonfaire-darksorrow-darkspear-deathwing-defiasbrotherhood-dentarg-doomhammer-draenor-dragonblight-dragonmaw-drak'thul-dunemaul-earthenring-emeralddream-emeriss-eonar-executus-frostmane-frostwhisper-genjuros-ghostlands-grimbatol-hakkar-haomarush-hellfire-hellscream-jaedenar-karazhan-kazzak-khadgar-kilrogg-kor'gall-kultiras-laughingskull-lightbringer-lightning'sblade-magtheridon-mazrigos-moltencore-moonglade-nagrand-neptulon-nordrassil-outland-quel'thalas-ragnaros-ravencrest-ravenholdt-runetotem-saurfang-scarshieldlegion-shadowmoon-shadowsong-shatteredhalls-shatteredhand-silvermoon-skullcrusher-spinebreaker-sporeggar-steamwheedlecartel-stonemaul-stormrage-stormreaver-stormscale-sunstrider-sylvanas-talnivarr-tarrenmill-terenas-terokkar-themaelstrom-thesha'tar-theventurecoeu-thunderhorn-trollbane-turalyon-twilight'shammer-twistingnether-vashj-vek'nilash-warsong-wildhammer-xavius-zenedar-c'thun-colinaspardas-dunmodr-exodar-loserrantes-minahonda-sanguino-shen'dralar-tyrande-uldum-zul'jin-aggra-nemesis",
+	["name"] = {
+		["include"] = {
+			"norm", -- [1]
+		},
+		["possible"] = {
+			"tank", -- [1]
+			"dps", -- [2]
+		},
+		["exclude"] = {
+			"farm", -- [1]
+		},
+	},
+	["category"] = 3,
+	["roles"] = 5,
+	["activity"] = 38,
+	["vc"] = {
+		["none"] = true,
+		["text"] = "",
+	},
 }
 
 function PremadeFilter_ToggleTutorial()
