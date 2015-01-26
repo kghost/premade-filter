@@ -837,9 +837,7 @@ StaticPopupDialogs["PREMADEFILTER_CONFIRM_DELETE"] = {
 
 PremadeFilter_HelpPlate = {
 	FramePos = { x = 0,  y = -22 },
-	FrameSize = { width = 700, height = 580 },
-	
-	--/run PremadeFilter_HelpPlate[10].ButtonPos.x = 791
+	FrameSize = { width = 817, height = 409 },
 	
 	[1]  = { ButtonPos = { x = 280, y = -25  }, HighLightBox = { x = 23, y = -33,  width = 296, height = 84  },  ToolTipDir = "UP",    ToolTipText = T("Group target") },
 	[2]  = { ButtonPos = { x = 280, y = -119 }, HighLightBox = { x = 23, y = -127, width = 296, height = 119 },  ToolTipDir = "RIGHT", ToolTipText = T("Title and comment") },
@@ -858,13 +856,52 @@ PremadeFilter_HelpPlate = {
 	[10] = { ButtonPos = { x = 791, y = -350 }, HighLightBox = { x = 669, y = -355, width = 145, height = 36  }, ToolTipDir = "DOWN",  ToolTipText = T("Apply filters") },
 }
 
+PremadeFilter_HelpFilters = {
+			["ilvl"] = 123,
+			["maxHealers"] = 3,
+			["group"] = 14,
+			["minHealers"] = 2,
+			["bosses"] = {},
+			["maxTanks"] = 1,
+			["realms"] = "-aeriepeak-agamaggan-aggra(português)-aggramar-ahn'qiraj-al'akir-alonsus-anachronos-arathor-argentdawn-aszune-auchindoun-azjol-nerub-azuremyst-balnazzar-blade'sedge-bladefist-bloodfeather-bloodhoof-bloodscalp-boulderfist-bronzedragonflight-bronzebeard-burningblade-burninglegion-burningsteppes-chamberofaspects-chromaggus-crushridge-daggerspine-darkmoonfaire-darksorrow-darkspear-deathwing-defiasbrotherhood-dentarg-doomhammer-draenor-dragonblight-dragonmaw-drak'thul-dunemaul-earthenring-emeralddream-emeriss-eonar-executus-frostmane-frostwhisper-genjuros-ghostlands-grimbatol-hakkar-haomarush-hellfire-hellscream-jaedenar-karazhan-kazzak-khadgar-kilrogg-kor'gall-kultiras-laughingskull-lightbringer-lightning'sblade-magtheridon-mazrigos-moltencore-moonglade-nagrand-neptulon-nordrassil-outland-quel'thalas-ragnaros-ravencrest-ravenholdt-runetotem-saurfang-scarshieldlegion-shadowmoon-shadowsong-shatteredhalls-shatteredhand-silvermoon-skullcrusher-spinebreaker-sporeggar-steamwheedlecartel-stonemaul-stormrage-stormreaver-stormscale-sunstrider-sylvanas-talnivarr-tarrenmill-terenas-terokkar-themaelstrom-thesha'tar-theventurecoeu-thunderhorn-trollbane-turalyon-twilight'shammer-twistingnether-vashj-vek'nilash-warsong-wildhammer-xavius-zenedar-c'thun-colinaspardas-dunmodr-exodar-loserrantes-minahonda-sanguino-shen'dralar-tyrande-uldum-zul'jin-aggra-nemesis",
+			["name"] = {
+				["include"] = {
+					"norm", -- [1]
+				},
+				["possible"] = {
+					"tank", -- [1]
+					"dps", -- [2]
+				},
+				["exclude"] = {
+					"farm", -- [1]
+				},
+			},
+			["category"] = 3,
+			["roles"] = 5,
+			["activity"] = 38,
+			["vc"] = {
+				["none"] = true,
+				["text"] = "",
+			},
+}
+
 function PremadeFilter_ToggleTutorial()
 	local helpPlate = PremadeFilter_HelpPlate;
 	if ( helpPlate and not HelpPlate_IsShowing(helpPlate) ) then
+		helpPlate.oldFilters = PremadeFilter_GetFilters();
+		
+		PremadeFilter_SetFilters(PremadeFilter_HelpFilters);
+		local bossAlive = PremadeFilter_Frame_BossListButton3BossName:GetText();
+		local bossDefeated = PremadeFilter_Frame_BossListButton4BossName:GetText();
+		PremadeFilter_HelpFilters.bosses[bossAlive] = true;
+		PremadeFilter_HelpFilters.bosses[bossDefeated] = false;
+		PremadeFilter_SetFilters(PremadeFilter_HelpFilters);
+		
 		HelpPlate_Show( helpPlate, PremadeFilter_Frame, PremadeFilter_Frame.MainHelpButton, true );
-		--SetCVarBitfield( "closedInfoFrames", LE_FRAME_TUTORIAL_PET_JOURNAL, true );
+		PremadeFilter_Data.HideTutorial = true;
 	else
 		HelpPlate_Hide(true);
+		PremadeFilter_SetFilters(helpPlate.oldFilters);
 	end
 end
 
@@ -1135,6 +1172,10 @@ function PremadeFilter_GetSettings(name)
 end
 
 function PremadeFilter_OnShow(self)
+	if not PremadeFilter_Data.HideTutorial then
+		PremadeFilter_ToggleTutorial();
+	end
+	
 	local categoryID = LFGListFrame.categoryID
 	local baseFilters = LFGListFrame.baseFilters;
 	
@@ -1209,7 +1250,11 @@ function PremadeFilter_OnHide(self)
 	StaticPopup_Hide("PREMADEFILTER_CONFIRM_CLOSE");
 	StaticPopup_Hide("PREMADEFILTER_SAVE_FILTERSET");
 	
-	HelpPlate_Hide();
+	helpPlate = PremadeFilter_HelpPlate;
+	if HelpPlate_IsShowing(helpPlate) then
+		HelpPlate_Hide();
+		PremadeFilter_SetFilters(helpPlate.oldFilters);
+	end
 end
 
 function PremadeFilter_Toggle()
