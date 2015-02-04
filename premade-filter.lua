@@ -31,6 +31,9 @@ local PremadeFilter_DefaultSettings = {
 local PremadeFilter_ActivityInfo = {
 	["3-0-398"]		= { tier = 6, instance = 1, raid = true },
 	
+	["3-15-39"]		= { tier = 6, instance = 3, raid = true },
+	["3-15-40"]		= { tier = 6, instance = 3, raid = true },
+	
 	["3-14-37"]		= { tier = 6, instance = 2, raid = true },
 	["3-14-38"]		= { tier = 6, instance = 2, raid = true },
 	
@@ -74,7 +77,6 @@ local PremadeFilter_ActivityInfo = {
 	
 	["3-79-331"]	= { tier = 4, instance = 6, raid = true, difficulty = 3 },
 	["3-79-334"]	= { tier = 4, instance = 6, raid = true, difficulty = 4 },
-	
 }
 
 local PremadeFilter_RealmChapters = {

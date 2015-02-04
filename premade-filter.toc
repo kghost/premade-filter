@@ -1,7 +1,7 @@
 ﻿## Interface: 60000
 ## Title: Premade Filter
 ## Title-ruRU: Premade Filter
-## Version: 1.6
+## Version: 1.7
 ## Author: PremadeFilter
 ## Notes: Advanced premade filtering
 ## Notes-ruRU: Расширенный фильтр премейдов
@@ -11,6 +11,9 @@ localization\core.lua
 localization\ruRU.lua
 localization\esMX.lua
 localization\deDE.lua
+localization\ptBR.lua
+localization\zhCN.lua
+localization\zhTW.lua
 
 premade-filter.lua
 premade-filter.xml
