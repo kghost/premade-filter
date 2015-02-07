@@ -2298,7 +2298,7 @@ function PremadeFilter_SetFilters(filters)
 			local lastChapter = PremadeFilter_Frame.realmList[lastRealm].chapterIndex;
 			PremadeFilter_Frame.realmList[lastChapter].isCollapsed = true;
 		end
-	else
+	elseif PremadeFilter_Frame.realmList then
 		for i=1, #PremadeFilter_Frame.realmList do
 			PremadeFilter_Frame.realmList[i].isChecked = true;
 			PremadeFilter_Frame.realmList[i].isCollapsed = true;
@@ -2862,9 +2862,11 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	end
 	
 	-- update age
-	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.resultID);
-	if name == info.name and activityID == info.activityID then
-		info.age = age;
+	if self.resultID then
+		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.resultID);
+		if name == info.name and activityID == info.activityID then
+			info.age = age;
+		end
 	end
 	
 	-- setup tooltip
