@@ -381,14 +381,14 @@ local PremadeFilter_Relams = {
 		-- 징벌의 전장
 		{ name = "스톰레이지", region = 2, chapter = 2 },
 		{ name = "윈드러너", region = 2, chapter = 2 },
-		{ name = "굴단 (Gul'dan)", region = 2, chapter = 2 },
+		{ name = "굴단", region = 2, chapter = 2 },
 		{ name = "노르간논", region = 2, chapter = 2 },
 		{ name = "듀로탄", region = 2, chapter = 2 },
 		{ name = "아즈샤라", region = 2, chapter = 2 },
 		{ name = "에이그윈", region = 2, chapter = 2 },
 		{ name = "엘룬", region = 2, chapter = 2 },
 		{ name = "이오나", region = 2, chapter = 2 },
-		{ name = "줄진 (Zul'jin)", region = 2, chapter = 2 },
+		{ name = "줄진", region = 2, chapter = 2 },
 		
 	-- EU
 		-- English
@@ -1851,7 +1851,7 @@ function PremadeFilter_GetSelectedRealms()
 		if not info.isChapter then
 			totalRealms = totalRealms + 1;
 			if info.isChecked then
-				local name = info.name:gsub("[%s]+", "");
+				local name = info.name:gsub("[%s%'%-]+", "");
 				table.insert(selectedRealms, name:lower());
 			end
 		end
@@ -2279,7 +2279,7 @@ function PremadeFilter_SetFilters(filters)
 				noneChecked = true;
 			else
 				local chapter	= PremadeFilter_Frame.realmList[i].chapterIndex;
-				local name		= PremadeFilter_Frame.realmList[i].name:gsub("[%s]+", "");
+				local name		= PremadeFilter_Frame.realmList[i].name:gsub("[%s%'%-]+", "");
 				local checked	= (filters.realms:find("-"..name:lower(), 1, true) ~= nil);
 				
 				PremadeFilter_Frame.realmList[i].isChecked = checked;
@@ -2497,7 +2497,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 				if matches and leaderName and extraFilters.realms then
 					local leaderRealm = leaderName:gmatch("-.+$")();
 					if not leaderRealm then
-						leaderRealm = "-"..PremadeFilter_Frame.realmName;
+						leaderRealm = "-"..PremadeFilter_Frame.realmName:gsub("[%s%'%-]+", "");
 					end
 					matches = extraFilters.realms:find(leaderRealm:lower(), 1, true);
 				end
