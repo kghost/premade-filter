@@ -10,6 +10,7 @@
 localization\core.lua
 localization\ruRU.lua
 localization\esMX.lua
+localization\esES.lua
 localization\deDE.lua
 localization\ptBR.lua
 localization\zhCN.lua
