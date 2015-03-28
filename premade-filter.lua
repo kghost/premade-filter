@@ -1483,6 +1483,7 @@ function PremadeFilter_ChatFilter(self, event, msg, author, arg5, arg6, arg7, ar
 		if not PremadeFilter_Frame.VersionLabel:IsShown() and PremadeFilter_Frame.globalChannel <= 1 then
 			JoinPermanentChannel("PremadeFilter");
 			PremadeFilter_Frame.globalChannel = GetChannelName("PremadeFilter");
+			ChatFrame_RemoveChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
 			SendChatMessage("VER?", "CHANNEL", nil, PremadeFilter_Frame.globalChannel);
 		end
 		
@@ -1665,6 +1666,7 @@ function PremadeFilter_OnShow(self)
 		else
 			JoinPermanentChannel("PremadeFilter");
 			self.globalChannel = GetChannelName("PremadeFilter");
+			ChatFrame_RemoveChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
 			SendChatMessage("VER?", "CHANNEL", nil, self.globalChannel);
 		end
 	end
