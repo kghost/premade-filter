@@ -1412,9 +1412,8 @@ function PremadeFilter_Frame_OnLoad(self)
 		end
 	);
 	
-	--[[ REMOVED BECAUSE OF BLIZZARD TWITTER FEATURE BUG ]]--
-	--self.oldHyperlinkClick = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick");
-	--DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkClick", PremadeFilter_Hyperlink_OnClick);
+	self.oldHyperlinkClick = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick");
+	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkClick", PremadeFilter_Hyperlink_OnClick);
 	
 	self.oldHyperlinkEnter = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkEnter");
 	self.oldHyperlinkLeave = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkLeave");
@@ -3298,8 +3297,8 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 				PremadeFilter_StopNotification();
 			end
 		end
-	--elseif PremadeFilter_Frame.oldHyperlinkClick then
-	--	PremadeFilter_Frame.oldHyperlinkClick(self, linkData, link, button);
+	elseif PremadeFilter_Frame.oldHyperlinkClick then
+		PremadeFilter_Frame.oldHyperlinkClick(self, linkData, link, button);
 	end
 end
 
