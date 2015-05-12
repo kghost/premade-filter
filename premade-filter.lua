@@ -1338,7 +1338,6 @@ end
 function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
 	self:RegisterEvent("ADDON_LOADED");
-	self:RegisterEvent("CHAT_MSG_ADDON");
 	
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
@@ -1422,11 +1421,11 @@ function PremadeFilter_Frame_OnLoad(self)
 	
 	RegisterAddonMessagePrefix("PREMADE_FILTER");
 	
-	self.globalChannel = 0;
-	
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL_JOIN", PremadeFilter_ChatFilter);
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL_LEAVE", PremadeFilter_ChatFilter);
 	ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", PremadeFilter_ChatFilter);
+	
+	LeaveChannelByName("PremadeFilter");
 end
 
 function PremadeFilter_OnEvent(self, event, ...)
@@ -1439,111 +1438,14 @@ function PremadeFilter_OnEvent(self, event, ...)
 		end
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
 		PremadeFilter_OnApplicantListUpdated(self, event, ...);
-	elseif event == "CHAT_MSG_ADDON" then
-		local prefix, msg, channel, sender = ...;
-		
-		if prefix == "PREMADE_FILTER" then
-			if msg == "VER?" then
-				local player = UnitName("player");
-				local version = GetAddOnMetadata("premade-filter", "Version");
-				
-				SendAddonMessage("PREMADE_FILTER", "VER!"..player..":"..version, "WHISPER", sender);
-				
-				if SLASH_PFD1 then
-					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, sender.." requested addon version");
-				end
-			elseif msg:sub(1,4) == "VER!" then
-				local version = GetAddOnMetadata("premade-filter", "Version");
-				local recievedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2");
-				
-				if recievedVersion > version then
-					if not self.VersionLabel:IsShown() then
-						self.VersionLabel:Show();
-						self.VersionLabel:SetText(T("New version available"));
-						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"));
-					end
-				end
-				
-				if SLASH_PFD1 then
-					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, msg:sub(5));
-				end
-			end
-		end
 	end
 end
 
 function PremadeFilter_ChatFilter(self, event, msg, author, arg5, arg6, arg7, arg8, arg9, arg10, channelName, ...)
 	if channelName == "PremadeFilter" then
-		if self == DEFAULT_CHAT_FRAME and event == "CHAT_MSG_CHANNEL" then
-			PremadeFilter_OnEvent(PremadeFilter_Frame, "CHAT_MSG_ADDON", "PREMADE_FILTER", msg, channel, author);
-		end
 		return true;
 	else
-		if not PremadeFilter_Frame.VersionLabel:IsShown() and PremadeFilter_Frame.globalChannel <= 1 then
-			JoinPermanentChannel("PremadeFilter");
-			PremadeFilter_Frame.globalChannel = GetChannelName("PremadeFilter");
-			ChatFrame_RemoveChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
-			SendChatMessage("VER?", "CHANNEL", nil, PremadeFilter_Frame.globalChannel);
-		end
-		
 		return false, msg, author, arg5, arg6, arg7, arg8, arg9, arg10, channelName, ...
-	end
-end
-
-local OldChatEdit_HandleChatType = ChatEdit_HandleChatType;
-function ChatEdit_HandleChatType(editBox, msg, command, send)
-	local channel = strmatch(command, "/([0-9]+)");
-	local addonChannel = GetChannelName("PremadeFilter");
-	
-	if( channel == addonChannel ) then
-		return false;
-	else
-		return OldChatEdit_HandleChatType(editBox, msg, command, send);
-	end
-end
-
-function CreateChatChannelList(self, ...)
-	if ( not FCF_GetCurrentChatFrame() ) then
-		return;
-	end
-	local channelList = FCF_GetCurrentChatFrame().channelList;
-	local zoneChannelList = FCF_GetCurrentChatFrame().zoneChannelList;
-	local channel, channelID, tag;
-	local checked;
-	local count = 1;
-	CHAT_CONFIG_CHANNEL_LIST = {};
-	for i=1, select("#", ...), 2 do
-		channelID = select(i, ...);
-		tag = "CHANNEL"..channelID;
-		channel = select(i+1, ...);
-		
-		if channel ~= "PremadeFilter" then
-			checked = nil;
-			if ( channelList ) then
-				for index, value in pairs(channelList) do
-					if ( value == channel ) then
-						checked = 1;
-					end
-				end
-			end
-			if ( zoneChannelList ) then
-				for index, value in pairs(zoneChannelList) do
-					if ( value == channel ) then
-						checked = 1;
-					end
-				end
-			end
-			CHAT_CONFIG_CHANNEL_LIST[count] = {};
-			CHAT_CONFIG_CHANNEL_LIST[count].text = channelID.."."..channel;
-			CHAT_CONFIG_CHANNEL_LIST[count].channelName = channel;
-			CHAT_CONFIG_CHANNEL_LIST[count].type = tag;
-			CHAT_CONFIG_CHANNEL_LIST[count].maxWidth = CHATCONFIG_CHANNELS_MAXWIDTH;
-			CHAT_CONFIG_CHANNEL_LIST[count].checked = checked;
-			CHAT_CONFIG_CHANNEL_LIST[count].func = function (self, checked) 
-								ToggleChatChannel(checked, CHAT_CONFIG_CHANNEL_LIST[self:GetID()].channelName); 
-								end;
-			count = count+1;
-		end
 	end
 end
 
@@ -1657,18 +1559,13 @@ function PremadeFilter_OnShow(self)
 	PremadeFilter_StopNotification();
 	
 	if not self.VersionLabel:IsShown() then
-		if self.globalChannel > 1 then
-			local guildName = GetGuildInfo("player")
-			if guildName then
-				SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
-			end
-		else
-			JoinPermanentChannel("PremadeFilter");
-			self.globalChannel = GetChannelName("PremadeFilter");
-			ChatFrame_RemoveChannel(DEFAULT_CHAT_FRAME, "PremadeFilter");
-			SendChatMessage("VER?", "CHANNEL", nil, self.globalChannel);
+		local guildName = GetGuildInfo("player")
+		if guildName then
+			SendAddonMessage("PREMADE_FILTER", "VER?", "GUILD");
 		end
 	end
+	
+	LeaveChannelByName("PremadeFilter");
 	
 	PlaySound("igMainMenuOpen");
 end
