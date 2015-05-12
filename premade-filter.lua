@@ -1338,6 +1338,7 @@ end
 function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
 	self:RegisterEvent("ADDON_LOADED");
+	self:RegisterEvent("CHAT_MSG_ADDON");
 	
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
@@ -1438,6 +1439,36 @@ function PremadeFilter_OnEvent(self, event, ...)
 		end
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
 		PremadeFilter_OnApplicantListUpdated(self, event, ...);
+	elseif event == "CHAT_MSG_ADDON" then
+		local prefix, msg, channel, sender = ...;
+		
+		if prefix == "PREMADE_FILTER" then
+			if msg == "VER?" then
+				local player = UnitName("player");
+				local version = GetAddOnMetadata("premade-filter", "Version");
+				
+				SendAddonMessage("PREMADE_FILTER", "VER!"..player..":"..version, "WHISPER", sender);
+				
+				if SLASH_PFD1 then
+					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, sender.." requested addon version");
+				end
+			elseif msg:sub(1,4) == "VER!" then
+				local version = GetAddOnMetadata("premade-filter", "Version");
+				local recievedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2");
+				
+				if recievedVersion > version then
+					if not self.VersionLabel:IsShown() then
+						self.VersionLabel:Show();
+						self.VersionLabel:SetText(T("New version available"));
+						PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"));
+					end
+				end
+				
+				if SLASH_PFD1 then
+					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, msg:sub(5));
+				end
+			end
+		end
 	end
 end
 
@@ -1534,7 +1565,7 @@ function PremadeFilter_OnShow(self)
 	
 	LFGListEntryCreation_Select(self, selectedFilters, selectedCategory, selectedGroup, selectedActivity);
 	
-	if not self.availableBosses then
+	if type(self.availableBosses) ~= "table" or #(self.availableBosses) <= 0 then
 		self.availableBosses = PremadeFilter_GetAvailableBosses();
 		PremadeFilter_BossList_Update();
 	end
