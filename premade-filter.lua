@@ -1367,7 +1367,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	PremadeFilter_Roles:SetPoint("TOPLEFT", LFGListFrame.EntryCreation, "TOPLEFT", -10, -20);
 	
 	self.AdvancedButton:SetParent(LFGListFrame.SearchPanel);
-	self.AdvancedButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel, "TOPRIGHT", -10, -55);
+	self.AdvancedButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.RefreshButton, "TOPLEFT", 0, 0);
 	
 	self:SetParent(LFGListFrame.SearchPanel);
 	self:SetPoint("TOPLEFT", LFGListFrame.SearchPanel, "TOPRIGHT", 10, -20);
@@ -1577,6 +1577,10 @@ function PremadeFilter_OnShow(self)
 	self.Name.BuildButton:SetParent(self.Name);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", self.Name, "TOPRIGHT", 0, -1);
 	
+	self.AdvancedButton:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up");
+	self.AdvancedButton:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down");
+	self.AdvancedButton:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Disabled");
+	
 	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
 	
 	if PremadeFilter_Frame.ShowNextTime then
@@ -1610,6 +1614,10 @@ function PremadeFilter_OnHide(self)
 	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
 	
+	self.AdvancedButton:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up");
+	self.AdvancedButton:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Down");
+	self.AdvancedButton:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Disabled");
+
 	StaticPopup_Hide("PREMADEFILTER_CONFIRM_CLOSE");
 	StaticPopup_Hide("PREMADEFILTER_SAVE_FILTERSET");
 	

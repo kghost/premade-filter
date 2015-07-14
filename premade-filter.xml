@@ -229,8 +229,8 @@
 			</EdgeSize>
 		</Backdrop>
 		<Frames>
-			<Button parentKey="AdvancedButton" inherits="UIPanelButtonTemplate" text="FILTERS">
-				<Size x="110" y="22"/>
+			<Button parentKey="AdvancedButton">
+				<Size x="32" y="32"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" x="-20" y="-20"/>
 				</Anchors>
@@ -246,6 +246,10 @@
 					</OnUpdate>
 					<OnClick function="PremadeFilter_Toggle"/>
 				</Scripts>
+				<NormalTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Up"/>
+				<PushedTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Down"/>
+				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
+				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
 			</Button>
 			
 			<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
