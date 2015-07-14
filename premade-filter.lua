@@ -2007,11 +2007,12 @@ end
 function LFGListSearchPanel_DoSearch(self)
 	local visible = PremadeFilter_Frame:IsVisible();
 	local category = PremadeFilter_Frame.selectedCategory;
+	local languages = C_LFGList.GetLanguageSearchFilter();
 	
 	if visible and category then
-		C_LFGList.Search(category, "", self.filters, self.preferredFilters);
+		C_LFGList.Search(category, "", self.filters, self.preferredFilters, languages);
 	else
-		C_LFGList.Search(self.categoryID, "", self.filters, self.preferredFilters);
+		C_LFGList.Search(self.categoryID, "", self.filters, self.preferredFilters, languages);
 		category = self.categoryID;
 	end
 	
