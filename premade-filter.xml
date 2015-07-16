@@ -1458,7 +1458,7 @@
 							<Anchor point="TOPRIGHT" relativeKey="$parent.SoundNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
 						</Anchors>
 					</CheckButton>
-					<Slider name="PremadeFilter_UpdateIntervalSlider" parentKey="UpdateInterval" inherits="OptionsSliderTemplate" minValue="15" maxValue="60" stepsPerPage="3" valueStep="5">
+					<Slider name="PremadeFilter_UpdateIntervalSlider" parentKey="UpdateInterval" inherits="OptionsSliderTemplate" minValue="2" maxValue="60" stepsPerPage="3" valueStep="1">
 						<Size x="200" y="17"/>
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeKey="$parent.UpdateIntervalHeader" relativePoint="TOPLEFT" x="0" y="-18" />
@@ -1469,19 +1469,34 @@
 								PremadeFilter_UpdateIntervalSliderLow:SetText(minValue);
 								PremadeFilter_UpdateIntervalSliderHigh:SetText(maxValue);
 							</OnLoad>
-							<OnValueChanged>
-								if not self._onsetting then   -- is single threaded 
-									self._onsetting = true
-									self:SetValue(self:GetValue())
-									value = self:GetValue()     -- cant use original 'value' parameter
-									self._onsetting = false
-								else 
-									return
-								end               -- ignore recursion for actual event handler
-							</OnValueChanged>
+							<OnValueChanged function="PremadeFilter_UpdateIntervalSlider_OnValueChanged" />
 						</Scripts>
 					</Slider>
+					<EditBox name="PremadeFilter_UpdateIntervalEditBox" parentKey="UpdateIntervalEditBox" inherits="InputBoxTemplate" letters="3" autoFocus="false">
+						<Size x="40" y="20"/>
+						<Anchors>
+							<Anchor point="TOP" relativeKey="$parent.UpdateInterval" relativePoint="BOTTOM" x="0" y="0"/>
+							<Anchor point="CENTER" relativeKey="$parent.UpdateInterval" relativePoint="CENTER" x="0" y="0"/>
+						</Anchors>
+						<FontString inherits="GameFontHighlightSmall" justifyH="CENTER" justifyV="CENTER" />
+						<Scripts>
+							<OnLoad function="PremadeFilter_UpdateIntervalEditBox_OnLoad" />
+							<OnEnterPressed function="PremadeFilter_UpdateIntervalEditBox_OnEnterPressed" />
+						</Scripts>
+					</EditBox>
 				</Frames>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="PremadeFilter_UpdateIntervalShortAlert" parentKey="UpdateIntervalShortAlert" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" wordwrap="true">
+							<Anchors>
+								<Anchor point="TOPLEFT" relativeKey="$parent.UpdateInterval" relativePoint="TOPRIGHT" x="20" y="0" />
+								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-20" />
+								<Anchor point="BOTTOM" relativeKey="$parent.UpdateIntervalEditBox" relativePoint="BOTTOM" />
+							</Anchors>
+							<Color a="1" r="1" g="0" b="0" />
+						</FontString>
+					</Layer>
+				</Layers>
 				<Scripts>
 					<OnLoad function="PremadeFilter_Options_OnLoad"/>
 					<OnShow>
@@ -1490,6 +1505,8 @@
 						self.NewPlayerChatNotifications:SetChecked(PremadeFilter_GetSettings("NewPlayerChatNotifications", true));
 						self.SoundNotifications:SetChecked(PremadeFilter_GetSettings("SoundNotifications", true));
 						self.UpdateInterval:SetValue(PremadeFilter_GetSettings("UpdateInterval", 15));
+						PremadeFilter_UpdateIntervalShortAlert:SetText(T("Attention! Update interval shorter than 15 seconds may cause the game to run slow and impact your gaming experience!!!"));
+						PremadeFilter_UpdateIntervalShortAlert_UpdateVisibility(PremadeFilter_UpdateIntervalShortAlert);
 					</OnShow>
 				</Scripts>
 			</Frame>

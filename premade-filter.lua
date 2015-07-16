@@ -1496,7 +1496,7 @@ function PremadeFilter_FixSettings()
 	end
 	
 	if type(PremadeFilter_Data.Settings.UpdateInterval) ~= "number"
-		  or PremadeFilter_Data.Settings.UpdateInterval < 15
+		  or PremadeFilter_Data.Settings.UpdateInterval < 2
 		  or PremadeFilter_Data.Settings.UpdateInterval > 60
 	then
 		PremadeFilter_Data.Settings.UpdateInterval = PremadeFilter_DefaultSettings.UpdateInterval;
@@ -3790,4 +3790,40 @@ function PremadeFilter_OnFilterSetSelected(self, arg1, arg2, checked)
 	PremadeFilter_SetFilters(filters);
 	
 	PremadeFilter_FilterButton_OnClick(PremadeFilter_Frame.FilterButton);
+end
+
+function PremadeFilter_UpdateIntervalSlider_OnValueChanged(self)
+	PremadeFilter_UpdateIntervalEditBox:SetText(self:GetValue());
+	PremadeFilter_UpdateIntervalShortAlert_UpdateVisibility(PremadeFilter_UpdateIntervalShortAlert);
+
+	if not self._onsetting then   -- is single threaded 
+		self._onsetting = true
+		self:SetValue(self:GetValue())
+		value = self:GetValue()     -- cant use original 'value' parameter
+		self._onsetting = false
+	else 
+		return
+	end               -- ignore recursion for actual event handler
+end
+
+function PremadeFilter_UpdateIntervalEditBox_OnLoad(self)
+	self:SetText(PremadeFilter_UpdateIntervalSlider:GetValue());
+end
+
+function PremadeFilter_UpdateIntervalEditBox_OnEnterPressed(self)
+	self:ClearFocus();
+
+	local v = tonumber(self:GetText());
+	if v == nil then return	end
+
+	PremadeFilter_UpdateIntervalSlider:SetValue(v);
+	self:SetText(PremadeFilter_UpdateIntervalSlider:GetValue());
+end
+
+function PremadeFilter_UpdateIntervalShortAlert_UpdateVisibility(self)
+	if PremadeFilter_UpdateIntervalSlider:GetValue() < 15 then
+		self:Show();
+	else
+		self:Hide();
+	end	
 end

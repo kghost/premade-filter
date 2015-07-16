@@ -45,4 +45,5 @@ if GetLocale() == "ruRU" then
 	L["You can mark the bosses you want to be still alive with [v] and the bosses you want to be already defeated by [-]."] = "Вы можете отметить галочкой [v] боссов, которые еще не убиты группой, и минусом [-] тех, кто уже побежден."
 	L["You can save the filters to use them in future."] = "Вы можете сохранять настройки фильтров, чтобы использовать их в будущем."
 	L["You want at least one of these words"] = "Вам нужно как минимум одно из этих слов"
+	L["Attention! Update interval shorter than 15 seconds may cause the game to run slow and impact your gaming experience!!!"] = "Внимание! Интервал обновления меньше 15 секунд может значительно замедлить игру!!!"
 end
