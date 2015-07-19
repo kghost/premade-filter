@@ -8,11 +8,14 @@
 ## SavedVariables: PremadeFilter_Data
 
 localization\core.lua
-localization\ruRU.lua
-localization\esMX.lua
-localization\esES.lua
 localization\deDE.lua
+localization\esES.lua
+localization\esMX.lua
+localization\frFR.lua
+localization\itIT.lua
+localization\koKR.lua
 localization\ptBR.lua
+localization\ruRU.lua
 localization\zhCN.lua
 localization\zhTW.lua
 
