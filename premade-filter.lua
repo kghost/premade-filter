@@ -77,6 +77,10 @@ local PremadeFilter_ActivityInfo = {
 	
 	["3-79-331"]	= { tier = 4, instance = 6, raid = true, difficulty = 3 },
 	["3-79-334"]	= { tier = 4, instance = 6, raid = true, difficulty = 4 },
+	
+	["3-110-409"]	= { tier = 6, instance = 4, raid = true },
+	["3-110-410"]	= { tier = 6, instance = 4, raid = true },
+	["3-110-411"]	= { tier = 6, instance = 4, raid = true },
 }
 
 local PremadeFilter_RealmChapters = {
