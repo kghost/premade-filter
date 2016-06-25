@@ -1,6 +1,32 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" 
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	
+	<Button name="PremadeFilterActivityListTemplate" virtual="true">
+        <Size x="250" y="14"/>
+        <Layers>
+            <Layer level="OVERLAY">
+                <Texture parentKey="Selected" file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+        <Scripts>
+            <OnClick>
+                PlaySound("igMainMenuOptionCheckBoxOn");
+                PremadeFilterActivityFinder_Select(self:GetParent():GetParent():GetParent():GetParent(), self.activityID);
+			</OnClick>
+            <OnEnter>
+                if ( self.Label:IsTruncated() ) then
+				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+				GameTooltip:SetText(self.Label:GetText());
+				GameTooltip:Show();
+                end
+			</OnEnter>
+            <OnLeave function="GameTooltip_Hide"/>
+		</Scripts>
+        <ButtonText parentKey="Label" setAllPoints="true" justifyH="LEFT"/>
+        <NormalFont style="GameFontNormal"/>
+        <HighlightFont style="GameFontHighlight"/>
+	</Button>
 	
 	<Frame name="PremadeFilter_RealmChoiceTemplate" enableMouse="true" inherits="LFGSpecificChoiceTemplate" virtual="true">
 		<Scripts>
@@ -240,8 +266,8 @@
 					</OnHide>
 					<OnUpdate>
 						if PremadeFilter_Frame.ShowNextTime and not PremadeFilter_Frame:IsVisible() then
-							PremadeFilter_Frame:Show();
-							PremadeFilter_Frame.ShowNextTime = false;
+						PremadeFilter_Frame:Show();
+						PremadeFilter_Frame.ShowNextTime = false;
 						end
 					</OnUpdate>
 					<OnClick function="PremadeFilter_Toggle"/>
@@ -251,6 +277,115 @@
 				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
 				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
 			</Button>
+			
+			<Frame parentKey="ActivityFinder" frameLevel="13" enableMouse="true" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="-5" y="-24"/>
+					<Anchor point="BOTTOMRIGHT" x="-5" y="2"/>
+				</Anchors>
+				<Layers>
+					<Layer level="BACKGROUND">
+						<Texture parentKey="Background" setAllPoints="true">
+							<Color r="0" g="0" b="0" a="0.7"/>
+						</Texture>
+					</Layer>
+				</Layers>
+				<Frames>
+					<Frame parentKey="Dialog">
+						<Size x="320" y="250"/>
+						<Anchors>
+							<Anchor point="CENTER"/>
+						</Anchors>
+						<Backdrop edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
+							<TileSize>
+								<AbsValue val="32"/>
+							</TileSize>
+							<EdgeSize>
+								<AbsValue val="32"/>
+							</EdgeSize>
+						</Backdrop>
+						<Layers>
+							<Layer level="BACKGROUND" textureSubLevel="-1">
+								<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
+									<Anchors>
+										<Anchor point="TOPLEFT" x="4" y="-4"/>
+										<Anchor point="BOTTOMRIGHT" x="-4" y="4"/>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+						<Frames>
+							<EditBox parentKey="EntryBox" inherits="LFGListEditBoxTemplate" autoFocus="true">
+								<Size x="268" y="22"/>
+								<Anchors>
+									<Anchor point="TOP" x="0" y="-15"/>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self.Instructions:SetText(SEARCH);
+									</OnLoad>
+									<OnTextChanged>
+										InputBoxInstructions_OnTextChanged(self);
+										PremadeFilterActivityFinder_UpdateMatching(self:GetParent():GetParent());
+									</OnTextChanged>
+									<OnEnterPressed>
+										PremadeFilterActivityFinder_Accept(self:GetParent():GetParent());
+										PlaySound("igMainMenuOptionCheckBoxOn");
+									</OnEnterPressed>
+								</Scripts>
+							</EditBox>
+							<ScrollFrame name="PremadeFilterActivityFinderSearchScrollFrame" inherits="HybridScrollFrameTemplate" parentKey="ScrollFrame">
+								<Size x="260" y="150"/>
+								<Anchors>
+									<Anchor point="TOPLEFT" x="25" y="-45"/>
+									<Anchor point="BOTTOMRIGHT" x="-25" y="50"/>
+								</Anchors>
+								<Frames>
+									<Slider name="$parentScrollBar" inherits="MinimalHybridScrollBarTemplate" parentKey="scrollBar">
+										<Anchors>
+											<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT" x="-3" y="-17"/>
+											<Anchor point="BOTTOMLEFT" relativePoint="BOTTOMRIGHT" x="-15" y="16"/>
+										</Anchors>
+									</Slider>
+								</Frames>
+							</ScrollFrame>
+							<Frame parentKey="BorderFrame" inherits="TooltipBorderedFrameTemplate" useParentLevel="true"> <!--Because there isn't an easy way to change the bounds of a scroll frame-->
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeKey="$parent.ScrollFrame" relativePoint="TOPLEFT" x="-5" y="5"/>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ScrollFrame" relativePoint="BOTTOMRIGHT" x="5" y="-5"/>
+								</Anchors>
+							</Frame>
+							<Button parentKey="SelectButton" inherits="UIPanelButtonTemplate" text="LFG_LIST_SELECT">
+								<Size x="130" y="22"/>
+								<Anchors>
+									<Anchor point="BOTTOMRIGHT" relativeKey="$parent" relativePoint="BOTTOM" x="-10" y="15"/>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										PlaySound("igMainMenuOptionCheckBoxOn");
+										PremadeFilterActivityFinder_Accept(self:GetParent():GetParent());
+									</OnClick>
+								</Scripts>
+							</Button>
+							<Button parentKey="CancelButton" inherits="UIPanelButtonTemplate" text="CANCEL">
+								<Size x="130" y="22"/>
+								<Anchors>
+									<Anchor point="BOTTOMLEFT" relativeKey="$parent" relativePoint="BOTTOM" x="10" y="15"/>
+								</Anchors>
+								<Scripts>
+									<OnClick>
+										PlaySound("igMainMenuOptionCheckBoxOn");
+										PremadeFilterActivityFinder_Cancel(self:GetParent():GetParent());
+									</OnClick>
+								</Scripts>
+							</Button>
+						</Frames>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad function="PremadeFilterActivityFinder_OnLoad"/>
+				</Scripts>
+			</Frame>
 			
 			<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
 				<Anchors>
@@ -285,28 +420,28 @@
 					</OnLoad>
 					<OnEnterPressed>
 						if PremadeFilter_Frame.AutoCompleteFrame:IsVisible() then
-							local idx = PremadeFilter_Frame.AutoCompleteFrame.selectedIndex
-							if idx then
-								local button = PremadeFilter_Frame.AutoCompleteFrame.Results[idx];
-								PremadeFilter_AutoCompleteButton_OnClick(button);
-							end
+						local idx = PremadeFilter_Frame.AutoCompleteFrame.selectedIndex
+						if idx then
+						local button = PremadeFilter_Frame.AutoCompleteFrame.Results[idx];
+						PremadeFilter_AutoCompleteButton_OnClick(button);
+						end
 						else
-							LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
-							self:ClearFocus();
+						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+						self:ClearFocus();
 						end
 					</OnEnterPressed>
 					<OnTabPressed>
 						if ( IsShiftKeyDown() ) then
-							PremadeFilter_AutoCompleteAdvance(-1);
+						PremadeFilter_AutoCompleteAdvance(-1);
 						else
-							PremadeFilter_AutoCompleteAdvance(1);
+						PremadeFilter_AutoCompleteAdvance(1);
 						end
 					</OnTabPressed>
 					<OnArrowPressed>
 						if ( key == "UP" ) then
-							PremadeFilter_AutoCompleteAdvance(-1);
+						PremadeFilter_AutoCompleteAdvance(-1);
 						elseif ( key == "DOWN" ) then
-							PremadeFilter_AutoCompleteAdvance(1);
+						PremadeFilter_AutoCompleteAdvance(1);
 						end
 					</OnArrowPressed>
 					<OnTextChanged function="PremadeFilter_Name_OnTextChanged"/>
@@ -619,18 +754,18 @@
 				<Scripts>
 					<OnClick>
 						if self:GetChecked() then
-							self:GetParent().PlayersNoTankMinLabel:Hide();
-							self:GetParent().PlayersNoTankMaxLabel:Hide();
-							self:GetParent().MinTanks:Show();
-							self:GetParent().MaxTanks:Show();
-							self:GetParent().MinTanks:SetFocus();
+						self:GetParent().PlayersNoTankMinLabel:Hide();
+						self:GetParent().PlayersNoTankMaxLabel:Hide();
+						self:GetParent().MinTanks:Show();
+						self:GetParent().MaxTanks:Show();
+						self:GetParent().MinTanks:SetFocus();
 						else
-							self:GetParent().PlayersNoTankMinLabel:Show();
-							self:GetParent().PlayersNoTankMaxLabel:Show();
-							self:GetParent().MinTanks:Hide();
-							self:GetParent().MaxTanks:Hide();
-							self:GetParent().MinTanks:SetText("");
-							self:GetParent().MaxTanks:SetText("");
+						self:GetParent().PlayersNoTankMinLabel:Show();
+						self:GetParent().PlayersNoTankMaxLabel:Show();
+						self:GetParent().MinTanks:Hide();
+						self:GetParent().MaxTanks:Hide();
+						self:GetParent().MinTanks:SetText("");
+						self:GetParent().MaxTanks:SetText("");
 						end
 						PremadeFilter_CheckButtonSound(self);
 					</OnClick>
@@ -653,18 +788,18 @@
 				<Scripts>
 					<OnClick>
 						if self:GetChecked() then
-							self:GetParent().PlayersNoHealerMinLabel:Hide();
-							self:GetParent().PlayersNoHealerMaxLabel:Hide();
-							self:GetParent().MinHealers:Show();
-							self:GetParent().MaxHealers:Show();
-							self:GetParent().MinHealers:SetFocus();
+						self:GetParent().PlayersNoHealerMinLabel:Hide();
+						self:GetParent().PlayersNoHealerMaxLabel:Hide();
+						self:GetParent().MinHealers:Show();
+						self:GetParent().MaxHealers:Show();
+						self:GetParent().MinHealers:SetFocus();
 						else
-							self:GetParent().PlayersNoHealerMinLabel:Show();
-							self:GetParent().PlayersNoHealerMaxLabel:Show();
-							self:GetParent().MinHealers:Hide();
-							self:GetParent().MaxHealers:Hide();
-							self:GetParent().MinHealers:SetText("");
-							self:GetParent().MaxHealers:SetText("");
+						self:GetParent().PlayersNoHealerMinLabel:Show();
+						self:GetParent().PlayersNoHealerMaxLabel:Show();
+						self:GetParent().MinHealers:Hide();
+						self:GetParent().MaxHealers:Hide();
+						self:GetParent().MinHealers:SetText("");
+						self:GetParent().MaxHealers:SetText("");
 						end
 						PremadeFilter_CheckButtonSound(self);
 					</OnClick>
@@ -687,18 +822,18 @@
 				<Scripts>
 					<OnClick>
 						if self:GetChecked() then
-							self:GetParent().PlayersNoDamagerMinLabel:Hide();
-							self:GetParent().PlayersNoDamagerMaxLabel:Hide();
-							self:GetParent().MinDamagers:Show();
-							self:GetParent().MaxDamagers:Show();
-							self:GetParent().MinDamagers:SetFocus();
+						self:GetParent().PlayersNoDamagerMinLabel:Hide();
+						self:GetParent().PlayersNoDamagerMaxLabel:Hide();
+						self:GetParent().MinDamagers:Show();
+						self:GetParent().MaxDamagers:Show();
+						self:GetParent().MinDamagers:SetFocus();
 						else
-							self:GetParent().PlayersNoDamagerMinLabel:Show();
-							self:GetParent().PlayersNoDamagerMaxLabel:Show();
-							self:GetParent().MinDamagers:Hide();
-							self:GetParent().MaxDamagers:Hide();
-							self:GetParent().MinDamagers:SetText("");
-							self:GetParent().MaxDamagers:SetText("");
+						self:GetParent().PlayersNoDamagerMinLabel:Show();
+						self:GetParent().PlayersNoDamagerMaxLabel:Show();
+						self:GetParent().MinDamagers:Hide();
+						self:GetParent().MaxDamagers:Hide();
+						self:GetParent().MinDamagers:SetText("");
+						self:GetParent().MaxDamagers:SetText("");
 						end
 						PremadeFilter_CheckButtonSound(self);
 					</OnClick>
@@ -1611,7 +1746,6 @@
 			</Frame>
 			
 			<!-- FAKE -->
-			<Frame parentKey="ActivityFinder" frameLevel="13" enableMouse="true" hidden="true" />
 			<Button parentKey="ListGroupButton" />
 		</Frames>
 		<Scripts>

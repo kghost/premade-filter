@@ -1942,7 +1942,14 @@ end
 function PremadeFilter_OnGroupSelected(self, id, buttonType)
 	self.selectedGroup = id;
 	
-	LFGListEntryCreation_OnGroupSelected(self, id, buttonType);
+	if ( buttonType == "activity" ) then
+        LFGListEntryCreation_OnGroupSelected(self, id, buttonType);
+    elseif ( buttonType == "group" ) then
+        LFGListEntryCreation_OnGroupSelected(self, id, buttonType);
+    elseif ( buttonType == "more" ) then
+        PremadeFilterActivityFinder_Show(self.ActivityFinder, self.selectedCategory, nil);
+		return true;
+    end
 	
 	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
 	PremadeFilter_BossList_Update();
@@ -1951,13 +1958,91 @@ end
 function PremadeFilter_OnActivitySelected(self, id, buttonType)
 	self.selectedActivity = id;
 	
-	LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
+	if ( buttonType == "activity" ) then
+        LFGListEntryCreation_OnActivitySelected(self, id, buttonType);
+    elseif ( buttonType == "more" ) then
+        PremadeFilterActivityFinder_Show(self.ActivityFinder, self.selectedCategory, self.selectedGroup);
+		return true;
+    end
 	
 	PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
 	PremadeFilter_BossList_Update();
 end
 
-function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
+function PremadeFilterActivityFinder_OnLoad(self)
+    self.Dialog.ScrollFrame.update = function() PremadeFilterActivityFinder_Update(self); end;
+    self.Dialog.ScrollFrame.scrollBar.doNotHide = true;
+    HybridScrollFrame_CreateButtons(self.Dialog.ScrollFrame, "PremadeFilterActivityListTemplate");
+ 
+    self.matchingActivities = {};
+end
+
+function PremadeFilterActivityFinder_Show(self, categoryID, groupID, filters)
+    self.Dialog.EntryBox:SetText("");
+    self.categoryID = categoryID;
+    self.groupID = groupID;
+    self.filters = filters;
+    self.selectedActivity = nil;
+    PremadeFilterActivityFinder_UpdateMatching(self);
+    self:Show();
+    self.Dialog.EntryBox:SetFocus();
+end
+
+function PremadeFilterActivityFinder_UpdateMatching(self)
+    self.matchingActivities = C_LFGList.GetAvailableActivities(self.categoryID, self.groupID, self.filters, self.Dialog.EntryBox:GetText());
+    LFGListUtil_SortActivitiesByRelevancy(self.matchingActivities);
+    if ( not self.selectedActivity or not tContains(self.matchingActivities, self.selectedActivity) ) then
+        self.selectedActivity = self.matchingActivities[1];
+    end
+    PremadeFilterActivityFinder_Update(self);
+end
+ 
+function PremadeFilterActivityFinder_Update(self)
+    local actitivities = self.matchingActivities;
+ 
+    local offset = HybridScrollFrame_GetOffset(self.Dialog.ScrollFrame);
+ 
+    for i=1, #self.Dialog.ScrollFrame.buttons do
+        local button = self.Dialog.ScrollFrame.buttons[i];
+        local idx = i + offset;
+        local id = actitivities[idx];
+        if ( id ) then
+            button:SetText( (C_LFGList.GetActivityInfo(id)) );
+            button.activityID = id;
+            button.Selected:SetShown(self.selectedActivity == id);
+            if ( self.selectedActivity == id ) then
+                button:LockHighlight();
+            else
+                button:UnlockHighlight();
+            end
+            button:Show();
+        else
+            button:Hide();
+        end
+    end
+	
+    HybridScrollFrame_Update(self.Dialog.ScrollFrame, self.Dialog.ScrollFrame.buttons[1]:GetHeight() * #actitivities, self.Dialog.ScrollFrame:GetHeight());
+end
+ 
+function PremadeFilterActivityFinder_Accept(self)
+    if ( self.selectedActivity ) then
+		LFGListEntryCreation_OnActivitySelected(self:GetParent(), self.selectedActivity, "activity");
+		PremadeFilter_Frame.availableBosses = PremadeFilter_GetAvailableBosses();
+		PremadeFilter_BossList_Update();
+    end
+    self:Hide();
+end
+ 
+function PremadeFilterActivityFinder_Cancel(self)
+    self:Hide();
+end
+ 
+function PremadeFilterActivityFinder_Select(self, activityID)
+    self.selectedActivity = activityID;
+    PremadeFilterActivityFinder_Update(self);
+end
+
+--[[function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 	if ( not self.selectedCategory ) then
 		--We don't have a category, so we can't fill out groups.
 		return;
@@ -2006,7 +2091,7 @@ function LFGListEntryCreation_PopulateGroups(self, dropDown, info)
 			groupOrder = groups[groupIndex] and select(2, C_LFGList.GetActivityGroupInfo(groups[groupIndex]));
 		end
 	end
-end
+end]]--
 
 function LFGListSearchPanel_DoSearch(self)
 	local visible = PremadeFilter_Frame:IsVisible();
