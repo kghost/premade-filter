@@ -624,6 +624,68 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				</Frames>
 			</Frame>				
 			
+			
+			<Frame parentKey="HonorLevel">
+				<Size x="273" y="14"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-52"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+				</KeyValues>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString parentKey="Label" inherits="GameFontHighlightSmall" justifyH="LEFT" text="LFG_LIST_ITEM_LEVEL_REQ">
+							<Size x="150" y="14"/>
+							<Anchors>
+								<Anchor point="LEFT" x="24"/>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Frames>
+					<CheckButton parentKey="CheckButton">
+						<Size x="22" y="22"/>
+						<HitRectInsets>
+							<AbsInset left="0" right="-130" top="0" bottom="0"/>
+						</HitRectInsets>
+						<Anchors>
+							<Anchor point="LEFT" x="0" y="0"/>
+						</Anchors>
+						<Scripts>
+							<OnClick function="PremadeFilter_CheckButton_OnClick"/>
+						</Scripts>
+						<NormalTexture file="Interface\Buttons\UI-CheckBox-Up"/>
+						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
+						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
+						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+					</CheckButton>
+					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate" hidden="true">
+						<Size x="120" y="22"/>
+						<Anchors>
+							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="10" y="5"/>
+						</Anchors>
+						<KeyValues>
+							<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
+							<KeyValue key="instructions" value="LFG_LIST_ITEM_LEVEL_INSTR_SHORT" type="global"/>
+						</KeyValues>
+						<Scripts>
+							<OnLoad>
+								LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+								self.Instructions:SetText(self.instructions);
+							</OnLoad>
+							<OnTextChanged>
+								InputBoxInstructions_OnTextChanged(self);
+							</OnTextChanged>
+							<OnEnterPressed>
+								PlaySound("igMainMenuOptionCheckBoxOn");
+							</OnEnterPressed>
+						</Scripts>
+					</EditBox>
+				</Frames>
+			</Frame>				
+			
 			<Frame parentKey="VoiceChat">
 				<Size x="273" y="14"/>
 				<Anchors>

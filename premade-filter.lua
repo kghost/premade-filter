@@ -2459,7 +2459,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 		
 		for i=1, #self.results do
 			local resultID = self.results[i];
-			local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
+			local id, activityID, name, comment, voiceChat, iLvl, honorLevel, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
 			local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 			local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 			
@@ -2640,7 +2640,7 @@ function LFGListSearchPanel_UpdateResults(self)
 			local result = (idx <= #apps) and apps[idx] or results[idx - #apps];
 
 			if ( result ) then
-				local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(result);
+				local id, activityID, name, comment, voiceChat, iLvl, honorLevel, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(result);
 				local infoName = PremadeFilter_GetInfoName(activityID, name);
 				button.resultID = result;
 				button.infoName = infoName;
@@ -2760,7 +2760,7 @@ function LFGListSearchEntry_Update(self)
 
 	local panel = self:GetParent():GetParent():GetParent();
 
-	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
+	local id, activityID, name, comment, voiceChat, iLvl, honorLevel, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
 	local activityName = C_LFGList.GetActivityInfo(activityID);
 	local infoName = PremadeFilter_GetInfoName(activityID, name);
 	
@@ -2821,8 +2821,9 @@ function LFGListSearchEntry_OnEnter(self)
 	PremadeFilter_SearchEntry_OnEnter(self);
 end
 
+
 function PremadeFilter_GetTooltipInfo(resultID)
-	local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(resultID);
+ 	local id, activityID, name, comment, voiceChat, iLvl, honorLevel, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName,numMembers = C_LFGList.GetSearchResultInfo(resultID);
 	
 	if not activityID then
 		return nil;
@@ -2874,6 +2875,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		activityName		= activityName,
 		comment				= comment,
 		iLvl				= iLvl,
+		HonorLevel			= honorLevel,
 		voiceChat			= voiceChat,
 		leaderName			= leaderName,
 		age					= age,
@@ -2894,7 +2896,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	
 	-- update age
 	if self.resultID then
-		local id, activityID, name, comment, voiceChat, iLvl, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.resultID);
+		local id, activityID, name, comment, voiceChat, iLvl, honorLevel, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.resultID);
 		if name == info.name and activityID == info.activityID then
 			info.age = age;
 		end
@@ -2974,8 +2976,8 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 end
 
 function LFGListUtil_SortSearchResultsCB(id1, id2)
-	local id1, activityID1, name1, comment1, voiceChat1, iLvl1, age1, numBNetFriends1, numCharFriends1, numGuildMates1, isDelisted1, leaderName1, numMembers1 = C_LFGList.GetSearchResultInfo(id1);
-	local id2, activityID2, name2, comment2, voiceChat2, iLvl2, age2, numBNetFriends2, numCharFriends2, numGuildMates2, isDelisted2, leaderName2, numMembers2 = C_LFGList.GetSearchResultInfo(id2);
+	local id1, activityID1, name1, comment1, voiceChat1, iLvl1, honorLevel1, age1, numBNetFriends1, numCharFriends1, numGuildMates1, isDelisted1, leaderName1, numMembers1 = C_LFGList.GetSearchResultInfo(id1);
+	local id2, activityID2, name2, comment2, voiceChat2, iLvl2, honorLevel2, age2, numBNetFriends2, numCharFriends2, numGuildMates2, isDelisted2, leaderName2, numMembers2 = C_LFGList.GetSearchResultInfo(id2);
 	
 	--If one has more friends, do that one first
 	if ( numBNetFriends1 ~= numBNetFriends2 ) then
