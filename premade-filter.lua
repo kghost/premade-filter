@@ -78,9 +78,14 @@ local PremadeFilter_ActivityInfo = {
 	["3-79-331"]	= { tier = 4, instance = 6, raid = true, difficulty = 3 },
 	["3-79-334"]	= { tier = 4, instance = 6, raid = true, difficulty = 4 },
 	
-	["3-110-409"]	= { tier = 6, instance = 4, raid = true },
-	["3-110-410"]	= { tier = 6, instance = 4, raid = true },
-	["3-110-411"]	= { tier = 6, instance = 4, raid = true },
+	["3-110-409"]	= { tier = 6, instance = 4, raid = true, difficulty = 14 },
+	["3-110-410"]	= { tier = 6, instance = 4, raid = true, difficulty = 15 },
+	["3-110-411"]	= { tier = 6, instance = 4, raid = true, difficulty = 16 },
+	
+	["3-122-413"]	= { tier = 7, instance = 2, raid = true, difficulty = 14 }, -- Emerald Nightmare Normal
+	["3-122-414"]	= { tier = 7, instance = 2, raid = true, difficulty = 15 }, -- Emerald Nightmare Heroic
+	
+	
 }
 
 local PremadeFilter_RealmChapters = {
@@ -1318,6 +1323,20 @@ PremadeFilter_HelpFilters = {
 		["text"] = "",
 	},
 }
+local savedInstances = {}
+
+local function UpdateSavedInstances ()
+	local instanceName, instanceID, instanceReset, instanceDifficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName;
+	local savedInstanceCount = GetNumSavedInstances();
+	
+	for index=1, savedInstanceCount do		
+		instanceName, instanceID, instanceReset, instanceDifficulty, locked, extended, instanceIDMostSig, isRaid, maxPlayers, difficultyName = GetSavedInstanceInfo(index);
+		if(isRaid == false and locked == true) then
+			savedInstances[instanceID.."-"..instanceDifficulty] = true
+		end
+	end
+
+end
 
 function PremadeFilter_ToggleTutorial()
 	local helpPlate = PremadeFilter_HelpPlate;
@@ -1343,6 +1362,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
 	self:RegisterEvent("ADDON_LOADED");
 	self:RegisterEvent("CHAT_MSG_ADDON");
+	self:RegisterEvent("UPDATE_INSTANCE_INFO")
 	
 	LFGListFrame.SearchPanel.SearchBox:SetSize(205, 18);
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
@@ -1443,6 +1463,9 @@ function PremadeFilter_OnEvent(self, event, ...)
 		end
 	elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED" then
 		PremadeFilter_OnApplicantListUpdated(self, event, ...);
+	elseif event == "UPDATE_INSTANCE_INFO" then
+		UpdateSavedInstances()
+	
 	elseif event == "CHAT_MSG_ADDON" then
 		local prefix, msg, channel, sender = ...;
 		
@@ -1577,7 +1600,7 @@ function PremadeFilter_OnShow(self)
 	self.QueryBuilder:SetParent(self);
 	self.QueryBuilder:SetPoint("TOPLEFT", self, "TOPLEFT", 5, -5);
 	self.QueryBuilder:SetPoint("BOTTOMRIGHT", self, "BOTTOMRIGHT", -5, 5);
-	
+	self.QueryBuilder:SetFrameStrata("DIALOG");
 	self.Name.BuildButton:SetParent(self.Name);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", self.Name, "TOPRIGHT", 0, -1);
 	
@@ -1613,6 +1636,7 @@ function PremadeFilter_OnHide(self)
 	self.QueryBuilder:SetParent(LFGListFrame);
 	self.QueryBuilder:SetPoint("TOPLEFT", LFGListFrame, "TOPLEFT", -5, -21);
 	self.QueryBuilder:SetPoint("BOTTOMRIGHT", LFGListFrame, "BOTTOMRIGHT", -2, 2);
+	self.QueryBuilder:SetFrameStrata("DIALOG");
 	self.QueryBuilder:Hide();
 	
 	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
@@ -1689,16 +1713,15 @@ end
 function PremadeFilter_GetAvailableBosses()
 	local bossList = {};
 	local activityIndex = string.format("%d-%d-%d", PremadeFilter_Frame.selectedCategory, PremadeFilter_Frame.selectedGroup, PremadeFilter_Frame.selectedActivity);
-	local activity = PremadeFilter_ActivityInfo[activityIndex];
-	
+	local activity = PremadeFilter_ActivityInfo[activityIndex];	
 	if ( not EncounterJournal ) then
 		EncounterJournal_LoadUI();
 	end
 	
-	if type(activity) == "table" then
+	if type(activity) == "table" then		
 		EncounterJournal_TierDropDown_Select(nil, activity.tier);
 		
-		local instanceID = EJ_GetInstanceByIndex(activity.instance, activity.raid);
+		local instanceID = EJ_GetInstanceByIndex(activity.instance, activity.raid);		
 		EncounterJournal_DisplayInstance(instanceID);
 		
 		if activity.difficulty then
