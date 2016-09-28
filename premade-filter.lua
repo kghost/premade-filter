@@ -1,6 +1,6 @@
 local _, L = ...;
 
-function T(str)
+local function T(str)
 	return L[str];
 end
 
@@ -1649,7 +1649,7 @@ function PremadeFilter_OnHide(self)
 	StaticPopup_Hide("PREMADEFILTER_CONFIRM_CLOSE");
 	StaticPopup_Hide("PREMADEFILTER_SAVE_FILTERSET");
 	
-	helpPlate = PremadeFilter_HelpPlate;
+	local helpPlate = PremadeFilter_HelpPlate;
 	if HelpPlate_IsShowing(helpPlate) then
 		HelpPlate_Hide();
 		PremadeFilter_SetFilters(helpPlate.oldFilters);
@@ -1729,6 +1729,7 @@ function PremadeFilter_GetAvailableBosses()
 		end
 		
 		local encounter = 1;
+		local boss
 		repeat
 			boss = EJ_GetEncounterInfoByIndex(encounter, instanceID);
 			if boss then
@@ -3570,7 +3571,6 @@ function PremadeFilter_Name_OnTextChanged(self)
 		
 		if ( t == PremadeFilter_Frame.AutoCompleteFrame.selected ) then
 			button.Selected:Show();
-			foundSelected = true;
 		else
 			button.Selected:Hide();
 		end
@@ -3914,7 +3914,6 @@ function PremadeFilter_UpdateIntervalSlider_OnValueChanged(self)
 	if not self._onsetting then   -- is single threaded 
 		self._onsetting = true
 		self:SetValue(self:GetValue())
-		value = self:GetValue()     -- cant use original 'value' parameter
 		self._onsetting = false
 	else 
 		return
