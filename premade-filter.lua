@@ -1,6 +1,6 @@
 local _, L = ...;
 
-local function T(str)
+function T(str)
 	return L[str];
 end
 
