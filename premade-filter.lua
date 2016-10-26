@@ -3307,21 +3307,18 @@ function PremadeFilter_GetHyperlink(str, data)
 	return COLOR_BLUE.."|H"..linkType..linkData.."|h["..str.."]|h";
 end
 
-function PremadeFilter_Hyperlink_OnLeave(self, linkData, link)
-	local prefix = linkData:sub(1, 7);
-	if prefix == "premade" then
-		GameTooltip:Hide();
-	elseif PremadeFilter_Frame.oldHyperlinkLeave then
-		PremadeFilter_Frame.oldHyperlinkLeave(self, linkData, link, button);
+function PremadeFilter_Hyperlink_OnLeave(self, ...)
+	if PremadeFilter_Frame.oldHyperlinkLeave then
+		PremadeFilter_Frame.oldHyperlinkLeave(self, ...);
 	end
 end
 
-function PremadeFilter_Hyperlink_OnEnter(self, linkData, link)
-	local prefix = linkData:sub(1, 7);
+function PremadeFilter_Hyperlink_OnEnter(self, link, text, ...)
+	local prefix = link:sub(1, 7);
 	
 	if prefix == "premade" then
 		local data = {};
-		local dataStr = linkData:sub(8);
+		local dataStr = link:sub(8);
 		
 		local i = 1;
 		local k, v;
@@ -3334,14 +3331,14 @@ function PremadeFilter_Hyperlink_OnEnter(self, linkData, link)
 		
 		PremadeFilter_SearchEntry_OnEnter(self)
 	elseif PremadeFilter_Frame.oldHyperlinkEnter then
-		PremadeFilter_Frame.oldHyperlinkEnter(self, linkData, link, button);
+		PremadeFilter_Frame.oldHyperlinkEnter(self, link, text, ...);
 	end
 end
 
-function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
-	local prefix = linkData:sub(1, 7);
+function PremadeFilter_Hyperlink_OnClick(self, link, text, button)
+	local prefix = link:sub(1, 7);
 	if prefix == "premade" then
-		local name = link:match("%[([^%]]+)%]");
+		local name = text:match("%[([^%]]+)%]");
 		if name and PremadeFilter_MinimapButton:IsVisible() then
 			if button == "LeftButton" then
 				PremadeFilter_MinimapButton_OnClick();
@@ -3351,7 +3348,7 @@ function PremadeFilter_Hyperlink_OnClick(self, linkData, link, button)
 			end
 		end
 	elseif PremadeFilter_Frame.oldHyperlinkClick then
-		PremadeFilter_Frame.oldHyperlinkClick(self, linkData, link, button);
+		PremadeFilter_Frame.oldHyperlinkClick(self, link, text, button);
 	end
 end
 
