@@ -84,8 +84,12 @@ local PremadeFilter_ActivityInfo = {
 	
 	["3-122-413"]	= { tier = 7, instance = 2, raid = true, difficulty = 14 }, -- Emerald Nightmare Normal
 	["3-122-414"]	= { tier = 7, instance = 2, raid = true, difficulty = 15 }, -- Emerald Nightmare Heroic
-	
-	
+	["3-0-458"]		= { tier = 7, instance = 1, raid = true, difficulty = 14 }, -- Outdoor
+	["3-122-468"]	= { tier = 7, instance = 2, raid = true, difficulty = 16 }, -- Emerald Nightmare Mythic
+	["3-126-456"]	= { tier = 7, instance = 3, raid = true, difficulty = 14 }, -- TOV Normal
+	["3-126-457"]	= { tier = 7, instance = 3, raid = true, difficulty = 15 }, -- TOV Heroic
+	["3-123-415"]	= { tier = 7, instance = 4, raid = true, difficulty = 14 }, -- Nighthold Normal
+	["3-123-416"]	= { tier = 7, instance = 4, raid = true, difficulty = 15 }, -- Nighthold Heroic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -2475,7 +2479,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local minAge = nil;
 		
 		PremadeFilter_Frame.freshResults = {};
-		PremadeFilter_Frame.resultInfo = {};
 		
 		if not PremadeFilter_Frame.selectedCategory then
 			PremadeFilter_Frame.selectedCategory = LFGListFrame.CategorySelection.selectedCategory;
@@ -2492,8 +2495,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 			
 			local infoName = PremadeFilter_GetInfoName(activityID, name);
-			PremadeFilter_Frame.resultInfo[infoName] = PremadeFilter_GetTooltipInfo(resultID);
-				
 			local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
 			
 			-- check additional filters
@@ -2790,7 +2791,6 @@ function LFGListSearchEntry_Update(self)
 	
 	self.resultID = resultID;
 	self.infoName = infoName;
-	PremadeFilter_Frame.resultInfo[infoName] = PremadeFilter_GetTooltipInfo(resultID);
 	
 	self.Selected:SetShown(panel.selectedResult == resultID and not isApplication and not isDelisted);
 	self.Highlight:SetShown(panel.selectedResult ~= resultID and not isApplication and not isDelisted);
@@ -2912,19 +2912,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 end
 
 function PremadeFilter_SearchEntry_OnEnter(self)
-	local info = PremadeFilter_Frame.resultInfo[self.infoName];
-	
-	if not info then
-		return nil;
-	end
-	
-	-- update age
-	if self.resultID then
-		local id, activityID, name, comment, voiceChat, iLvl, honorLevel, age, numBNetFriends, numCharFriends, numGuildMates, isDelisted, leaderName, numMembers = C_LFGList.GetSearchResultInfo(self.resultID);
-		if name == info.name and activityID == info.activityID then
-			info.age = age;
-		end
-	end
+	local info = PremadeFilter_GetTooltipInfo(self.resultID);
 	
 	-- setup tooltip
 	GameTooltip:SetOwner(self, "ANCHOR_RIGHT", 25, 0);
