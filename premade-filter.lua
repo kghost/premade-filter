@@ -82,14 +82,18 @@ local PremadeFilter_ActivityInfo = {
 	["3-110-410"]	= { tier = 6, instance = 4, raid = true, difficulty = 15 },
 	["3-110-411"]	= { tier = 6, instance = 4, raid = true, difficulty = 16 },
 	
+	["3-0-458"]		= { tier = 7, instance = 1, raid = true, difficulty = 14 }, -- Outdoor
 	["3-122-413"]	= { tier = 7, instance = 2, raid = true, difficulty = 14 }, -- Emerald Nightmare Normal
 	["3-122-414"]	= { tier = 7, instance = 2, raid = true, difficulty = 15 }, -- Emerald Nightmare Heroic
-	["3-0-458"]		= { tier = 7, instance = 1, raid = true, difficulty = 14 }, -- Outdoor
 	["3-122-468"]	= { tier = 7, instance = 2, raid = true, difficulty = 16 }, -- Emerald Nightmare Mythic
 	["3-126-456"]	= { tier = 7, instance = 3, raid = true, difficulty = 14 }, -- TOV Normal
 	["3-126-457"]	= { tier = 7, instance = 3, raid = true, difficulty = 15 }, -- TOV Heroic
+	["3-126-480"]	= { tier = 7, instance = 3, raid = true, difficulty = 16 }, -- TOV Mythic 
 	["3-123-415"]	= { tier = 7, instance = 4, raid = true, difficulty = 14 }, -- Nighthold Normal
 	["3-123-416"]	= { tier = 7, instance = 4, raid = true, difficulty = 15 }, -- Nighthold Heroic
+	["3-123-481"]	= { tier = 7, instance = 4, raid = true, difficulty = 16 }, -- Nighthold Mythic
+	["3-131-479"]	= { tier = 8, instance = 5, raid = true, difficulty = 14 }, -- ToS Normal
+	["3-131-478"]	= { tier = 8, instance = 5, raid = true, difficulty = 15 }, -- ToS Heroic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -2082,39 +2086,32 @@ end
 	
 	local groupOrder = groups[1] and select(2, C_LFGList.GetActivityGroupInfo(groups[1]));
 	local activityOrder = activities[1] and select(10, C_LFGList.GetActivityInfo(activities[1]));
-
 	local groupIndex, activityIndex = 1, 1;
-
 	--Start merging
 	for i=1, MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES do
 		if ( not groupOrder and not activityOrder ) then
 			break;
 		end
-
 		if ( activityOrder and (not groupOrder or activityOrder < groupOrder) ) then
 			local activityID = activities[activityIndex];
 			local name = select(ACTIVITY_RETURN_VALUES.shortName, C_LFGList.GetActivityInfo(activityID));
-
 			info.text = name;
 			info.value = activityID;
 			info.arg1 = "activity";
 			info.checked = (self.selectedActivity == activityID);
 			info.isRadio = true;
 			UIDropDownMenu_AddButton(info);
-
 			activityIndex = activityIndex + 1;
 			activityOrder = activities[activityIndex] and select(10, C_LFGList.GetActivityInfo(activities[activityIndex]));
 		else
 			local groupID = groups[groupIndex];
 			local name = C_LFGList.GetActivityGroupInfo(groupID);
-
 			info.text = name;
 			info.value = groupID;
 			info.arg1 = "group";
 			info.checked = (self.selectedGroup == groupID);
 			info.isRadio = true;
 			UIDropDownMenu_AddButton(info);
-
 			groupIndex = groupIndex + 1;
 			groupOrder = groups[groupIndex] and select(2, C_LFGList.GetActivityGroupInfo(groups[groupIndex]));
 		end
@@ -2127,9 +2124,9 @@ function LFGListSearchPanel_DoSearch(self)
 	local languages = C_LFGList.GetLanguageSearchFilter();
 	
 	if visible and category then
-		C_LFGList.Search(category, "", self.filters, self.preferredFilters, languages);
+		C_LFGList.Search(category, LFGListSearchPanel_ParseSearchTerms(""), self.filters, self.preferredFilters, languages);
 	else
-		C_LFGList.Search(self.categoryID, "", self.filters, self.preferredFilters, languages);
+		C_LFGList.Search(self.categoryID, LFGListSearchPanel_ParseSearchTerms(""), self.filters, self.preferredFilters, languages);
 		category = self.categoryID;
 	end
 	
