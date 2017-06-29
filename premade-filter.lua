@@ -92,8 +92,8 @@ local PremadeFilter_ActivityInfo = {
 	["3-123-415"]	= { tier = 7, instance = 4, raid = true, difficulty = 14 }, -- Nighthold Normal
 	["3-123-416"]	= { tier = 7, instance = 4, raid = true, difficulty = 15 }, -- Nighthold Heroic
 	["3-123-481"]	= { tier = 7, instance = 4, raid = true, difficulty = 16 }, -- Nighthold Mythic
-	["3-131-479"]	= { tier = 8, instance = 5, raid = true, difficulty = 14 }, -- ToS Normal
-	["3-131-478"]	= { tier = 8, instance = 5, raid = true, difficulty = 15 }, -- ToS Heroic
+	["3-131-479"]	= { tier = 7, instance = 5, raid = true, difficulty = 14 }, -- ToS Normal
+	["3-131-478"]	= { tier = 7, instance = 5, raid = true, difficulty = 15 }, -- ToS Heroic
 }
 
 local PremadeFilter_RealmChapters = {
