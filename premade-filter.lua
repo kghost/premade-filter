@@ -159,6 +159,9 @@ local PremadeFilter_ActivityInfo = {
 	
 	["3-131-479"]	= { tier = 7, instance = 5, raid = true, difficulty = 14 }, -- ToS Normal
 	["3-131-478"]	= { tier = 7, instance = 5, raid = true, difficulty = 15 }, -- ToS Heroic
+	
+	["3-132-482"]	= { tier = 7, instance = 6, raid = true, difficulty = 14 }, -- AtBT Normal
+	["3-132-483"]	= { tier = 7, instance = 6, raid = true, difficulty = 15 }, -- AtBT Heroic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -1702,7 +1705,7 @@ function PremadeFilter_OnShow(self)
 	
 	LeaveChannelByName("PremadeFilter");
 	
-	PlaySound("igMainMenuOpen");
+	PlaySound(850);
 end
 
 function PremadeFilter_OnHide(self)
@@ -1949,7 +1952,7 @@ function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonLis
 		PremadeFilter_RealmList_Update();
 	end
 	
-	PlaySound(isChecked and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff");
+	PlaySound(isChecked and 856 or 857);
 end
 
 function PremadeFilter_BossList_Update()
@@ -2151,32 +2154,39 @@ end
 	
 	local groupOrder = groups[1] and select(2, C_LFGList.GetActivityGroupInfo(groups[1]));
 	local activityOrder = activities[1] and select(10, C_LFGList.GetActivityInfo(activities[1]));
+
 	local groupIndex, activityIndex = 1, 1;
+
 	--Start merging
 	for i=1, MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES do
 		if ( not groupOrder and not activityOrder ) then
 			break;
 		end
+
 		if ( activityOrder and (not groupOrder or activityOrder < groupOrder) ) then
 			local activityID = activities[activityIndex];
 			local name = select(ACTIVITY_RETURN_VALUES.shortName, C_LFGList.GetActivityInfo(activityID));
+
 			info.text = name;
 			info.value = activityID;
 			info.arg1 = "activity";
 			info.checked = (self.selectedActivity == activityID);
 			info.isRadio = true;
 			UIDropDownMenu_AddButton(info);
+
 			activityIndex = activityIndex + 1;
 			activityOrder = activities[activityIndex] and select(10, C_LFGList.GetActivityInfo(activities[activityIndex]));
 		else
 			local groupID = groups[groupIndex];
 			local name = C_LFGList.GetActivityGroupInfo(groupID);
+
 			info.text = name;
 			info.value = groupID;
 			info.arg1 = "group";
 			info.checked = (self.selectedGroup == groupID);
 			info.isRadio = true;
 			UIDropDownMenu_AddButton(info);
+
 			groupIndex = groupIndex + 1;
 			groupOrder = groups[groupIndex] and select(2, C_LFGList.GetActivityGroupInfo(groups[groupIndex]));
 		end
@@ -3195,19 +3205,19 @@ end
 
 function PremadeFilter_CheckButtonSound(self)
 	if ( self:GetChecked() ) then
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound(856);
 	else
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound(857);
 	end
 end
 
 function PremadeFilter_CheckButton_OnClick(self)
 	if ( self:GetChecked() ) then
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound(856);
 		self:GetParent().EditBox:Show();
 		self:GetParent().EditBox:SetFocus();
 	else
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound(857);
 		self:GetParent().EditBox:Hide();
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
@@ -3217,7 +3227,7 @@ end
 function PremadeFilter_CheckButton_Boss_OnClick(self)
 	local bossIndex = self:GetParent().bossIndex;
 	if not self:GetChecked() then
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound(857);
 		
 		if not self.CheckedNone then
 			self.CheckedNone = true;
@@ -3235,7 +3245,7 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 			self:GetParent().bossName:SetTextColor(0.7, 0.7, 0.7);
 		end
 	else
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound(856);
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 		self:SetChecked(true);
 		self.CheckedNone = false;
@@ -3248,7 +3258,7 @@ end
 
 function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 	if not self:GetChecked() then
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound(857);
 		
 		if not self.CheckedNone then
 			self.CheckedNone = true;
@@ -3262,7 +3272,7 @@ function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
 	else
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound(856);
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 		self:SetChecked(true);
 		self.CheckedNone = false;
