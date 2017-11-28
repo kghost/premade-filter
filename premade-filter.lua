@@ -94,6 +94,8 @@ local PremadeFilter_ActivityInfo = {
 	["3-123-481"]	= { tier = 7, instance = 4, raid = true, difficulty = 16 }, -- Nighthold Mythic
 	["3-131-479"]	= { tier = 7, instance = 5, raid = true, difficulty = 14 }, -- ToS Normal
 	["3-131-478"]	= { tier = 7, instance = 5, raid = true, difficulty = 15 }, -- ToS Heroic
+	["3-132-482"]	= { tier = 7, instance = 6, raid = true, difficulty = 14 }, -- AtBT Normal
+	["3-132-483"]	= { tier = 7, instance = 6, raid = true, difficulty = 15 }, -- AtBT Heroic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -1637,7 +1639,7 @@ function PremadeFilter_OnShow(self)
 	
 	LeaveChannelByName("PremadeFilter");
 	
-	PlaySound("igMainMenuOpen");
+	PlaySound("850");
 end
 
 function PremadeFilter_OnHide(self)
@@ -1884,7 +1886,7 @@ function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonLis
 		PremadeFilter_RealmList_Update();
 	end
 	
-	PlaySound(isChecked and "igMainMenuOptionCheckBoxOn" or "igMainMenuOptionCheckBoxOff");
+	PlaySound(isChecked and "856" or "857");
 end
 
 function PremadeFilter_BossList_Update()
@@ -3130,19 +3132,19 @@ end
 
 function PremadeFilter_CheckButtonSound(self)
 	if ( self:GetChecked() ) then
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound("856");
 	else
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound("857");
 	end
 end
 
 function PremadeFilter_CheckButton_OnClick(self)
 	if ( self:GetChecked() ) then
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound("856");
 		self:GetParent().EditBox:Show();
 		self:GetParent().EditBox:SetFocus();
 	else
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound("857");
 		self:GetParent().EditBox:Hide();
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
@@ -3152,7 +3154,7 @@ end
 function PremadeFilter_CheckButton_Boss_OnClick(self)
 	local bossIndex = self:GetParent().bossIndex;
 	if not self:GetChecked() then
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound("857");
 		
 		if not self.CheckedNone then
 			self.CheckedNone = true;
@@ -3170,7 +3172,7 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 			self:GetParent().bossName:SetTextColor(0.7, 0.7, 0.7);
 		end
 	else
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound("856");
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 		self:SetChecked(true);
 		self.CheckedNone = false;
@@ -3183,7 +3185,7 @@ end
 
 function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 	if not self:GetChecked() then
-		PlaySound("igMainMenuOptionCheckBoxOff");
+		PlaySound("857");
 		
 		if not self.CheckedNone then
 			self.CheckedNone = true;
@@ -3197,7 +3199,7 @@ function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
 	else
-		PlaySound("igMainMenuOptionCheckBoxOn");
+		PlaySound("856");
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 		self:SetChecked(true);
 		self.CheckedNone = false;
