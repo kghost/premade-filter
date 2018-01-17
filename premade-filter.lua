@@ -4,6 +4,10 @@ function T(str)
 	return L[str];
 end
 
+-- key binding interface constants
+BINDING_HEADER_PREMADEFILTER = "Premade Filter"
+BINDING_NAME_PREMADEFILTER_SEARCH = "Trigger background search"
+
 MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000;
 LFG_LIST_FRESH_FONT_COLOR = { r=0.3, g=0.9, b=0.3 };
 
@@ -159,9 +163,11 @@ local PremadeFilter_ActivityInfo = {
 	
 	["3-131-479"]	= { tier = 7, instance = 5, raid = true, difficulty = 14 }, -- ToS Normal
 	["3-131-478"]	= { tier = 7, instance = 5, raid = true, difficulty = 15 }, -- ToS Heroic
+	["3-131-492"]	= { tier = 7, instance = 5, raid = true, difficulty = 16 }, -- ToS Mythic
 	
 	["3-132-482"]	= { tier = 7, instance = 6, raid = true, difficulty = 14 }, -- AtBT Normal
 	["3-132-483"]	= { tier = 7, instance = 6, raid = true, difficulty = 15 }, -- AtBT Heroic
+	["3-132-493"]	= { tier = 7, instance = 6, raid = true, difficulty = 16 }, -- AtBT Mythic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -1236,8 +1242,8 @@ local PremadeFilter_Relams = {
 };
 
 StaticPopupDialogs["PREMADEFILTER_CONFIRM_CLOSE"] = {
-	text = T("Monitor new groups in background?"),
-	button1 = YES,
+	text = T("Automatic monitoring of new groups in background is broken since patch 7.2. It was forbidden by Blizzard and is no longer possible. See https://us.battle.net/forums/en/wow/topic/20754326419 for more details.\n\nYou can manually trigger background search by assigning key binding."),
+	button1 = OKAY,
 	button2 = NO,
 	OnShow = function(self)
 		PremadeFilter_Frame.closeConfirmation = true;
@@ -1705,7 +1711,7 @@ function PremadeFilter_OnShow(self)
 	
 	LeaveChannelByName("PremadeFilter");
 	
-	PlaySound(850);
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPEN);
 end
 
 function PremadeFilter_OnHide(self)
@@ -1952,7 +1958,7 @@ function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonLis
 		PremadeFilter_RealmList_Update();
 	end
 	
-	PlaySound(isChecked and 856 or 857);
+	PlaySound(isChecked and SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON or SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
 end
 
 function PremadeFilter_BossList_Update()
@@ -3205,19 +3211,19 @@ end
 
 function PremadeFilter_CheckButtonSound(self)
 	if ( self:GetChecked() ) then
-		PlaySound(856);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 	else
-		PlaySound(857);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
 	end
 end
 
 function PremadeFilter_CheckButton_OnClick(self)
 	if ( self:GetChecked() ) then
-		PlaySound(856);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 		self:GetParent().EditBox:Show();
 		self:GetParent().EditBox:SetFocus();
 	else
-		PlaySound(857);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
 		self:GetParent().EditBox:Hide();
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
@@ -3227,7 +3233,7 @@ end
 function PremadeFilter_CheckButton_Boss_OnClick(self)
 	local bossIndex = self:GetParent().bossIndex;
 	if not self:GetChecked() then
-		PlaySound(857);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
 		
 		if not self.CheckedNone then
 			self.CheckedNone = true;
@@ -3245,7 +3251,7 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 			self:GetParent().bossName:SetTextColor(0.7, 0.7, 0.7);
 		end
 	else
-		PlaySound(856);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
 		self:SetChecked(true);
 		self.CheckedNone = false;
@@ -3258,7 +3264,7 @@ end
 
 function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 	if not self:GetChecked() then
-		PlaySound(857);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
 		
 		if not self.CheckedNone then
 			self.CheckedNone = true;
@@ -3272,9 +3278,9 @@ function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 		self:GetParent().EditBox:ClearFocus();
 		self:GetParent().EditBox:SetText("");
 	else
-		PlaySound(856);
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check");
-		self:SetChecked(true);
+			self:SetChecked(true);
 		self.CheckedNone = false;
 		
 		self:GetParent().EditBox:Show();
@@ -3335,7 +3341,7 @@ function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
 	
 	if (self.LastUpdate > PremadeFilter_GetSettings("UpdateInterval")) then
 		self.LastUpdate = 0;
-		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
+--		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 	end
 end
 
