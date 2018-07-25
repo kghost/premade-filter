@@ -3188,10 +3188,19 @@ function PremadeFilter_IsStringMatched(str, include, exclude, possible)
 end
 
 function LFGListEntryCreation_ListGroup(self)
-	local honorLevel = 0;
+	local honorLevel = tonumber(self.HonorLevel.EditBox:GetText()) or 0;
 	local name = LFGListEntryCreation_GetSanitizedName(self);
+	local questID;
+	local autoAccept = false;
+	local privateGroup = self.PrivateGroup.CheckButton:GetChecked();
+	
 	if ( LFGListEntryCreation_IsEditMode(self) ) then
-		C_LFGList.UpdateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, self.VoiceChat.EditBox:GetText(), self.Description.EditBox:GetText());
+	
+		--C_LFGList.UpdateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, self.VoiceChat.EditBox:GetText(), self.Description.EditBox:GetText
+		local _;
+		autoAccept, _, questID = select(9, C_LFGList.GetActiveEntryInfo());
+		C_LFGList.UpdateListing(self.selectedActivity, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, autoAccept, privateGroup, questID);
+		
 		LFGListFrame_SetActivePanel(self:GetParent(), self:GetParent().ApplicationViewer);
 	else
 		PremadeFilter_Frame.chatNotifications = {};
@@ -3209,7 +3218,9 @@ function LFGListEntryCreation_ListGroup(self)
 		
 		description = description..string.char(194, 128+roles);
 		
-		if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, self.VoiceChat.EditBox:GetText(), description)) then
+		--if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, self.VoiceChat.EditBox:GetText(), description)) then
+		if(C_LFGList.CreateListing(self.selectedActivity, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, autoAccept, privateGroup, questID)) then	
+		
 			self.WorkingCover:Show();
 			LFGListEntryCreation_ClearFocus(self);
 		end
