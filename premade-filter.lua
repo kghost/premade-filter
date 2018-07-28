@@ -168,6 +168,17 @@ local PremadeFilter_ActivityInfo = {
 	["3-132-482"]	= { tier = 7, instance = 6, raid = true, difficulty = 14 }, -- AtBT Normal
 	["3-132-483"]	= { tier = 7, instance = 6, raid = true, difficulty = 15 }, -- AtBT Heroic
 	["3-132-493"]	= { tier = 7, instance = 6, raid = true, difficulty = 16 }, -- AtBT Mythic
+	
+	
+	--BfA
+
+
+	["3-135-494"]	= { tier = 8, instance = 2, raid = true, difficulty = 14 }, -- Uldir Normal
+	["3-135-495"]	= { tier = 8, instance = 2, raid = true, difficulty = 15 }, -- Uldir Heroic
+	["3-135-496"]	= { tier = 8, instance = 2, raid = true, difficulty = 16 }, -- Uldir Mythic
+	
+	
+	
 }
 
 local PremadeFilter_RealmChapters = {
