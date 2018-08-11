@@ -3110,7 +3110,7 @@ function PremadeFilter_BuildQuery()
 	local possible = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Possible:GetText(), "?");
 	local query = include.." "..exclude.." "..possible;
 	
-	LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
+	--LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
 end
 
 function PremadeFilter_BuildQueryPrefix(text, prefix)
