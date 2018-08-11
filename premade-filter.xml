@@ -403,7 +403,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Layer>
 				</Layers>
 			</Frame>
-			
+
 			<EditBox parentKey="Name" inherits="LFGListEditBoxTemplate">
 				<Size x="278" y="22"/>
 				<KeyValues>
@@ -417,6 +417,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnLoad>
 						self.Instructions:SetText(T("The words you don't want"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+						PremadeFilter_Frame.NameLabel:Hide();
+						PremadeFilter_Frame.Name:Hide();
 					</OnLoad>
 					<OnEnterPressed>
 						if PremadeFilter_Frame.AutoCompleteFrame:IsVisible() then
@@ -466,7 +468,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</OnEditFocusLost>
 				</Scripts>
 			</EditBox>
-			
+
 			<Frame parentKey="AutoCompleteFrame" frameLevel="20" hidden="true">
 				<Size x="0" y="30"/>
 				<Anchors>

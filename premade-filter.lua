@@ -1763,7 +1763,8 @@ end
 
 function LFGListSearchPanel_Clear(self)
 	C_LFGList.ClearSearchResults();
-	self.SearchBox:SetText(PremadeFilter_Frame.query);
+	--self.SearchBox:SetText(PremadeFilter_Frame.query);
+	C_LFGList.ClearSearchTextFields();
 	self.selectedResult = nil;
 	LFGListSearchPanel_UpdateResultList(self);
 	LFGListSearchPanel_UpdateResults(self);
@@ -2223,9 +2224,9 @@ function LFGListSearchPanel_DoSearch(self)
 	local languages = C_LFGList.GetLanguageSearchFilter();
 	
 	if visible and category then
-		C_LFGList.Search(category, LFGListSearchPanel_ParseSearchTerms(""), self.filters, self.preferredFilters, languages);
+		C_LFGList.Search(category, self.filters, self.preferredFilters, languages);
 	else
-		C_LFGList.Search(self.categoryID, LFGListSearchPanel_ParseSearchTerms(""), self.filters, self.preferredFilters, languages);
+		C_LFGList.Search(self.categoryID, self.filters, self.preferredFilters, languages);
 		category = self.categoryID;
 	end
 	
@@ -2357,9 +2358,9 @@ function PremadeFilter_SetFilters(filters)
 		local possible = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.possible, " "), "?");
 		local query = include.." "..exclude.." "..possible;
 		
-		LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1").." ");
+		--LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1").." ");
 	else
-		LFGListFrame.SearchPanel.SearchBox:SetText("");
+		--LFGListFrame.SearchPanel.SearchBox:SetText("");
 	end
 	
 	-- description
@@ -3576,7 +3577,7 @@ function PremadeFilter_Name_OnTextChanged(self)
 	end
 	
 	local text = self:GetText();
-	LFGListFrame.SearchPanel.SearchBox:SetText(text);
+	--LFGListFrame.SearchPanel.SearchBox:SetText(text);
 	
 	if text == "" then
 		PremadeFilter_Frame.AutoCompleteFrame:Hide();
