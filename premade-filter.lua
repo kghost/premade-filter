@@ -171,12 +171,20 @@ local PremadeFilter_ActivityInfo = {
 	
 	
 	--BfA
-
-
+	["3-0-657"]		= { tier = 8, instance = 1, raid = true }, -- Outdoor BfA
+	
 	["3-135-494"]	= { tier = 8, instance = 2, raid = true, difficulty = 14 }, -- Uldir Normal
 	["3-135-495"]	= { tier = 8, instance = 2, raid = true, difficulty = 15 }, -- Uldir Heroic
 	["3-135-496"]	= { tier = 8, instance = 2, raid = true, difficulty = 16 }, -- Uldir Mythic
 	
+	["3-251-663"]	= { tier = 8, instance = 3, raid = true, difficulty = 14 }, -- Battle of Dazar'alor Normal
+	["3-251-664"]	= { tier = 8, instance = 3, raid = true, difficulty = 15 }, -- Battle of Dazar'alor Heroic
+	["3-251-665"]	= { tier = 8, instance = 3, raid = true, difficulty = 16 }, -- Battle of Dazar'alor Mythic
+	
+	["3-252-668"]	= { tier = 8, instance = 4, raid = true, difficulty = 14 }, -- Crucible of Storms Normal
+	["3-252-667"]	= { tier = 8, instance = 4, raid = true, difficulty = 15 }, -- Crucible of Storms Heroic
+	["3-252-666"]	= { tier = 8, instance = 4, raid = true, difficulty = 16 }, -- Crucible of Storms Mythic
+
 	
 	
 }
