@@ -1439,26 +1439,6 @@ local function UpdateSavedInstances ()
 
 end
 
-function PremadeFilter_ToggleTutorial()
-	local helpPlate = PremadeFilter_HelpPlate;
-	if ( helpPlate and not HelpPlate_IsShowing(helpPlate) ) then
-		helpPlate.oldFilters = PremadeFilter_GetFilters();
-		
-		PremadeFilter_SetFilters(PremadeFilter_HelpFilters);
-		local bossAlive = PremadeFilter_Frame_BossListButton3BossName:GetText();
-		local bossDefeated = PremadeFilter_Frame_BossListButton4BossName:GetText();
-		PremadeFilter_HelpFilters.bosses[bossAlive] = true;
-		PremadeFilter_HelpFilters.bosses[bossDefeated] = false;
-		PremadeFilter_SetFilters(PremadeFilter_HelpFilters);
-		
-		HelpPlate_Show( helpPlate, PremadeFilter_Frame, PremadeFilter_Frame.MainHelpButton, true );
-		PremadeFilter_Data.HideTutorial = true;
-	else
-		HelpPlate_Hide(true);
-		PremadeFilter_SetFilters(helpPlate.oldFilters);
-	end
-end
-
 function PremadeFilter_Frame_OnLoad(self)
 	self:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED");
 	self:RegisterEvent("ADDON_LOADED");
@@ -1469,7 +1449,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.SearchBox:SetMaxLetters(1023);
 	LFGListFrame.SearchPanel.SearchBox:SetScript("OnEditFocusGained", nop);
 	LFGListFrame.SearchPanel.SearchBox:SetScript("OnEditFocusLost", nop);
-	LFGListFrame.SearchPanel.SearchBox:SetScript("OnTextChanged", LFGListFrameSearchBox_OnTextChanged);
+	--LFGListFrame.SearchPanel.SearchBox:SetScript("OnTextChanged", LFGListFrameSearchBox_OnTextChanged);
 	LFGListFrame.SearchPanel.AutoCompleteFrame:Hide();
 	
 	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
@@ -1484,7 +1464,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.EntryCreation.ItemLevel.EditBox:SetScript("OnEditFocusLost", nop);
 	LFGListFrame.EntryCreation.ItemLevel.EditBox:Hide();
 	
-	LFGListFrame.EntryCreation.VoiceChat.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_OnClick);
+	LFGListFrame.EntryCreation.VoiceChat.CheckButton:SetScript("OnClick", PremadeFilter_CheckButton_EntryCreation_VoiceChat_OnClick);
 	LFGListFrame.EntryCreation.VoiceChat.EditBox:SetScript("OnEditFocusLost", nop);
 	LFGListFrame.EntryCreation.VoiceChat.EditBox:Hide();
 	
@@ -1664,9 +1644,6 @@ function PremadeFilter_GetSettings(name)
 end
 
 function PremadeFilter_OnShow(self)
-	if not PremadeFilter_Data.HideTutorial then
-		PremadeFilter_ToggleTutorial();
-	end
 	
 	local categoryID = LFGListFrame.categoryID
 	local baseFilters = LFGListFrame.baseFilters;
@@ -1704,12 +1681,13 @@ function PremadeFilter_OnShow(self)
 	self.QueryBuilder:SetFrameStrata("DIALOG");
 	self.Name.BuildButton:SetParent(self.Name);
 	self.Name.BuildButton:SetPoint("TOPRIGHT", self.Name, "TOPRIGHT", 0, -1);
+	self.Name.BuildButton:Hide();
 	
 	self.AdvancedButton:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Up");
 	self.AdvancedButton:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down");
 	self.AdvancedButton:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Disabled");
 	
-	LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
+	--LFGListFrameSearchBox_OnTextChanged(LFGListFrame.SearchPanel.SearchBox);
 	
 	if PremadeFilter_Frame.ShowNextTime then
 		PremadeFilter_MinimapButton:Hide();
@@ -1740,8 +1718,8 @@ function PremadeFilter_OnHide(self)
 	self.QueryBuilder:SetFrameStrata("DIALOG");
 	self.QueryBuilder:Hide();
 	
-	self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
-	self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
+	--self.Name.BuildButton:SetParent(LFGListFrame.SearchPanel.SearchBox);
+	--self.Name.BuildButton:SetPoint("TOPRIGHT", LFGListFrame.SearchPanel.SearchBox, "TOPRIGHT", -1, 1);
 	
 	self.AdvancedButton:SetNormalTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Up");
 	self.AdvancedButton:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-NextPage-Down");
@@ -1772,6 +1750,7 @@ end
 function LFGListSearchPanel_Clear(self)
 	C_LFGList.ClearSearchResults();
 	--self.SearchBox:SetText(PremadeFilter_Frame.query);
+	PremadeFilter_Frame.Name:SetText(PremadeFilter_Frame.query);
 	C_LFGList.ClearSearchTextFields();
 	self.selectedResult = nil;
 	LFGListSearchPanel_UpdateResultList(self);
@@ -1780,10 +1759,8 @@ end
 
 function LFGListFrameSearchBox_OnTextChanged(self)
 	local text = self:GetText();
-	
 	PremadeFilter_Frame.query = text;
 	PremadeFilter_Frame.Name:SetText(text);
-	
 	InputBoxInstructions_OnTextChanged(self);
 end
 
@@ -2361,14 +2338,16 @@ function PremadeFilter_SetFilters(filters)
 	
 	-- name
 	if type(filters.name) == "table" then
+		local searchBoxText = PremadeFilter_BuildQueryPrefix(LFGListFrame.SearchPanel.SearchBox:GetText():lower(),  "");
 		local include  = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.include, " "),  "");
 		local exclude  = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.exclude, " "),  "-");
 		local possible = PremadeFilter_BuildQueryPrefix(table.concat(filters.name.possible, " "), "?");
-		local query = include.." "..exclude.." "..possible;
-		
+		local query = searchBoxText.." "..include.." "..exclude.." "..possible;
 		--LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1").." ");
+		PremadeFilter_Frame.Name:SetText(query:gsub("^%s*(.-)%s*$", "%1").." ");
 	else
 		--LFGListFrame.SearchPanel.SearchBox:SetText("");
+		PremadeFilter_Frame.Name:SetText("");
 	end
 	
 	-- description
@@ -2556,16 +2535,16 @@ function PremadeFilter_SetFilters(filters)
 	PremadeFilter_BossList_Update();
 end
 
-function PremadeFilter_GetInfoName(activityID, name, leaderName)
-	return activityID.."-"..name.."-"..(leaderName or "");
+function PremadeFilter_GetInfoName(PFGIN_activityID, PFGIN_name, PFGIN_leaderName)
+	return PFGIN_activityID.."-"..PFGIN_name.."-"..(PFGIN_leaderName or "");
 end
 
 function LFGListSearchPanel_UpdateResultList(self)
 	if not self.searching then
 		self.totalResults, self.results = C_LFGList.GetSearchResults();
 		self.applications = C_LFGList.GetApplications();
-		
-		local searchText = self.SearchBox:GetText():lower();
+		PremadeFilter_BuildQuery2()
+		local searchText = PremadeFilter_Frame.Name:GetText():lower();
 		local include, exclude, possible = PremadeFilter_ParseQuery(searchText);
 		
 		if #include + #exclude + #possible > 1 then
@@ -2591,24 +2570,17 @@ function LFGListSearchPanel_UpdateResultList(self)
 
 		for i=1, #self.results do
 			local resultID = self.results[i];
+			
 			local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
+
 			local age = searchResultInfo.age;
-			local id = searchResultInfo.searchResultID;
 			local activityID = searchResultInfo.activityID;
 			local leaderName = searchResultInfo.leaderName;
 			local name = searchResultInfo.name;
 			local comment = searchResultInfo.comment;
 			local voiceChat = searchResultInfo.voiceChat;
 			local iLvl = searchResultInfo.requiredItemLevel;
-			local honorLevel = searchResultInfo.requiredHonorLevel;
-			local numMembers = searchResultInfo.numMembers;
-			local numBNetFriends = searchResultInfo.numBNetFriends;
-			local numCharFriends = searchResultInfo.numCharFriends;
-			local numGuildMates = searchResultInfo.numGuildMates;
-			local isDelisted = searchResultInfo.isDelisted;
-			local autoAccept = searchResultInfo.autoAccept;
-			local questID = searchResultInfo.questID;
-
+			
 			local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
 			local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 			
@@ -2617,7 +2589,10 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 			
 			local infoName = PremadeFilter_GetInfoName(activityID, name);
-			local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
+
+			--temporaly OFF
+			--local matches = PremadeFilter_IsStringMatched(name:lower(), include, exclude, possible);
+			local matches = true;
 			
 			-- check additional filters
 			if matches and extraFilters then
@@ -3214,9 +3189,19 @@ function PremadeFilter_BuildQuery()
 	local exclude  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Exclude:GetText(),  "-");
 	local possible = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.QueryBuilder.Dialog.Possible:GetText(), "?");
 	local query = include.." "..exclude.." "..possible;
-	
 	--LFGListFrame.SearchPanel.SearchBox:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
 end
+
+
+function PremadeFilter_BuildQuery2()
+	local searchBoxText = PremadeFilter_BuildQueryPrefix(LFGListFrame.SearchPanel.SearchBox:GetText():lower(),  "");
+	local include  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.MainInclude:GetText(),  "");
+	local exclude  = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.MainExclude:GetText(),  "-");
+	local possible = PremadeFilter_BuildQueryPrefix(PremadeFilter_Frame.MainPossible:GetText(), "?");
+	local query = searchBoxText.." "..include.." "..exclude.." "..possible;
+	PremadeFilter_Frame.Name:SetText(query:gsub("^%s*(.-)%s*$", "%1"));
+end
+
 
 function PremadeFilter_BuildQueryPrefix(text, prefix)
 	local words = {};
@@ -3300,7 +3285,7 @@ function PremadeFilter_IsStringMatched(str, include, exclude, possible)
 		end
 		matches = matches and strMatch;
 	end
-	
+
 	return matches;
 end
 
@@ -3365,6 +3350,18 @@ function PremadeFilter_CheckButton_OnClick(self)
 	end
 end
 
+function PremadeFilter_CheckButton_EntryCreation_VoiceChat_OnClick(self)
+	if ( self:GetChecked() ) then
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+		self:GetParent().EditBox:Show();
+		self:GetParent().EditBox:SetFocus();
+	else
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
+		self:GetParent().EditBox:Hide();
+		self:GetParent().EditBox:ClearFocus();
+	end
+end
+
 function PremadeFilter_CheckButton_Boss_OnClick(self)
 	local bossIndex = self:GetParent().bossIndex;
 	if not self:GetChecked() then
@@ -3418,8 +3415,9 @@ function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 			self:SetChecked(true);
 		self.CheckedNone = false;
 		
-		self:GetParent().EditBox:Show();
-		self:GetParent().EditBox:SetFocus();
+		--Temporaly OFF
+		--self:GetParent().EditBox:Show();
+		--self:GetParent().EditBox:SetFocus();
 	end
 end
 
