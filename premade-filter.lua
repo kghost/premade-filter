@@ -184,9 +184,10 @@ local PremadeFilter_ActivityInfo = {
 	["3-252-668"]	= { tier = 8, instance = 4, raid = true, difficulty = 14 }, -- Crucible of Storms Normal
 	["3-252-667"]	= { tier = 8, instance = 4, raid = true, difficulty = 15 }, -- Crucible of Storms Heroic
 	["3-252-666"]	= { tier = 8, instance = 4, raid = true, difficulty = 16 }, -- Crucible of Storms Mythic
-
 	
-	
+	["3-254-672"]	= { tier = 8, instance = 5, raid = true, difficulty = 14 }, -- The Eternal Palace Normal
+	["3-254-671"]	= { tier = 8, instance = 5, raid = true, difficulty = 15 }, -- The Eternal Palace Heroic
+	["3-254-670"]	= { tier = 8, instance = 5, raid = true, difficulty = 16 }, -- The Eternal Palace Mythic
 }
 
 local PremadeFilter_RealmChapters = {
