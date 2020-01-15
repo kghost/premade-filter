@@ -1,4 +1,4 @@
-## Interface: 80200
+## Interface: 80300
 ## Title: Premade Filter
 ## Title-ruRU: Premade Filter
 ## Version: @project-version@
