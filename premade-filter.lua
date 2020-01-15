@@ -188,6 +188,10 @@ local PremadeFilter_ActivityInfo = {
 	["3-254-672"]	= { tier = 8, instance = 5, raid = true, difficulty = 14 }, -- The Eternal Palace Normal
 	["3-254-671"]	= { tier = 8, instance = 5, raid = true, difficulty = 15 }, -- The Eternal Palace Heroic
 	["3-254-670"]	= { tier = 8, instance = 5, raid = true, difficulty = 16 }, -- The Eternal Palace Mythic
+	
+	["3-258-687"]	= { tier = 8, instance = 6, raid = true, difficulty = 14 }, -- Ny'alotha Normal
+	["3-258-686"]	= { tier = 8, instance = 6, raid = true, difficulty = 15 }, -- Ny'alotha Heroic
+	["3-258-685"]	= { tier = 8, instance = 6, raid = true, difficulty = 16 }, -- Ny'alotha Mythic
 }
 
 local PremadeFilter_RealmChapters = {
