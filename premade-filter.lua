@@ -192,6 +192,14 @@ local PremadeFilter_ActivityInfo = {
 	["3-258-687"]	= { tier = 8, instance = 6, raid = true, difficulty = 14 }, -- Ny'alotha Normal
 	["3-258-686"]	= { tier = 8, instance = 6, raid = true, difficulty = 15 }, -- Ny'alotha Heroic
 	["3-258-685"]	= { tier = 8, instance = 6, raid = true, difficulty = 16 }, -- Ny'alotha Mythic
+	
+	
+	--Shadowlands
+	["3-0-723"]		= { tier = 9, instance = 1, raid = true }, -- Outdoor Shadowlands
+	
+	["3-267-720"]	= { tier = 9, instance = 2, raid = true, difficulty = 14 },--Castle Nathria Normal
+	["3-267-722"]	= { tier = 9, instance = 2, raid = true, difficulty = 15 },--Castle Nathria Heroic
+	["3-267-721"]	= { tier = 9, instance = 2, raid = true, difficulty = 16 },--Castle Nathria Mythic
 }
 
 local PremadeFilter_RealmChapters = {
