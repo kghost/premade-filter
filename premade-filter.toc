@@ -1,4 +1,4 @@
-﻿## Interface: 70100
+## Interface: 90001
 ## Title: Premade Filter
 ## Title-ruRU: Premade Filter
 ## Version: @project-version@
@@ -21,3 +21,4 @@ localization\zhTW.lua
 
 premade-filter.lua
 premade-filter.xml
+Bindings.xml

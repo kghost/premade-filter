@@ -11,7 +11,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 		</Layers>
         <Scripts>
             <OnClick>
-                PlaySound("igMainMenuOptionCheckBoxOn");
+                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
                 PremadeFilterActivityFinder_Select(self:GetParent():GetParent():GetParent():GetParent(), self.activityID);
 			</OnClick>
             <OnEnter>
@@ -146,17 +146,35 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				</FontString>
 				<FontString parentKey="NameLabel" inherits="GameFontNormalLeft" text="LFG_LIST_TITLE">
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-163"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="150" y="-10"/>
 					</Anchors>
 				</FontString>
+
+				<!-- filter lables -->
+				<FontString parentKey="MainIncludeLabel" inherits="GameFontNormalLeft">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-145"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="MainExcludeLabel" inherits="GameFontNormalLeft">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-190"/>
+					</Anchors>
+				</FontString>
+				<FontString parentKey="MainPossibleLabel" inherits="GameFontNormalLeft">
+					<Anchors>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-235"/>
+					</Anchors>
+				</FontString>
+
 				<FontString parentKey="DescriptionLabel" inherits="GameFontNormalLeft" text="LFG_LIST_DETAILS">
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-220"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-280"/>
 					</Anchors>
 				</FontString>
-				<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="LFG_ROLES_TITLE">
+				<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="LFG_ROLES_TITLE"  hidden="true">
 					<Anchors>
-						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-285"/>
+						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-325"/>
 					</Anchors>
 				</FontString>
 				<FontString parentKey="PlayersLabel" inherits="GameFontNormalLeft" text="PLAYERS_IN_GROUP">
@@ -207,22 +225,22 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			</Layer>
 			
 			<Layer level="OVERLAY">
-				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="false">
+				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="false"  hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="198" y="-275"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="198" y="-317"/>
 					</Anchors>
 				</Texture>
-				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="false">
+				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="false"  hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="245" y="-275"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="245" y="-317"/>
 					</Anchors>
 				</Texture>
-				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="false">
+				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="false"  hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
-						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="292" y="-275"/>
+						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="292" y="-317"/>
 					</Anchors>
 				</Texture>
 				
@@ -330,7 +348,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 									</OnTextChanged>
 									<OnEnterPressed>
 										PremadeFilterActivityFinder_Accept(self:GetParent():GetParent());
-										PlaySound("igMainMenuOptionCheckBoxOn");
+										PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 									</OnEnterPressed>
 								</Scripts>
 							</EditBox>
@@ -362,7 +380,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 								</Anchors>
 								<Scripts>
 									<OnClick>
-										PlaySound("igMainMenuOptionCheckBoxOn");
+										PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 										PremadeFilterActivityFinder_Accept(self:GetParent():GetParent());
 									</OnClick>
 								</Scripts>
@@ -374,7 +392,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 								</Anchors>
 								<Scripts>
 									<OnClick>
-										PlaySound("igMainMenuOptionCheckBoxOn");
+										PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 										PremadeFilterActivityFinder_Cancel(self:GetParent():GetParent());
 									</OnClick>
 								</Scripts>
@@ -403,7 +421,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Layer>
 				</Layers>
 			</Frame>
-			
+
 			<EditBox parentKey="Name" inherits="LFGListEditBoxTemplate">
 				<Size x="278" y="22"/>
 				<KeyValues>
@@ -417,6 +435,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnLoad>
 						self.Instructions:SetText(T("The words you don't want"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+						<!-- Hide Name Frame -->
+						PremadeFilter_Frame.NameLabel:Hide();
+						PremadeFilter_Frame.Name:Hide();
 					</OnLoad>
 					<OnEnterPressed>
 						if PremadeFilter_Frame.AutoCompleteFrame:IsVisible() then
@@ -447,14 +468,14 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnTextChanged function="PremadeFilter_Name_OnTextChanged"/>
 				</Scripts>
 				<Frames>
-					<Button parentKey="BuildButton" inherits="UIPanelButtonTemplate" text="+">
+					<Button parentKey="BuildButton" inherits="UIPanelButtonTemplate" text="+"  hidden="true">
 						<Size x="24" y="18"/>
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="-1"/>
 						</Anchors>
 						<Scripts>
 							<OnClick>
-								PlaySound("igMainMenuOptionCheckBoxOn");
+								PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 								PremadeFilter_Frame.QueryBuilder:Show();
 							</OnClick>
 						</Scripts>
@@ -466,7 +487,87 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</OnEditFocusLost>
 				</Scripts>
 			</EditBox>
-			
+
+			<!-- filter boxes -->
+			<EditBox parentKey="MainInclude" inherits="LFGListEditBoxTemplate">
+				<Size x="278" y="22"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.MainIncludeLabel" relativePoint="BOTTOMLEFT" x="5" y="-5"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_QueryBuilder" type="string"/>
+				</KeyValues>
+				<Scripts>
+					<OnLoad>
+						self.Instructions:SetText(T("The words you want"));
+						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+						PremadeFilter_Frame.MainIncludeLabel:SetText(T("Include words"));
+						<!-- Hide filter boxes -->
+						PremadeFilter_Frame.MainIncludeLabel:Hide();
+						PremadeFilter_Frame.MainInclude:Hide();
+					</OnLoad>
+					<OnEnterPressed>
+						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+						self:ClearFocus();
+					</OnEnterPressed>
+					<OnTextChanged>
+						InputBoxInstructions_OnTextChanged(self);
+					</OnTextChanged>
+				</Scripts>
+			</EditBox>
+			<EditBox parentKey="MainExclude" inherits="LFGListEditBoxTemplate">
+				<Size x="278" y="22"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.MainExcludeLabel" relativePoint="BOTTOMLEFT" x="5" y="-5"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_QueryBuilder" type="string"/>
+				</KeyValues>
+				<Scripts>
+					<OnLoad>
+						self.Instructions:SetText(T("The words you don't want"));
+						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+						PremadeFilter_Frame.MainExcludeLabel:SetText(T("Exclude words"));
+						<!-- Hide filter boxes -->
+						PremadeFilter_Frame.MainExcludeLabel:Hide();
+						PremadeFilter_Frame.MainExclude:Hide();
+					</OnLoad>
+					<OnEnterPressed>
+						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+						self:ClearFocus();
+					</OnEnterPressed>
+					<OnTextChanged>
+						InputBoxInstructions_OnTextChanged(self);
+					</OnTextChanged>
+				</Scripts>
+			</EditBox>
+			<EditBox parentKey="MainPossible" inherits="LFGListEditBoxTemplate">
+				<Size x="278" y="22"/>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeKey="$parent.MainPossibleLabel" relativePoint="BOTTOMLEFT" x="5" y="-5"/>
+				</Anchors>
+				<KeyValues>
+					<KeyValue key="tabCategory" value="PremadeFilter_QueryBuilder" type="string"/>
+				</KeyValues>
+				<Scripts>
+					<OnLoad>
+						self.Instructions:SetText(T("You want at least one of these words"));
+						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
+						PremadeFilter_Frame.MainPossibleLabel:SetText(T("At least one word"));
+						<!-- Hide filter boxes -->
+						PremadeFilter_Frame.MainPossibleLabel:Hide();
+						PremadeFilter_Frame.MainPossible:Hide();
+					</OnLoad>
+					<OnEnterPressed>
+						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
+						self:ClearFocus();
+					</OnEnterPressed>
+					<OnTextChanged>
+						InputBoxInstructions_OnTextChanged(self);
+					</OnTextChanged>
+				</Scripts>
+			</EditBox>
+
 			<Frame parentKey="AutoCompleteFrame" frameLevel="20" hidden="true">
 				<Size x="0" y="30"/>
 				<Anchors>
@@ -545,7 +646,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			<ScrollFrame parentKey="Description" name="PremadeFilter_Description" inherits="InputScrollFrameTemplate">
 				<Size x="273" y="22"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="26" y="-196"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Inset" relativePoint="TOPLEFT" x="26" y="-250"/>
 				</Anchors>
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
@@ -559,6 +660,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						self.EditBox.tabCategory = self.tabCategory;
 						LFGListEditBox_AddToTabCategory(self.EditBox, self.tabCategory);
 						self.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
+						<!-- Hide Description box -->
+						PremadeFilter_Frame.DescriptionLabel:Hide();
+						PremadeFilter_Frame.Description:Hide();
 					</OnLoad>
 				</Scripts>
 			</ScrollFrame>			
@@ -566,7 +670,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			<Frame parentKey="ItemLevel">
 				<Size x="273" y="14"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-52"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-27"/>
 				</Anchors>
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
@@ -617,7 +721,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 								InputBoxInstructions_OnTextChanged(self);
 							</OnTextChanged>
 							<OnEnterPressed>
-								PlaySound("igMainMenuOptionCheckBoxOn");
+								PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 							</OnEnterPressed>
 						</Scripts>
 					</EditBox>
@@ -679,7 +783,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 								InputBoxInstructions_OnTextChanged(self);
 							</OnTextChanged>
 							<OnEnterPressed>
-								PlaySound("igMainMenuOptionCheckBoxOn");
+								PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 							</OnEnterPressed>
 						</Scripts>
 					</EditBox>
@@ -689,7 +793,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			<Frame parentKey="VoiceChat">
 				<Size x="273" y="14"/>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-77"/>
+					<Anchor point="TOPLEFT" relativeKey="$parent.Description" relativePoint="BOTTOMLEFT" x="-5" y="-37"/>
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
@@ -738,20 +842,20 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 								InputBoxInstructions_OnTextChanged(self);
 							</OnTextChanged>
 							<OnEnterPressed>
-								PlaySound("igMainMenuOptionCheckBoxOn");
+								PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 							</OnEnterPressed>
 						</Scripts>
 					</EditBox>
 				</Frames>
 			</Frame>
 			
-			<CheckButton parentKey="TankCheckButton">
+			<CheckButton parentKey="TankCheckButton" hidden="true">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="220" y="-274"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="220" y="-317"/>
 				</Anchors>
 				<Scripts>
 					<OnClick function="PremadeFilter_CheckButtonSound"/>
@@ -765,13 +869,13 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
 			</CheckButton>
 			
-			<CheckButton parentKey="HealerCheckButton">
+			<CheckButton parentKey="HealerCheckButton" hidden="true">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="267" y="-275"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="267" y="-317"/>
 				</Anchors>
 				<Scripts>
 					<OnClick function="PremadeFilter_CheckButtonSound"/>
@@ -785,13 +889,13 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
 			</CheckButton>
 			
-			<CheckButton parentKey="DamagerCheckButton">
+			<CheckButton parentKey="DamagerCheckButton" hidden="true">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
 					<AbsInset left="-20" right="0" top="0" bottom="0"/>
 				</HitRectInsets>
 				<Anchors>
-					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="314" y="-275"/>
+					<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="314" y="-317"/>
 				</Anchors>
 				<Scripts>
 					<OnClick function="PremadeFilter_CheckButtonSound"/>
@@ -1430,7 +1534,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 								</Anchors>
 								<Scripts>
 									<OnClick>
-										PlaySound("igMainMenuOptionCheckBoxOn");
+										PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 										self:GetParent():GetParent():Hide();
 									</OnClick>
 								</Scripts>
@@ -1442,7 +1546,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 								</Anchors>
 								<Scripts>
 									<OnClick>
-										PlaySound("igMainMenuOptionCheckBoxOn");
+										PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
 										self:GetParent():GetParent():Hide();
 										PremadeFilter_BuildQuery();
 										LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
@@ -1515,7 +1619,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						<Alpha childKey="Highlight" startDelay="0.1" smoothing="NONE" duration="1.0" order="1" fromAlpha="1" toAlpha="0"/>
 						<Scripts>
 							<OnLoop>
-								PlaySound("UI_GroupFinderReceiveApplication");
+								PlaySound(SOUNDKIT.UI_GROUP_FINDER_RECEIVE_APPLICATION);
 							</OnLoop>
 						</Scripts>
 					</AnimationGroup>
@@ -1707,18 +1811,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</OnShow>
 				</Scripts>
 			</Frame>
-			
-			<Button name="$parentTutorialButton" parentKey="MainHelpButton" inherits="MainHelpPlateButton">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeKey="$parent" x="-25" y="25" />
-				</Anchors>
-				<Scripts>
-					<OnClick function="PremadeFilter_ToggleTutorial" />
-				</Scripts>
-			</Button>
-			
+
 			<!-- MOVES INSIDE ENTITY CREATION FRAME -->
-			<Frame name="PremadeFilter_Roles" parentKey="PremadeRoles">
+			<Frame name="PremadeFilter_Roles" parentKey="PremadeRoles" hidden="true">
 				<Size x="352" y="30" />
 				<Layers>
 					<Layer level="BACKGROUND" textureSubLevel="-1">
