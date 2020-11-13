@@ -264,14 +264,6 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				</Texture>
 			</Layer>
 		</Layers>
-		<Backdrop edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-			<TileSize>
-				<AbsValue val="32"/>
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="12"/>
-			</EdgeSize>
-		</Backdrop>
 		<Frames>
 			<Button parentKey="AdvancedButton">
 				<Size x="32" y="32"/>
@@ -309,19 +301,14 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Layer>
 				</Layers>
 				<Frames>
-					<Frame parentKey="Dialog">
+					<Frame parentKey="Dialog" inherits="BackdropTemplate">
 						<Size x="320" y="250"/>
 						<Anchors>
 							<Anchor point="CENTER"/>
 						</Anchors>
-						<Backdrop edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-							<TileSize>
-								<AbsValue val="32"/>
-							</TileSize>
-							<EdgeSize>
-								<AbsValue val="32"/>
-							</EdgeSize>
-						</Backdrop>
+						<KeyValues>
+							<KeyValue key="backdropInfo" value="BACKDROP_DIALOG_32_32" type="global"/>
+						</KeyValues>
 						<Layers>
 							<Layer level="BACKGROUND" textureSubLevel="-1">
 								<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
@@ -1434,19 +1421,14 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Layer>
 				</Layers>
 				<Frames>
-					<Frame parentKey="Dialog">
+					<Frame parentKey="Dialog" inherits="BackdropTemplate">
 						<Size x="320" y="250"/>
 						<Anchors>
 							<Anchor point="CENTER"/>
 						</Anchors>
-						<Backdrop edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-							<TileSize>
-								<AbsValue val="32"/>
-							</TileSize>
-							<EdgeSize>
-								<AbsValue val="32"/>
-							</EdgeSize>
-						</Backdrop>
+						<KeyValues>
+							<KeyValue key="backdropInfo" value="BACKDROP_DIALOG_32_32" type="global"/>
+						</KeyValues>
 						<Layers>
 							<Layer level="BACKGROUND" textureSubLevel="-1">
 								<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
