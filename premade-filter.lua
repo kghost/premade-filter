@@ -1466,7 +1466,7 @@ function PremadeFilter_Frame_OnLoad(self)
 	LFGListFrame.SearchPanel.AutoCompleteFrame:Hide();
 	
 	LFGListFrame.EntryCreation.Description:SetSize(283, 22);
-	LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-2);
+	--LFGListFrame.EntryCreation.Description.EditBox:SetMaxLetters(LFGListFrame.EntryCreation.Description.EditBox:GetMaxLetters()-2);
 	
 	LFGListFrame.EntryCreation.Name:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
 	LFGListFrame.EntryCreation.Description.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
@@ -3303,23 +3303,17 @@ function PremadeFilter_IsStringMatched(str, include, exclude, possible)
 end
 
 function LFGListEntryCreation_ListGroup(self)
+	local itemLevel = tonumber(self.ItemLevel.EditBox:GetText()) or 0;
 	local honorLevel = tonumber(self.HonorLevel.EditBox:GetText()) or 0;
-	local name = LFGListEntryCreation_GetSanitizedName(self);
-	local questID;
-	local autoAccept = false;
 	local privateGroup = self.PrivateGroup.CheckButton:GetChecked();
-	
-	if ( LFGListEntryCreation_IsEditMode(self) ) then
-	
-		--C_LFGList.UpdateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, self.VoiceChat.EditBox:GetText(), self.Description.EditBox:GetText
-		local _;
-		autoAccept, _, questID = select(9, C_LFGList.GetActiveEntryInfo());
-		C_LFGList.UpdateListing(self.selectedActivity, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, autoAccept, privateGroup, questID);
 		
+	if ( LFGListEntryCreation_IsEditMode(self) ) then
+		local activeEntryInfo = C_LFGList.GetActiveEntryInfo();
+		C_LFGList.UpdateListing(self.selectedActivity, itemLevel, honorLevel, activeEntryInfo.autoAccept, privateGroup, activeEntryInfo.questID);
 		LFGListFrame_SetActivePanel(self:GetParent(), self:GetParent().ApplicationViewer);
 	else
 		PremadeFilter_Frame.chatNotifications = {};
-		
+		--[[
 		local description = self.Description.EditBox:GetText();
 		
 		local tank = PremadeFilter_Roles.TankCheckButton:GetChecked();
@@ -3332,10 +3326,8 @@ function LFGListEntryCreation_ListGroup(self)
 		if dps  then roles = roles+1 end
 		
 		description = description..string.char(194, 128+roles);
-		
-		--if(C_LFGList.CreateListing(self.selectedActivity, name, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, self.VoiceChat.EditBox:GetText(), description)) then
-		if(C_LFGList.CreateListing(self.selectedActivity, tonumber(self.ItemLevel.EditBox:GetText()) or 0, honorLevel, autoAccept, privateGroup, questID)) then	
-		
+		--]]
+		if(C_LFGList.CreateListing(self.selectedActivity, itemLevel, honorLevel, false, privateGroup)) then	
 			self.WorkingCover:Show();
 			LFGListEntryCreation_ClearFocus(self);
 		end
