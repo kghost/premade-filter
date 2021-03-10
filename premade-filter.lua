@@ -2855,6 +2855,7 @@ function LFGListSearchPanel_UpdateResults(self)
 				button.infoName = nil;
 				button:Hide();
 			end
+			button:SetScript("OnEnter", PremadeFilter_SearchEntry_OnEnter);
 		end
 		local totalHeight = buttons[1]:GetHeight() * (#results + #apps);
 		local showNoResults = (self.totalResults == 0);
