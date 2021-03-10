@@ -1707,7 +1707,7 @@ function PremadeFilter_OnShow(self)
 		PremadeFilter_MinimapButton.Eye:Hide();
 		EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye);
 	else
-		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
+		--LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 	end
 	
 	PremadeFilter_StopNotification();
@@ -1767,7 +1767,7 @@ function LFGListSearchPanel_Clear(self)
 	C_LFGList.ClearSearchTextFields();
 	self.selectedResult = nil;
 	LFGListSearchPanel_UpdateResultList(self);
-	LFGListSearchPanel_UpdateResults(self);
+	--LFGListSearchPanel_UpdateResults(self);
 end
 
 function LFGListFrameSearchBox_OnTextChanged(self)
@@ -2238,7 +2238,7 @@ function LFGListSearchPanel_DoSearch(self)
 	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters();
 	
 	LFGListSearchPanel_UpdateResultList(self);
-	LFGListSearchPanel_UpdateResults(self);
+	--LFGListSearchPanel_UpdateResults(self);
 	
 	if not PremadeFilter_MinimapButton:IsVisible() then
 		PremadeFilter_MinimapButton.LastUpdate = 0;
@@ -2554,7 +2554,7 @@ end
 
 function LFGListSearchPanel_UpdateResultList(self)
 	if not self.searching then
-		self.totalResults, self.results = C_LFGList.GetSearchResults();
+		self.totalResults, self.results = C_LFGList.GetFilteredSearchResults();
 		self.applications = C_LFGList.GetApplications();
 		PremadeFilter_BuildQuery2()
 		local searchText = PremadeFilter_Frame.Name:GetText():lower();
@@ -2748,19 +2748,70 @@ function LFGListSearchPanel_UpdateResultList(self)
 		
 		LFGListUtil_SortSearchResults(self.results);
 	end
+	LFGListSearchPanel_UpdateResults(self);
+end
+
+local function LFGListSearchPanel_UpdateAdditionalButtons(self, totalHeight, showNoResults, showStartGroup, lastVisibleButton)
+	local startGroupButton = self.ScrollFrame.ScrollChild.StartGroupButton;
+	local noResultsFound = self.ScrollFrame.ScrollChild.NoResultsFound;
+
+	noResultsFound:SetShown(showNoResults);
+	startGroupButton:SetShown(showStartGroup);
+	local topFrame, bottomFrame;
+
+	if showNoResults then
+		noResultsFound:ClearAllPoints();
+		topFrame = noResultsFound;
+		bottomFrame = noResultsFound;
+
+		if lastVisibleButton then
+			noResultsFound:SetPoint("TOP", lastVisibleButton, "BOTTOM", 0, -10);
+		else
+			noResultsFound:SetPoint("TOP", self.ScrollFrame.ScrollChild, "TOP", 0, -27);
+		end
+	end
+
+	if showStartGroup then
+		startGroupButton:ClearAllPoints();
+
+		bottomFrame = startGroupButton;
+		if not topFrame then
+			topFrame = startGroupButton;
+		end
+
+		if showNoResults then
+			startGroupButton:SetPoint("TOP", noResultsFound, "BOTTOM", 0, -5);
+		elseif lastVisibleButton then
+			startGroupButton:SetPoint("TOP", lastVisibleButton, "BOTTOM", 0, -10);
+		else
+			startGroupButton:SetPoint("TOP", self.ScrollFrame.ScrollChild, "TOP", 0, -27);
+		end
+
+		noResultsFound:SetText(showStartGroup and LFG_LIST_NO_RESULTS_FOUND or LFG_LIST_SEARCH_FAILED);
+	end
+
+	if topFrame and bottomFrame then
+		local _, _, _, _, offsetY = topFrame:GetPoint(1);
+		totalHeight = totalHeight - offsetY + (topFrame:GetTop() - bottomFrame:GetBottom());
+	end
+
+	return totalHeight;
 end
 
 function LFGListSearchPanel_UpdateResults(self)
 	local offset = HybridScrollFrame_GetOffset(self.ScrollFrame);
 	local buttons = self.ScrollFrame.buttons;
-	
+
 	--If we have an application selected, deselect it.
 	LFGListSearchPanel_ValidateSelected(self);
 
+	local startGroupButton = self.ScrollFrame.ScrollChild.StartGroupButton;
+	local noResultsFound = self.ScrollFrame.ScrollChild.NoResultsFound;
+
 	if ( self.searching ) then
 		self.SearchingSpinner:Show();
-		self.ScrollFrame.NoResultsFound:Hide();
-		self.ScrollFrame.StartGroupButton:Hide();
+		noResultsFound:Hide();
+		startGroupButton:Hide();
 		for i=1, #buttons do
 			buttons[i]:Hide();
 		end
@@ -2768,12 +2819,11 @@ function LFGListSearchPanel_UpdateResults(self)
 		self.SearchingSpinner:Hide();
 		local results = self.results;
 		local apps = self.applications;
-
+		local lastVisibleButton;
 		for i=1, #buttons do
 			local button = buttons[i];
 			local idx = i + offset;
 			local result = (idx <= #apps) and apps[idx] or results[idx - #apps];
-
 			if ( result ) then
 				local searchResultInfo = C_LFGList.GetSearchResultInfo(result)
 				local age = searchResultInfo.age;
@@ -2798,25 +2848,18 @@ function LFGListSearchPanel_UpdateResults(self)
 				button.fresh = PremadeFilter_Frame.freshResults[result];
 				LFGListSearchEntry_Update(button);
 				button:Show();
+				lastVisibleButton = button;
 			else
 				button.created = 0;
 				button.resultID = nil;
 				button.infoName = nil;
 				button:Hide();
 			end
-			button:SetScript("OnEnter", PremadeFilter_SearchEntry_OnEnter);
 		end
-
 		local totalHeight = buttons[1]:GetHeight() * (#results + #apps);
-
-		--Reanchor the errors to not overlap applications
-		if ( totalHeight < self.ScrollFrame:GetHeight() ) then
-			self.ScrollFrame.NoResultsFound:SetPoint("TOP", self.ScrollFrame, "TOP", 0, -totalHeight - 27);
-		end
-		self.ScrollFrame.NoResultsFound:SetShown(self.totalResults == 0);
-		self.ScrollFrame.StartGroupButton:SetShown(self.totalResults == 0 and not self.searchFailed);
-		self.ScrollFrame.NoResultsFound:SetText(self.searchFailed and LFG_LIST_SEARCH_FAILED or LFG_LIST_NO_RESULTS_FOUND);
-
+		local showNoResults = (self.totalResults == 0);
+		local showStartGroup = ((self.totalResults == 0) or self.shouldAlwaysShowCreateGroupButton) and not self.searchFailed;
+		totalHeight = LFGListSearchPanel_UpdateAdditionalButtons(self, totalHeight, showNoResults, showStartGroup, lastVisibleButton);
 		HybridScrollFrame_Update(self.ScrollFrame, totalHeight, self.ScrollFrame:GetHeight());
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self);
@@ -2851,7 +2894,7 @@ function LFGListSearchEntry_Update(self)
 		self.PendingLabel:Show();
 		self.ExpirationTime:Hide();
 		self.CancelButton:Hide();
-	elseif ( appStatus == "declined" ) then
+	elseif ( appStatus == "declined" or appStatus == "declined_full" or appStatus == "declined_delisted" ) then
 		self.PendingLabel:SetText(LFG_LIST_APP_DECLINED);
 		self.PendingLabel:SetTextColor(RED_FONT_COLOR.r, RED_FONT_COLOR.g, RED_FONT_COLOR.b);
 		self.PendingLabel:Show();
@@ -3479,7 +3522,7 @@ function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
 	
 	if (self.LastUpdate > PremadeFilter_GetSettings("UpdateInterval")) then
 		self.LastUpdate = 0;
---		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
+
 	end
 end
 
@@ -4105,7 +4148,7 @@ function PremadeFilter_OnFilterSetSelected(self, arg1, arg2, checked)
 	
 	PremadeFilter_SetFilters(filters);
 	
-	PremadeFilter_FilterButton_OnClick(PremadeFilter_Frame.FilterButton);
+	--PremadeFilter_FilterButton_OnClick(PremadeFilter_Frame.FilterButton);
 end
 
 function PremadeFilter_UpdateIntervalSlider_OnValueChanged(self)
