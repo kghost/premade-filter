@@ -200,6 +200,10 @@ local PremadeFilter_ActivityInfo = {
 	["3-267-720"]	= { tier = 9, instance = 2, raid = true, difficulty = 14 },--Castle Nathria Normal
 	["3-267-722"]	= { tier = 9, instance = 2, raid = true, difficulty = 15 },--Castle Nathria Heroic
 	["3-267-721"]	= { tier = 9, instance = 2, raid = true, difficulty = 16 },--Castle Nathria Mythic
+	
+	["3-271-743"]	= { tier = 9, instance = 3, raid = true, difficulty = 14 },--Sanctum of Domination Normal
+	["3-271-744"]	= { tier = 9, instance = 3, raid = true, difficulty = 15 },--Sanctum of Domination Heroic
+	["3-271-745"]	= { tier = 9, instance = 3, raid = true, difficulty = 16 },--Sanctum of Domination Mythic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -2594,7 +2598,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 			local voiceChat = searchResultInfo.voiceChat;
 			local iLvl = searchResultInfo.requiredItemLevel;
 			
-			local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
+			local activityName, shortName, categoryID, groupID, itemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID, nil, searchResultInfo.isWarMode);
 			local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 			
 			if (not minAge) or (age < minAge) then
@@ -2648,16 +2652,16 @@ function LFGListSearchPanel_UpdateResultList(self)
 				end
 				
 				-- roles
-				if matches and extraFilters.roles then
-					-- check if premade has role bit mask
-					local lastWord = string.sub(comment, comment:len()-1);
-					local byte1 = string.byte(lastWord, 1, 1);
-					local byte2 = string.byte(lastWord, 2, 2);
+				-- if matches and extraFilters.roles then
+					-- -- check if premade has role bit mask
+					-- local lastWord = string.sub(comment, comment:len()-1);
+					-- local byte1 = string.byte(lastWord, 1, 1);
+					-- local byte2 = string.byte(lastWord, 2, 2);
 					
-					if byte1 == 194 and byte2 > 128 and byte2 <= 135 then
-						matches = (bit.band(extraFilters.roles, byte2-128) ~= 0);
-					end
-				end
+					-- if byte1 == 194 and byte2 > 128 and byte2 <= 135 then
+						-- matches = (bit.band(extraFilters.roles, byte2-128) ~= 0);
+					-- end
+				-- end
 				
 				-- realm
 				if matches and leaderName and extraFilters.realms then
@@ -2972,7 +2976,7 @@ function LFGListSearchEntry_Update(self)
 	local isDelisted = searchResultInfo.isDelisted;
 	local autoAccept = searchResultInfo.autoAccept;
 	local questID = searchResultInfo.questID;
-	local activityName = C_LFGList.GetActivityInfo(activityID);
+	local activityName = C_LFGList.GetActivityInfo(activityID, nil, searchResultInfo.isWarMode);
 	local infoName = PremadeFilter_GetInfoName(activityID, name);
 	
 	self.resultID = resultID;
@@ -3050,12 +3054,14 @@ function PremadeFilter_GetTooltipInfo(resultID)
 	local isDelisted = searchResultInfo.isDelisted;
 	local autoAccept = searchResultInfo.autoAccept;
 	local questID = searchResultInfo.questID;
+	local leaderOverallDungeonScore = searchResultInfo.leaderOverallDungeonScore;
+	local leaderDungeonScoreInfo = searchResultInfo.leaderDungeonScoreInfo;
 	
 	if not activityID then
 		return nil;
 	end
 	
-	local activityName, shortName, categoryID, groupID, minItemLevel, filters, minLevel, maxPlayers, displayType = C_LFGList.GetActivityInfo(activityID);
+	local activityName, shortName, categoryID, groupID, minItemLevel, filters, minLevel, maxPlayers, displayType, _, useHonorLevel, _, isMythicPlusActivity = C_LFGList.GetActivityInfo(activityID, nil, searchResultInfo.isWarMode);
 	local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID);
 	
 	local classCounts = {};
@@ -3094,22 +3100,26 @@ function PremadeFilter_GetTooltipInfo(resultID)
 	local completedEncounters = C_LFGList.GetSearchResultEncounterInfo(resultID);
 	
 	return {
-		displayType			= displayType,
-		isDelisted			= isDelisted,
-		name				= name,
-		activityID			= activityID,
-		activityName		= activityName,
-		comment				= comment,
-		iLvl				= iLvl,
-		HonorLevel			= honorLevel,
-		voiceChat			= voiceChat,
-		leaderName			= leaderName,
-		age					= age,
-		numMembers			= numMembers,
-		memberCounts		= memberCounts,
-		classCounts			= classCounts,
-		friendList			= friendList,
-		completedEncounters	= completedEncounters,
+		displayType					= displayType,
+		isDelisted					= isDelisted,
+		name						= name,
+		activityID					= activityID,
+		activityName				= activityName,
+		comment						= comment,
+		iLvl						= iLvl,
+		HonorLevel					= honorLevel,
+		voiceChat					= voiceChat,
+		leaderName					= leaderName,
+		age							= age,
+		numMembers					= numMembers,
+		memberCounts				= memberCounts,
+		classCounts					= classCounts,
+		friendList					= friendList,
+		completedEncounters			= completedEncounters,
+		useHonorLevel				= useHonorLevel,
+		isMythicPlusActivity		= isMythicPlusActivity,
+		leaderOverallDungeonScore	= leaderOverallDungeonScore,
+		leaderDungeonScoreInfo		= leaderDungeonScoreInfo,
 	};
 end
 
@@ -3127,16 +3137,40 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	if ( info.iLvl > 0 ) then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_ILVL, info.iLvl));
 	end
+	if ( info.useHonorLevel and info.HonorLevel > 0 ) then
+		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_HONOR_LEVEL, info.HonorLevel));
+	end
 	if ( info.voiceChat ~= "" ) then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_VOICE_CHAT, info.voiceChat), nil, nil, nil, true);
 	end
-	if ( info.iLvl > 0 or info.voiceChat ~= "" ) then
+	if ( info.iLvl > 0  or (info.useHonorLevel and info.HonorLevel > 0) or info.voiceChat ~= "" ) then
 		GameTooltip:AddLine(" ");
 	end
 
 	if ( info.leaderName ) then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_LEADER, info.leaderName));
 	end
+	if ( info.isMythicPlusActivity and info.leaderOverallDungeonScore) then 
+		local color = C_ChallengeMode.GetDungeonScoreRarityColor(info.leaderOverallDungeonScore);
+		if(not color) then 
+			color = HIGHLIGHT_FONT_COLOR; 
+		end 
+		GameTooltip:AddLine(DUNGEON_SCORE_LEADER:format(color:WrapTextInColorCode(info.leaderOverallDungeonScore)));	
+	end
+	if(info.isMythicPlusActivity and info.leaderDungeonScoreInfo) then 
+		local leaderDungeonScoreInfo = info.leaderDungeonScoreInfo; 
+		local color = C_ChallengeMode.GetSpecificDungeonOverallScoreRarityColor(leaderDungeonScoreInfo.mapScore);
+		if (not color) then 
+			color = HIGHLIGHT_FONT_COLOR;
+		end 
+		if(leaderDungeonScoreInfo.mapScore == 0) then 
+			GameTooltip_AddNormalLine(GameTooltip, DUNGEON_SCORE_PER_DUNGEON_NO_RATING:format(leaderDungeonScoreInfo.mapName, leaderDungeonScoreInfo.mapScore));
+		elseif (leaderDungeonScoreInfo.finishedSuccess) then 
+			GameTooltip_AddNormalLine(GameTooltip, DUNGEON_SCORE_DUNGEON_RATING:format(leaderDungeonScoreInfo.mapName, color:WrapTextInColorCode(leaderDungeonScoreInfo.mapScore), leaderDungeonScoreInfo.bestRunLevel));
+		else 
+			GameTooltip_AddNormalLine(GameTooltip, DUNGEON_SCORE_DUNGEON_RATING_OVERTIME:format(leaderDungeonScoreInfo.mapName, color:WrapTextInColorCode(leaderDungeonScoreInfo.mapScore), leaderDungeonScoreInfo.bestRunLevel));
+		end 	
+	end	
 	if ( info.age > 0 ) then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_AGE, SecondsToTime(info.age, false, false, 1, false)));
 	end
@@ -3346,37 +3380,37 @@ function PremadeFilter_IsStringMatched(str, include, exclude, possible)
 	return matches;
 end
 
-function LFGListEntryCreation_ListGroup(self)
-	local itemLevel = tonumber(self.ItemLevel.EditBox:GetText()) or 0;
-	local honorLevel = tonumber(self.HonorLevel.EditBox:GetText()) or 0;
-	local privateGroup = self.PrivateGroup.CheckButton:GetChecked();
+-- function LFGListEntryCreation_ListGroup(self)
+	-- local itemLevel = tonumber(self.ItemLevel.EditBox:GetText()) or 0;
+	-- local honorLevel = tonumber(self.HonorLevel.EditBox:GetText()) or 0;
+	-- local privateGroup = self.PrivateGroup.CheckButton:GetChecked();
 		
-	if ( LFGListEntryCreation_IsEditMode(self) ) then
-		local activeEntryInfo = C_LFGList.GetActiveEntryInfo();
-		C_LFGList.UpdateListing(self.selectedActivity, itemLevel, honorLevel, activeEntryInfo.autoAccept, privateGroup, activeEntryInfo.questID);
-		LFGListFrame_SetActivePanel(self:GetParent(), self:GetParent().ApplicationViewer);
-	else
-		PremadeFilter_Frame.chatNotifications = {};
-		--[[
-		local description = self.Description.EditBox:GetText();
+	-- if ( LFGListEntryCreation_IsEditMode(self) ) then
+		-- local activeEntryInfo = C_LFGList.GetActiveEntryInfo();
+		-- C_LFGList.UpdateListing(self.selectedActivity, itemLevel, honorLevel, activeEntryInfo.autoAccept, privateGroup, activeEntryInfo.questID);
+		-- LFGListFrame_SetActivePanel(self:GetParent(), self:GetParent().ApplicationViewer);
+	-- else
+		-- PremadeFilter_Frame.chatNotifications = {};
+		-- --[[
+		-- local description = self.Description.EditBox:GetText();
 		
-		local tank = PremadeFilter_Roles.TankCheckButton:GetChecked();
-		local heal = PremadeFilter_Roles.HealerCheckButton:GetChecked();
-		local dps  = PremadeFilter_Roles.DamagerCheckButton:GetChecked();
-		local roles = 0;
+		-- local tank = PremadeFilter_Roles.TankCheckButton:GetChecked();
+		-- local heal = PremadeFilter_Roles.HealerCheckButton:GetChecked();
+		-- local dps  = PremadeFilter_Roles.DamagerCheckButton:GetChecked();
+		-- local roles = 0;
 		
-		if tank then roles = roles+4 end
-		if heal then roles = roles+2 end
-		if dps  then roles = roles+1 end
+		-- if tank then roles = roles+4 end
+		-- if heal then roles = roles+2 end
+		-- if dps  then roles = roles+1 end
 		
-		description = description..string.char(194, 128+roles);
-		--]]
-		if(C_LFGList.CreateListing(self.selectedActivity, itemLevel, honorLevel, false, privateGroup)) then	
-			self.WorkingCover:Show();
-			LFGListEntryCreation_ClearFocus(self);
-		end
-	end
-end
+		-- description = description..string.char(194, 128+roles);
+		-- --]]
+		-- if(C_LFGList.CreateListing(self.selectedActivity, itemLevel, honorLevel, false, privateGroup)) then	
+			-- self.WorkingCover:Show();
+			-- LFGListEntryCreation_ClearFocus(self);
+		-- end
+	-- end
+-- end
 
 function PremadeFilter_CheckButtonSound(self)
 	if ( self:GetChecked() ) then
