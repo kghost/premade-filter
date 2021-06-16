@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 90100
 ## Title: Premade Filter
 ## Title-ruRU: Premade Filter
 ## Version: @project-version@
