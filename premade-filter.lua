@@ -12,13 +12,10 @@ MAX_LFG_LIST_GROUP_DROPDOWN_ENTRIES = 1000
 LFG_LIST_FRESH_FONT_COLOR = { r = 0.3, g = 0.9, b = 0.3 }
 
 local COLOR_RESET = "|r"
-local COLOR_WHITE = "|cffffffff"
 local COLOR_GRAY = "|cffbbbbbb"
 local COLOR_BLUE = "|cff88ccff"
 local COLOR_GREEN = "|cff88ff88"
-local COLOR_YELLOW = "|cffffff66"
 local COLOR_ORANGE = "|cffffaa66"
-local COLOR_RED = "|cffff6666"
 
 table.insert(UIChildWindows, "PremadeFilter_Frame")
 
@@ -1650,6 +1647,8 @@ function PremadeFilter_FixSettings()
 		PremadeFilter_Data.Settings.NewPlayerChatNotifications = PremadeFilter_Data.Settings.ChatNotifications
 		PremadeFilter_Data.Settings.ChatNotifications = nil
 		PremadeFilter_Data.Settings.Version = "0.9.94"
+	elseif PremadeFilter_Data.Settings.Version <= "2.3L" then
+		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version")
 	end
 
 	if
@@ -4231,7 +4230,7 @@ function PremadeFilter_OptionsMenu(self)
 		PremadeFilter_MenuCheckboxItem(
 			"Notify in chat on new group",
 			PremadeFilter_GetSettings("NewGroupChatNotifications"),
-			function(self, arg1, arg2, checked)
+			function(self, _, _, checked)
 				self.checked = not checked
 				PremadeFilter_SetSettings("NewGroupChatNotifications", self.checked)
 			end
@@ -4239,7 +4238,7 @@ function PremadeFilter_OptionsMenu(self)
 		PremadeFilter_MenuCheckboxItem(
 			"Notify in chat on new player",
 			PremadeFilter_GetSettings("NewPlayerChatNotifications"),
-			function(self, arg1, arg2, checked)
+			function(self, _, _, checked)
 				self.checked = not checked
 				PremadeFilter_SetSettings("NewPlayerChatNotifications", self.checked)
 			end
@@ -4377,6 +4376,14 @@ function PremadeFilter_OnFilterSetSelected(self, arg1, arg2, checked)
 	--PremadeFilter_FilterButton_OnClick(PremadeFilter_Frame.FilterButton);
 end
 
+function PremadeFilter_UpdateIntervalShortAlert_UpdateVisibility(self)
+	if PremadeFilter_UpdateIntervalSlider:GetValue() < 15 then
+		self:Show()
+	else
+		self:Hide()
+	end
+end
+
 function PremadeFilter_UpdateIntervalSlider_OnValueChanged(self)
 	PremadeFilter_UpdateIntervalEditBox:SetText(self:GetValue())
 	PremadeFilter_UpdateIntervalShortAlert_UpdateVisibility(PremadeFilter_UpdateIntervalShortAlert)
@@ -4404,12 +4411,4 @@ function PremadeFilter_UpdateIntervalEditBox_OnEnterPressed(self)
 
 	PremadeFilter_UpdateIntervalSlider:SetValue(v)
 	self:SetText(PremadeFilter_UpdateIntervalSlider:GetValue())
-end
-
-function PremadeFilter_UpdateIntervalShortAlert_UpdateVisibility(self)
-	if PremadeFilter_UpdateIntervalSlider:GetValue() < 15 then
-		self:Show()
-	else
-		self:Hide()
-	end
 end

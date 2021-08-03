@@ -105,7 +105,7 @@
 		</Scripts> -->
 	</Button>
 
-	<CheckButton name="PremadeFilter_OptionsCheckButtonTemplate" inherits="OptionsBaseCheckButtonTemplate" virtual="true">
+	<CheckButton name="PremadeFilter_OptionsCheckButtonTemplate" inherits="ChatConfigCheckButtonTemplate" virtual="true">
 		<HitRectInsets>
 			<AbsInset left="0" right="-200" top="0" bottom="0"/>
 		</HitRectInsets>
