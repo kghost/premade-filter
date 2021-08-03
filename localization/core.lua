@@ -1,7 +1,7 @@
-local addonName, L = ...;
+local addonName, L = ...
 
 local function PremadeFilter_DefaultString(L, key)
-	return key;
+	return key
 end
 
-setmetatable(L, { __index = PremadeFilter_DefaultString });
+setmetatable(L, { __index = PremadeFilter_DefaultString })

@@ -1,33 +1,33 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" 
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
-	
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
 	<Button name="PremadeFilterActivityListTemplate" virtual="true">
-        <Size x="250" y="14"/>
-        <Layers>
-            <Layer level="OVERLAY">
-                <Texture parentKey="Selected" file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD" setAllPoints="true"/>
+		<Size x="250" y="14"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="Selected" file="Interface\QuestFrame\UI-QuestTitleHighlight" alphaMode="ADD" setAllPoints="true"/>
 			</Layer>
 		</Layers>
-        <Scripts>
-            <OnClick>
-                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-                PremadeFilterActivityFinder_Select(self:GetParent():GetParent():GetParent():GetParent(), self.activityID);
+		<Scripts>
+			<OnClick>
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+				PremadeFilterActivityFinder_Select(self:GetParent():GetParent():GetParent():GetParent(), self.activityID);
 			</OnClick>
-            <OnEnter>
-                if ( self.Label:IsTruncated() ) then
+			<OnEnter>
+				if ( self.Label:IsTruncated() ) then
 				GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
 				GameTooltip:SetText(self.Label:GetText());
 				GameTooltip:Show();
-                end
+				end
 			</OnEnter>
-            <OnLeave function="GameTooltip_Hide"/>
+			<OnLeave function="GameTooltip_Hide"/>
 		</Scripts>
-        <ButtonText parentKey="Label" setAllPoints="true" justifyH="LEFT"/>
-        <NormalFont style="GameFontNormal"/>
-        <HighlightFont style="GameFontHighlight"/>
+		<ButtonText parentKey="Label" setAllPoints="true" justifyH="LEFT"/>
+		<NormalFont style="GameFontNormal"/>
+		<HighlightFont style="GameFontHighlight"/>
 	</Button>
-	
+
 	<Frame name="PremadeFilter_RealmChoiceTemplate" enableMouse="true" inherits="LFGSpecificChoiceTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
@@ -38,7 +38,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			</OnLoad>
 		</Scripts>
 	</Frame>
-	
+
 	<Frame name="PremadeFilter_BossChoiceTemplate" enableMouse="true" virtual="true">
 		<Size x="195" y="16"/>
 		<Layers>
@@ -79,7 +79,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			</CheckButton>
 		</Frames>
 	</Frame>
-	
+
 	<Button name="PremadeFilter_AutoCompleteButtonTemplate" useParentLevel="true" virtual="true">
 		<Size x="275" y="22"/>
 		<Layers>
@@ -99,25 +99,26 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 		<NormalFont style="GameFontHighlightSmall"/>
 		<HighlightFont style="GameFontHighlightSmall"/>
 		<DisabledFont style="GameFontDisableSmall"/>
-		<Scripts>
+		<!-- Temporarily (or not) OFF -->
+		<!-- <Scripts>
 			<OnClick function="PremadeFilter_AutoCompleteButton_OnClick"/>
-		</Scripts>
+		</Scripts> -->
 	</Button>
-	
+
 	<CheckButton name="PremadeFilter_OptionsCheckButtonTemplate" inherits="OptionsBaseCheckButtonTemplate" virtual="true">
 		<HitRectInsets>
 			<AbsInset left="0" right="-200" top="0" bottom="0"/>
 		</HitRectInsets>
 	</CheckButton>
-	
+
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
 		<Size x="817" y="409" />
 		<Layers>
 			<Layer level="BACKGROUND" textureSubLevel="-1">
 				<Texture parentKey="Bg" file="Interface\FrameGeneral\UI-Background-Rock" horizTile="true" vertTile="true">
 					<Anchors>
-						<Anchor point="TOPLEFT" x="0" y="0" />
-						<Anchor point="BOTTOMRIGHT" x="-2" y="3" />
+						<Anchor point="TOPLEFT" x="0" y="-5" />
+						<Anchor point="BOTTOMRIGHT" x="-2" y="2" />
 					</Anchors>
 				</Texture>
 				<FontString parentKey="Label" inherits="QuestFont_Huge" text="LFG_LIST_FIND_A_GROUP" justifyH="LEFT">
@@ -150,7 +151,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Anchors>
 				</FontString>
 
-				<!-- filter lables -->
+				<!-- filter labels -->
 				<FontString parentKey="MainIncludeLabel" inherits="GameFontNormalLeft">
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-145"/>
@@ -172,7 +173,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-280"/>
 					</Anchors>
 				</FontString>
-				<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="LFG_ROLES_TITLE"  hidden="true">
+				<FontString parentKey="RoleLabel" inherits="GameFontNormalLeft" text="LFG_ROLES_TITLE" hidden="true">
 					<Anchors>
 						<Anchor point="LEFT" relativeKey="$parent" relativePoint="TOPLEFT" x="30" y="-325"/>
 					</Anchors>
@@ -223,27 +224,27 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Anchors>
 				</FontString>
 			</Layer>
-			
+
 			<Layer level="OVERLAY">
-				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="false"  hidden="true">
+				<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="false" hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
 						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="198" y="-317"/>
 					</Anchors>
 				</Texture>
-				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="false"  hidden="true">
+				<Texture parentKey="HealerIcon" atlas="groupfinder-icon-role-large-heal" useAtlasSize="false" hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
 						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="245" y="-317"/>
 					</Anchors>
 				</Texture>
-				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="false"  hidden="true">
+				<Texture parentKey="DamagerIcon" atlas="groupfinder-icon-role-large-dps" useAtlasSize="false" hidden="true">
 					<Size x="20" y="20"/>
 					<Anchors>
 						<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPLEFT" x="292" y="-317"/>
 					</Anchors>
 				</Texture>
-				
+
 				<Texture parentKey="PlayersTankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="false">
 					<Size x="20" y="20"/>
 					<Anchors>
@@ -287,7 +288,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<DisabledTexture file="Interface\Buttons\UI-SpellbookIcon-NextPage-Disabled"/>
 				<HighlightTexture file="Interface\Buttons\UI-Common-MouseHilight" alphaMode="ADD"/>
 			</Button>
-			
+
 			<Frame parentKey="ActivityFinder" frameLevel="13" enableMouse="true" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="-5" y="-24"/>
@@ -354,7 +355,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 									</Slider>
 								</Frames>
 							</ScrollFrame>
-							<Frame parentKey="BorderFrame" inherits="TooltipBorderedFrameTemplate" useParentLevel="true"> <!--Because there isn't an easy way to change the bounds of a scroll frame-->
+							<Frame parentKey="BorderFrame" inherits="TooltipBorderedFrameTemplate" useParentLevel="true">
+								<!--Because there isn't an easy way to change the bounds of a scroll frame-->
 								<Anchors>
 									<Anchor point="TOPLEFT" relativeKey="$parent.ScrollFrame" relativePoint="TOPLEFT" x="-5" y="5"/>
 									<Anchor point="BOTTOMRIGHT" relativeKey="$parent.ScrollFrame" relativePoint="BOTTOMRIGHT" x="5" y="-5"/>
@@ -391,7 +393,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnLoad function="PremadeFilterActivityFinder_OnLoad"/>
 				</Scripts>
 			</Frame>
-			
+
 			<Frame parentKey="Inset" useParentLevel="true" inherits="InsetFrameTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="7" y="-41" />
@@ -422,11 +424,12 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnLoad>
 						self.Instructions:SetText(T("The words you don't want"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
-						<!-- Hide Name Frame -->
+						<!-- Hide Name Frame, Temporarily (or not) OFF -->
 						PremadeFilter_Frame.NameLabel:Hide();
 						PremadeFilter_Frame.Name:Hide();
 					</OnLoad>
-					<OnEnterPressed>
+					<!-- Temporarily (or not) OFF -->
+					<!-- <OnEnterPressed>
 						if PremadeFilter_Frame.AutoCompleteFrame:IsVisible() then
 						local idx = PremadeFilter_Frame.AutoCompleteFrame.selectedIndex
 						if idx then
@@ -451,11 +454,12 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						elseif ( key == "DOWN" ) then
 						PremadeFilter_AutoCompleteAdvance(1);
 						end
-					</OnArrowPressed>
-					<OnTextChanged function="PremadeFilter_Name_OnTextChanged"/>
+					</OnArrowPressed> -->
+					<!-- Temporarily (or not) OFF -->
+					<!-- <OnTextChanged function="PremadeFilter_Name_OnTextChanged"/> -->
 				</Scripts>
 				<Frames>
-					<Button parentKey="BuildButton" inherits="UIPanelButtonTemplate" text="+"  hidden="true">
+					<Button parentKey="BuildButton" inherits="UIPanelButtonTemplate" text="+" hidden="true">
 						<Size x="24" y="18"/>
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeKey="$parent" relativePoint="TOPRIGHT" x="0" y="-1"/>
@@ -489,17 +493,18 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						self.Instructions:SetText(T("The words you want"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 						PremadeFilter_Frame.MainIncludeLabel:SetText(T("Include words"));
-						<!-- Hide filter boxes -->
+						<!-- Hide filter boxes, Temporarily (or not) OFF -->
 						PremadeFilter_Frame.MainIncludeLabel:Hide();
 						PremadeFilter_Frame.MainInclude:Hide();
 					</OnLoad>
-					<OnEnterPressed>
+					<!-- Temporarily (or not) OFF -->
+					<!-- <OnEnterPressed>
 						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 						self:ClearFocus();
 					</OnEnterPressed>
 					<OnTextChanged>
 						InputBoxInstructions_OnTextChanged(self);
-					</OnTextChanged>
+					</OnTextChanged> -->
 				</Scripts>
 			</EditBox>
 			<EditBox parentKey="MainExclude" inherits="LFGListEditBoxTemplate">
@@ -515,17 +520,18 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						self.Instructions:SetText(T("The words you don't want"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 						PremadeFilter_Frame.MainExcludeLabel:SetText(T("Exclude words"));
-						<!-- Hide filter boxes -->
+						<!-- Hide filter boxes, Temporarily (or not) OFF -->
 						PremadeFilter_Frame.MainExcludeLabel:Hide();
 						PremadeFilter_Frame.MainExclude:Hide();
 					</OnLoad>
-					<OnEnterPressed>
+					<!-- Temporarily (or not) OFF -->
+					<!-- <OnEnterPressed>
 						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 						self:ClearFocus();
 					</OnEnterPressed>
 					<OnTextChanged>
 						InputBoxInstructions_OnTextChanged(self);
-					</OnTextChanged>
+					</OnTextChanged> -->
 				</Scripts>
 			</EditBox>
 			<EditBox parentKey="MainPossible" inherits="LFGListEditBoxTemplate">
@@ -541,17 +547,18 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						self.Instructions:SetText(T("You want at least one of these words"));
 						LFGListEditBox_AddToTabCategory(self, self.tabCategory);
 						PremadeFilter_Frame.MainPossibleLabel:SetText(T("At least one word"));
-						<!-- Hide filter boxes -->
+						<!-- Hide filter boxes, Temporarily (or not) OFF -->
 						PremadeFilter_Frame.MainPossibleLabel:Hide();
 						PremadeFilter_Frame.MainPossible:Hide();
 					</OnLoad>
-					<OnEnterPressed>
+					<!-- Temporarily (or not) OFF -->
+					<!-- <OnEnterPressed>
 						LFGListSearchPanel_DoSearch(self:GetParent():GetParent());
 						self:ClearFocus();
 					</OnEnterPressed>
 					<OnTextChanged>
 						InputBoxInstructions_OnTextChanged(self);
-					</OnTextChanged>
+					</OnTextChanged> -->
 				</Scripts>
 			</EditBox>
 
@@ -608,28 +615,28 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</OnHide>
 				</Scripts>
 			</Frame>
-			
+
 			<Frame parentKey="CategoryDropDown" name="PremadeFilter_CategoryDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="320" y="32"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" x="10" y="-80"/>
 				</Anchors>
 			</Frame>
-			
+
 			<Frame parentKey="GroupDropDown" name="PremadeFilter_GroupDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="175" y="32"/>
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeKey="$parent.CategoryDropDown" relativePoint="BOTTOMLEFT" x="0" y="3"/>
 				</Anchors>
 			</Frame>
-			
+
 			<Frame parentKey="ActivityDropDown" name="PremadeFilter_ActivityDropDown" inherits="UIDropDownMenuTemplate">
 				<Size x="175" y="32"/>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeKey="$parent.CategoryDropDown" relativePoint="BOTTOMRIGHT" x="0" y="3"/>
 				</Anchors>
 			</Frame>
-			
+
 			<ScrollFrame parentKey="Description" name="PremadeFilter_Description" inherits="InputScrollFrameTemplate">
 				<Size x="273" y="22"/>
 				<Anchors>
@@ -647,13 +654,13 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						self.EditBox.tabCategory = self.tabCategory;
 						LFGListEditBox_AddToTabCategory(self.EditBox, self.tabCategory);
 						self.EditBox:SetScript("OnTabPressed", LFGListEditBox_OnTabPressed);
-						<!-- Hide Description box -->
+						<!-- Hide Description box, Temporarily (or not) OFF -->
 						PremadeFilter_Frame.DescriptionLabel:Hide();
 						PremadeFilter_Frame.Description:Hide();
 					</OnLoad>
 				</Scripts>
-			</ScrollFrame>			
-			
+			</ScrollFrame>
+
 			<Frame parentKey="ItemLevel">
 				<Size x="273" y="14"/>
 				<Anchors>
@@ -688,7 +695,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 					</CheckButton>
 					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate" hidden="true">
 						<Size x="120" y="22"/>
@@ -713,9 +720,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						</Scripts>
 					</EditBox>
 				</Frames>
-			</Frame>				
-			
-			
+			</Frame>
+
+
 			<Frame parentKey="HonorLevel">
 				<Size x="273" y="14"/>
 				<Anchors>
@@ -750,7 +757,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 					</CheckButton>
 					<EditBox parentKey="EditBox" inherits="LFGListEditBoxTemplate" hidden="true">
 						<Size x="120" y="22"/>
@@ -775,8 +782,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						</Scripts>
 					</EditBox>
 				</Frames>
-			</Frame>				
-			
+			</Frame>
+
 			<Frame parentKey="VoiceChat">
 				<Size x="273" y="14"/>
 				<Anchors>
@@ -835,7 +842,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</EditBox>
 				</Frames>
 			</Frame>
-			
+
 			<CheckButton parentKey="TankCheckButton" hidden="true">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
@@ -853,9 +860,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 			</CheckButton>
-			
+
 			<CheckButton parentKey="HealerCheckButton" hidden="true">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
@@ -873,9 +880,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 			</CheckButton>
-			
+
 			<CheckButton parentKey="DamagerCheckButton" hidden="true">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
@@ -893,9 +900,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 			</CheckButton>
-			
+
 			<CheckButton parentKey="PlayersTankCheckButton">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
@@ -927,9 +934,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 			</CheckButton>
-			
+
 			<CheckButton parentKey="PlayersHealerCheckButton">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
@@ -961,9 +968,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 			</CheckButton>
-			
+
 			<CheckButton parentKey="PlayersDamagerCheckButton">
 				<Size x="22" y="22"/>
 				<HitRectInsets>
@@ -995,9 +1002,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 				<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 				<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+				<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 			</CheckButton>
-			
+
 			<EditBox parentKey="MinTanks" inherits="LFGListEditBoxTemplate" hidden="true">
 				<Size x="30" y="22"/>
 				<Anchors>
@@ -1007,8 +1014,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
 				</KeyValues>
-			</EditBox>			
-			
+			</EditBox>
+
 			<EditBox parentKey="MaxTanks" inherits="LFGListEditBoxTemplate" hidden="true">
 				<Size x="30" y="22"/>
 				<Anchors>
@@ -1018,8 +1025,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
 				</KeyValues>
-			</EditBox>			
-			
+			</EditBox>
+
 			<EditBox parentKey="MinHealers" inherits="LFGListEditBoxTemplate" hidden="true">
 				<Size x="30" y="22"/>
 				<Anchors>
@@ -1029,8 +1036,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
 				</KeyValues>
-			</EditBox>			
-			
+			</EditBox>
+
 			<EditBox parentKey="MaxHealers" inherits="LFGListEditBoxTemplate" hidden="true">
 				<Size x="30" y="22"/>
 				<Anchors>
@@ -1040,8 +1047,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
 				</KeyValues>
-			</EditBox>			
-			
+			</EditBox>
+
 			<EditBox parentKey="MinDamagers" inherits="LFGListEditBoxTemplate" hidden="true">
 				<Size x="30" y="22"/>
 				<Anchors>
@@ -1051,8 +1058,8 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 				<KeyValues>
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
 				</KeyValues>
-			</EditBox>			
-			
+			</EditBox>
+
 			<EditBox parentKey="MaxDamagers" inherits="LFGListEditBoxTemplate" hidden="true">
 				<Size x="30" y="22"/>
 				<Anchors>
@@ -1063,7 +1070,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<KeyValue key="tabCategory" value="PremadeFilter_Dialog" type="string"/>
 				</KeyValues>
 			</EditBox>
-			
+
 			<Frame name="$parent_Boss">
 				<Size x="239" y="229"/>
 				<Anchors>
@@ -1085,7 +1092,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 							<Anchor point="BOTTOMRIGHT" x="-7" y="7" />
 						</Anchors>
 					</Frame>
-					
+
 					<Frame name="$parentListButton1" inherits="PremadeFilter_BossChoiceTemplate" id="1">
 						<Anchors>
 							<Anchor point="TOPLEFT">
@@ -1176,7 +1183,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 							</Anchor>
 						</Anchors>
 					</Frame>
-					
+
 					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
@@ -1198,7 +1205,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</ScrollFrame>
 				</Frames>
 			</Frame>
-			
+
 			<Frame name="$parent_Realm">
 				<Size x="239" y="325"/>
 				<Anchors>
@@ -1220,7 +1227,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 							<Anchor point="BOTTOMRIGHT" x="-7" y="7" />
 						</Anchors>
 					</Frame>
-					
+
 					<Frame name="$parentListButton1" inherits="PremadeFilter_RealmChoiceTemplate" id="1">
 						<Anchors>
 							<Anchor point="TOPLEFT">
@@ -1365,7 +1372,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 							</Anchor>
 						</Anchors>
 					</Frame>
-					
+
 					<ScrollFrame name="$parentListScrollFrame" inherits="FauxScrollFrameTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parentListButton1" relativePoint="TOPLEFT">
@@ -1387,7 +1394,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</ScrollFrame>
 				</Frames>
 			</Frame>
-			
+
 			<Button parentKey="CancelButton" inherits="LFGListMagicButtonTemplate" text="HIDE">
 				<Size x="135" y="22"/>
 				<Anchors>
@@ -1397,7 +1404,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnClick function="PremadeFilter_Toggle"/>
 				</Scripts>
 			</Button>
-			
+
 			<Button parentKey="FilterButton" inherits="LFGListMagicButtonTemplate" text="APPLY">
 				<Size x="135" y="22"/>
 				<Anchors>
@@ -1407,7 +1414,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnClick function="PremadeFilter_FilterButton_OnClick"/>
 				</Scripts>
 			</Button>
-			
+
 			<Frame parentKey="QueryBuilder" frameStrata="DIALOG" toplevel="true" enableMouse="true" hidden="true">
 				<Anchors>
 					<Anchor point="TOPLEFT" x="5" y="-5"/>
@@ -1555,7 +1562,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					</Onshow>
 				</Scripts>
 			</Frame>
-			
+
 			<Button name="PremadeFilter_MinimapButton" parent="Minimap" inherits="MiniMapButtonTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="33" y="33"/>
@@ -1621,8 +1628,17 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnUpdate function="PremadeFilter_MinimapButton_OnUpdate"/>
 				</Scripts>
 				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
-			</Button>	
-			
+			</Button>
+			<Button parentKey="Tutorial" inherits="MainHelpPlateButton" mixin="PremadeFilter_TutorialMixin" scale="0.8">
+				<Anchors>
+					<Anchor point="TOPLEFT" x="160" y="2"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad method="OnLoad"/>
+					<OnHide method="OnHide"/>
+					<OnClick method="OnClick"/>
+				</Scripts>
+			</Button>
 			<Button name="PremadeFilter_OptionsButton" parentKey="OptionsButton">
 				<Size x="152" y="32"/>
 				<Anchors>
@@ -1665,7 +1681,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 					<OnClick function="PremadeFilter_OptionsMenu"/>
 				</Scripts>
 			</Button>
-			
+
 			<Frame name="PremadeFilter_Options">
 				<Layers>
 					<Layer level="ARTWORK">
@@ -1805,7 +1821,7 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 							</Anchors>
 						</FontString>
 					</Layer>
-					
+
 					<Layer level="OVERLAY">
 						<Texture parentKey="TankIcon" atlas="groupfinder-icon-role-large-tank" useAtlasSize="false">
 							<Size x="20" y="20"/>
@@ -1843,9 +1859,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 					</CheckButton>
-					
+
 					<CheckButton parentKey="HealerCheckButton">
 						<Size x="22" y="22"/>
 						<HitRectInsets>
@@ -1861,9 +1877,9 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 					</CheckButton>
-					
+
 					<CheckButton parentKey="DamagerCheckButton">
 						<Size x="22" y="22"/>
 						<HitRectInsets>
@@ -1879,11 +1895,11 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 						<PushedTexture file="Interface\Buttons\UI-CheckBox-Down"/>
 						<HighlightTexture file="Interface\Buttons\UI-CheckBox-Highlight" alphaMode="ADD"/>
 						<CheckedTexture file="Interface\Buttons\UI-CheckBox-Check"/>
-						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>	
+						<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 					</CheckButton>
 				</Frames>
 			</Frame>
-			
+
 			<!-- FAKE -->
 			<Button parentKey="ListGroupButton" />
 		</Frames>
@@ -1893,5 +1909,12 @@ xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 			<OnHide function="PremadeFilter_OnHide"/>
 			<OnEvent function="PremadeFilter_OnEvent"/>
 		</Scripts>
+		<Frames>
+			<Frame parentKey="NineSlice" inherits="NineSlicePanelTemplate">
+				<KeyValues>
+					<KeyValue key="layoutType" value="SimplePanelTemplate" type="string"/>
+				</KeyValues>
+			</Frame>
+		</Frames>
 	</Frame>
 </Ui>
