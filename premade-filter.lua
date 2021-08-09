@@ -1452,6 +1452,32 @@ function PremadeFilter_GetSettings(name)
 	end
 end
 
+do
+	function PremadeFilter_GetGreaterGroupId(CategoryId, Filters)
+		if not CategoryId or not Filters then
+			return nil
+		end
+		local Groups = C_LFGList.GetAvailableActivityGroups(CategoryId, Filters)
+		if Groups then
+			table.sort(Groups)
+			return Groups[#Groups]
+		end
+		return nil
+	end
+
+	function PremadeFilter_GetGreaterActivityId(CategoryId, GroupID, Filters)
+		if not CategoryId or not GroupID or not Filters then
+			return nil
+		end
+		local Activities = C_LFGList.GetAvailableActivities(CategoryId, GroupID, Filters)
+		if Activities then
+			table.sort(Activities)
+			return Activities[#Activities]
+		end
+		return nil
+	end
+end
+
 function PremadeFilter_OnShow(self)
 	local categoryID = LFGListFrame.categoryID
 	local baseFilters = LFGListFrame.baseFilters
@@ -1470,8 +1496,15 @@ function PremadeFilter_OnShow(self)
 	then
 		selectedCategory = LFGListFrame.CategorySelection.selectedCategory
 		selectedFilters = LFGListFrame.CategorySelection.selectedFilters
-		selectedGroup = nil
-		selectedActivity = nil
+		selectedGroup = PremadeFilter_GetGreaterGroupId(
+			LFGListFrame.CategorySelection.selectedCategory,
+			LFGListFrame.CategorySelection.selectedFilters
+		)
+		selectedActivity = PremadeFilter_GetGreaterActivityId(
+			LFGListFrame.CategorySelection.selectedCategory,
+			selectedGroup,
+			LFGListFrame.CategorySelection.selectedFilters
+		)
 	else
 		selectedCategory = self.selectedCategory
 		selectedFilters = self.selectedFilters
@@ -4049,7 +4082,7 @@ function PremadeFilter_DeleteFilterSet()
 	end
 end
 
-function PremadeFilter_OnFilterSetSelected(self, arg1, arg2, checked)
+function PremadeFilter_OnFilterSetSelected(self, _, _, checked)
 	local index = self:GetID()
 
 	if UIDROPDOWNMENU_MENU_LEVEL == 1 then
