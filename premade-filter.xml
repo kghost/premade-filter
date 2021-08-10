@@ -110,6 +110,14 @@
 			<AbsInset left="0" right="-200" top="0" bottom="0"/>
 		</HitRectInsets>
 	</CheckButton>
+	
+	<CheckButton name="PremadeFilter_ScrollBarCheckButtonTemplate" inherits="ChatConfigCheckButtonTemplate" virtual="true">
+		<HitRectInsets>
+			<AbsInset left="0" right="0" top="0" bottom="0"/>
+		</HitRectInsets>
+		<CheckedTexture file="Interface\Buttons\UI-Panel-CollapseButton-Up"/>
+		<DisabledCheckedTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Disabled"/>
+	</CheckButton>
 
 	<Frame name="PremadeFilter_Frame" parentKey="PremadeFilter" enableMouse="true" hidden="true">
 		<Size x="817" y="409" />
@@ -272,6 +280,7 @@
 					<Anchor point="TOPRIGHT" x="-20" y="-20"/>
 				</Anchors>
 				<Scripts>
+					<OnShow function="PremadeFilter_Frame_AdvancedButton_OnShow"/>
 					<OnHide>
 						PremadeFilter_Frame.ShowNextTime = PremadeFilter_Frame:IsVisible();
 					</OnHide>

@@ -28,6 +28,7 @@ local PremadeFilter_DefaultSettings = {
 	NewGroupChatNotifications = true,
 	NewPlayerChatNotifications = true,
 	SoundNotifications = true,
+	ScrollOnTop = false,
 }
 
 local PremadeFilter_ActivityInfo = {
@@ -1404,9 +1405,11 @@ function PremadeFilter_FixSettings()
 		PremadeFilter_Data.Settings.NewGroupChatNotifications = PremadeFilter_DefaultSettings.NewGroupChatNotifications
 		PremadeFilter_Data.Settings.NewPlayerChatNotifications = PremadeFilter_Data.Settings.ChatNotifications
 		PremadeFilter_Data.Settings.ChatNotifications = nil
+		PremadeFilter_Data.Settings.ScrollOnTop = false
 		PremadeFilter_Data.Settings.Version = "0.9.94"
-	elseif PremadeFilter_Data.Settings.Version <= "2.3L" then
-		PremadeFilter_Data.Settings.Version = "2.3L"
+	elseif PremadeFilter_Data.Settings.Version ~= "2.3.4L" then
+		PremadeFilter_Data.Settings.ScrollOnTop = false
+		PremadeFilter_Data.Settings.Version = "2.3.4L"
 	end
 
 	if
@@ -1478,6 +1481,95 @@ do
 	end
 end
 
+function PremadeFilter_Frame_AdvancedButton_OnShow()
+	if
+		LFGListSearchPanelScrollFrame:IsVisible() and not _G["LFGListSearchPanelScrollFrameScrollBarScrollCheckButton"]
+	then
+		local ScrollFramePoints = { one = {}, two = {} }
+		ScrollFramePoints["one"].point, ScrollFramePoints["one"].relativeTo, ScrollFramePoints["one"].relativePoint, ScrollFramePoints["one"].xOfs, ScrollFramePoints["one"].yOfs =
+			LFGListSearchPanelScrollFrameScrollBar:GetPoint(
+				1
+			)
+		ScrollFramePoints["two"].point, ScrollFramePoints["two"].relativeTo, ScrollFramePoints["two"].relativePoint, ScrollFramePoints["two"].xOfs, ScrollFramePoints["two"].yOfs =
+			LFGListSearchPanelScrollFrameScrollBar:GetPoint(
+				2
+			)
+		LFGListSearchPanelScrollFrameScrollBar:ClearAllPoints()
+		LFGListSearchPanelScrollFrameScrollBar:SetPoint(
+			ScrollFramePoints["one"].point,
+			ScrollFramePoints["one"].relativeTo,
+			ScrollFramePoints["one"].relativePoint,
+			ScrollFramePoints["one"].xOfs,
+			ScrollFramePoints["one"].yOfs - LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
+		)
+		LFGListSearchPanelScrollFrameScrollBar:SetPoint(
+			ScrollFramePoints["two"].point,
+			ScrollFramePoints["two"].relativeTo,
+			ScrollFramePoints["two"].relativePoint,
+			ScrollFramePoints["two"].xOfs,
+			ScrollFramePoints["two"].yOfs
+		)
+		LFGListSearchPanelScrollFrameScrollBarBG:SetPoint(
+			ScrollFramePoints["one"].point,
+			ScrollFramePoints["one"].relativeTo,
+			ScrollFramePoints["one"].relativePoint,
+			ScrollFramePoints["one"].xOfs,
+			ScrollFramePoints["one"].yOfs
+		)
+		LFGListSearchPanelScrollFrameScrollBarBG:SetPoint(
+			ScrollFramePoints["two"].point,
+			ScrollFramePoints["two"].relativeTo,
+			ScrollFramePoints["two"].relativePoint,
+			ScrollFramePoints["two"].xOfs,
+			ScrollFramePoints["two"].yOfs
+		)
+		ScrollFramePoints["one"].point, ScrollFramePoints["one"].relativeTo, ScrollFramePoints["one"].relativePoint, ScrollFramePoints["one"].xOfs, ScrollFramePoints["one"].yOfs =
+			LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetPoint(
+				1
+			)
+		local ScrollOnTopCheckBox = CreateFrame(
+			"CheckButton",
+			"LFGListSearchPanelScrollFrameScrollBarScrollCheckButton",
+			LFGListSearchPanelScrollFrameScrollBar,
+			"PremadeFilter_ScrollBarCheckButtonTemplate"
+		)
+		ScrollOnTopCheckBox:SetSize(
+			LFGListSearchPanelScrollFrameScrollBarTop:GetWidth() - 1,
+			LFGListSearchPanelScrollFrameScrollBarTop:GetWidth()
+		)
+		ScrollOnTopCheckBox:SetPoint(
+			ScrollFramePoints["one"].point,
+			ScrollFramePoints["one"].relativeTo,
+			ScrollFramePoints["one"].relativePoint,
+			ScrollFramePoints["one"].xOfs - 0.5,
+			ScrollFramePoints["one"].yOfs - 6
+		)
+		ScrollOnTopCheckBox:SetChecked(PremadeFilter_Data.Settings.ScrollOnTop)
+		ScrollOnTopCheckBox:SetScript("PostClick", function()
+			PremadeFilter_Data.Settings.ScrollOnTop = ScrollOnTopCheckBox:GetChecked()
+		end)
+		LFGListSearchPanelScrollFrameScrollBarScrollUpButton:ClearAllPoints()
+		LFGListSearchPanelScrollFrameScrollBarScrollUpButton:SetPoint(
+			ScrollFramePoints["one"].point,
+			ScrollFramePoints["one"].relativeTo,
+			ScrollFramePoints["one"].relativePoint,
+			ScrollFramePoints["one"].xOfs,
+			ScrollFramePoints["one"].yOfs + LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
+		)
+		ScrollFramePoints["two"].point, ScrollFramePoints["two"].relativeTo, ScrollFramePoints["two"].relativePoint, ScrollFramePoints["two"].xOfs, ScrollFramePoints["two"].yOfs =
+			LFGListSearchPanelScrollFrameScrollBarTop:GetPoint(
+				1
+			)
+		LFGListSearchPanelScrollFrameScrollBarTop:ClearAllPoints()
+		LFGListSearchPanelScrollFrameScrollBarTop:SetPoint(
+			ScrollFramePoints["two"].point,
+			ScrollFramePoints["two"].relativeTo,
+			ScrollFramePoints["two"].relativePoint,
+			ScrollFramePoints["two"].xOfs,
+			ScrollFramePoints["two"].yOfs + LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
+		)
+	end
+end
 function PremadeFilter_OnShow(self)
 	local categoryID = LFGListFrame.categoryID
 	local baseFilters = LFGListFrame.baseFilters
@@ -2015,6 +2107,12 @@ function LFGListSearchPanel_DoSearch(self)
 	local visible = PremadeFilter_Frame:IsVisible()
 	local category = PremadeFilter_Frame.selectedCategory
 	local languages = C_LFGList.GetLanguageSearchFilter()
+
+	if LFGListSearchPanelScrollFrame:IsVisible() and PremadeFilter_Data.Settings.ScrollOnTop then
+		HybridScrollFrame_ScrollToIndex(LFGListSearchPanelScrollFrame, 1, function(_)
+			return LFGListSearchPanelScrollFrame.buttons[1]:GetHeight()
+		end)
+	end
 
 	if visible and category then
 		C_LFGList.Search(category, self.filters, self.preferredFilters, languages)
