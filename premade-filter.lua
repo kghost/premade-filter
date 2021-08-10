@@ -1485,45 +1485,46 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 	if
 		LFGListSearchPanelScrollFrame:IsVisible() and not _G["LFGListSearchPanelScrollFrameScrollBarScrollCheckButton"]
 	then
-		local ScrollFramePoints = { one = {}, two = {} }
-		ScrollFramePoints["one"].point, ScrollFramePoints["one"].relativeTo, ScrollFramePoints["one"].relativePoint, ScrollFramePoints["one"].xOfs, ScrollFramePoints["one"].yOfs =
+		local Points = { one = {}, two = {} }
+		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y =
 			LFGListSearchPanelScrollFrameScrollBar:GetPoint(
 				1
 			)
-		ScrollFramePoints["two"].point, ScrollFramePoints["two"].relativeTo, ScrollFramePoints["two"].relativePoint, ScrollFramePoints["two"].xOfs, ScrollFramePoints["two"].yOfs =
+		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y =
 			LFGListSearchPanelScrollFrameScrollBar:GetPoint(
 				2
 			)
 		LFGListSearchPanelScrollFrameScrollBar:ClearAllPoints()
+		local UpButtonHeight = LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
 		LFGListSearchPanelScrollFrameScrollBar:SetPoint(
-			ScrollFramePoints["one"].point,
-			ScrollFramePoints["one"].relativeTo,
-			ScrollFramePoints["one"].relativePoint,
-			ScrollFramePoints["one"].xOfs,
-			ScrollFramePoints["one"].yOfs - LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
+			Points["one"].this,
+			Points["one"].to,
+			Points["one"].that,
+			Points["one"].x,
+			Points["one"].y - UpButtonHeight
 		)
 		LFGListSearchPanelScrollFrameScrollBar:SetPoint(
-			ScrollFramePoints["two"].point,
-			ScrollFramePoints["two"].relativeTo,
-			ScrollFramePoints["two"].relativePoint,
-			ScrollFramePoints["two"].xOfs,
-			ScrollFramePoints["two"].yOfs
+			Points["two"].this,
+			Points["two"].to,
+			Points["two"].that,
+			Points["two"].x,
+			Points["two"].y
 		)
 		LFGListSearchPanelScrollFrameScrollBarBG:SetPoint(
-			ScrollFramePoints["one"].point,
-			ScrollFramePoints["one"].relativeTo,
-			ScrollFramePoints["one"].relativePoint,
-			ScrollFramePoints["one"].xOfs,
-			ScrollFramePoints["one"].yOfs
+			Points["one"].this,
+			Points["one"].to,
+			Points["one"].that,
+			Points["one"].x,
+			Points["one"].y
 		)
 		LFGListSearchPanelScrollFrameScrollBarBG:SetPoint(
-			ScrollFramePoints["two"].point,
-			ScrollFramePoints["two"].relativeTo,
-			ScrollFramePoints["two"].relativePoint,
-			ScrollFramePoints["two"].xOfs,
-			ScrollFramePoints["two"].yOfs
+			Points["two"].this,
+			Points["two"].to,
+			Points["two"].that,
+			Points["two"].x,
+			Points["two"].y
 		)
-		ScrollFramePoints["one"].point, ScrollFramePoints["one"].relativeTo, ScrollFramePoints["one"].relativePoint, ScrollFramePoints["one"].xOfs, ScrollFramePoints["one"].yOfs =
+		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y =
 			LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetPoint(
 				1
 			)
@@ -1538,11 +1539,11 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 			LFGListSearchPanelScrollFrameScrollBarTop:GetWidth()
 		)
 		ScrollOnTopCheckBox:SetPoint(
-			ScrollFramePoints["one"].point,
-			ScrollFramePoints["one"].relativeTo,
-			ScrollFramePoints["one"].relativePoint,
-			ScrollFramePoints["one"].xOfs - 0.5,
-			ScrollFramePoints["one"].yOfs - 6
+			Points["one"].this,
+			Points["one"].to,
+			Points["one"].that,
+			Points["one"].x - 0.5,
+			Points["one"].y - 6
 		)
 		ScrollOnTopCheckBox:SetChecked(PremadeFilter_Data.Settings.ScrollOnTop)
 		ScrollOnTopCheckBox:SetScript("PostClick", function()
@@ -1550,26 +1551,27 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 		end)
 		LFGListSearchPanelScrollFrameScrollBarScrollUpButton:ClearAllPoints()
 		LFGListSearchPanelScrollFrameScrollBarScrollUpButton:SetPoint(
-			ScrollFramePoints["one"].point,
-			ScrollFramePoints["one"].relativeTo,
-			ScrollFramePoints["one"].relativePoint,
-			ScrollFramePoints["one"].xOfs,
-			ScrollFramePoints["one"].yOfs + LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
+			Points["one"].this,
+			Points["one"].to,
+			Points["one"].that,
+			Points["one"].x,
+			Points["one"].y + UpButtonHeight
 		)
-		ScrollFramePoints["two"].point, ScrollFramePoints["two"].relativeTo, ScrollFramePoints["two"].relativePoint, ScrollFramePoints["two"].xOfs, ScrollFramePoints["two"].yOfs =
+		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y =
 			LFGListSearchPanelScrollFrameScrollBarTop:GetPoint(
 				1
 			)
 		LFGListSearchPanelScrollFrameScrollBarTop:ClearAllPoints()
 		LFGListSearchPanelScrollFrameScrollBarTop:SetPoint(
-			ScrollFramePoints["two"].point,
-			ScrollFramePoints["two"].relativeTo,
-			ScrollFramePoints["two"].relativePoint,
-			ScrollFramePoints["two"].xOfs,
-			ScrollFramePoints["two"].yOfs + LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
+			Points["two"].this,
+			Points["two"].to,
+			Points["two"].that,
+			Points["two"].x,
+			Points["two"].y + UpButtonHeight
 		)
 	end
 end
+
 function PremadeFilter_OnShow(self)
 	local categoryID = LFGListFrame.categoryID
 	local baseFilters = LFGListFrame.baseFilters
