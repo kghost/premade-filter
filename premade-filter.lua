@@ -2361,7 +2361,7 @@ function LFGListSearchPanel_DoSearch(self)
 	end
 end
 
-function PremadeFilter_GetFilters() --__
+function PremadeFilter_GetFilters()
 	if not PremadeFilter_Frame:IsVisible() and not PremadeFilter_MinimapButton:IsVisible() then
 		return nil
 	end
@@ -2449,7 +2449,7 @@ function PremadeFilter_GetFilters() --__
 	return filters
 end
 
-function PremadeFilter_SetFilters(filters) --__
+function PremadeFilter_SetFilters(filters)
 	PremadeFilter_Frame.selectedCategory = filters.category
 	PremadeFilter_EntrySelect(
 		PremadeFilter_Frame,
@@ -3134,18 +3134,16 @@ end
 function PremadeFilter_GetTooltipInfo(resultID)
 	local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
 	local activityID = searchResultInfo.activityID
+	if not activityID then
+		return nil
+	end
 	local numMembers = searchResultInfo.numMembers
 	local numBNetFriends = searchResultInfo.numBNetFriends
 	local numCharFriends = searchResultInfo.numCharFriends
 	local numGuildMates = searchResultInfo.numGuildMates
 	local questID = searchResultInfo.questID
-	local playStyle = searchResultInfo.playstyle
-	if not activityID then
-		return nil
-	end
-
 	local activityInfo = C_LFGList.GetActivityInfoTable(activityID, questID, searchResultInfo.isWarMode)
-
+	local playstyleString = PremadeFilter_GetPlaystyleString(searchResultInfo.playstyle, activityInfo)
 	local classCounts = {}
 	local memberList = {}
 
@@ -3196,7 +3194,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		leaderOverallDungeonScore = searchResultInfo.leaderOverallDungeonScore,
 		leaderDungeonScoreInfo = searchResultInfo.leaderDungeonScoreInfo,
 		leaderPvpRatingInfo = searchResultInfo.leaderPvpRatingInfo,
-		playStyle = playStyle,
+		playStyle = playstyleString ~= UNKNOWN and searchResultInfo.playstyle or 0,
 		questID = questID,
 		activityID = activityID,
 		numMembers = numMembers,
@@ -3207,7 +3205,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		displayType = activityInfo.displayType,
 		isMythicPlusActivity = activityInfo.isMythicPlusActivity,
 		isRatedPvpActivity = activityInfo.isRatedPvpActivity,
-		playstyleString = PremadeFilter_GetPlaystyleString(playStyle, activityInfo),
+		playstyleString = playstyleString,
 	}
 end
 
