@@ -1297,8 +1297,8 @@ end
 function PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
 	if
 		activityInfo
-		or playstyle ~= (0 or nil)
-		or C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown
+		and playstyle ~= (0 or nil)
+		and C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown
 	then
 		local typeStr
 		if activityInfo.isMythicPlusActivity then
