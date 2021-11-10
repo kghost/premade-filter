@@ -1274,7 +1274,7 @@ function PremadeFilter_AddCategoryEntry(self, info, categoryID, name, filters)
 	UIDropDownMenu_AddButton(info)
 end
 
-function PremadeFilter_PopulateCategories(self, dropDown, info)
+function PremadeFilter_PopulateCategories(self, _, info)
 	local categories = C_LFGList.GetAvailableCategories(self.baseFilters)
 	for i = 1, #categories do
 		local categoryID = categories[i]
@@ -1295,23 +1295,28 @@ function PremadeFilter_PopulateCategories(self, dropDown, info)
 end
 -----------------Temporary (i hope) fix for Blizzard restricted actions------------------------
 function PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
-	if (activityInfo == nil) or (playstyle == (0 or nil)) then
-		return UNKNOWN
+	if
+		activityInfo
+		or playstyle ~= (0 or nil)
+		or C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown
+	then
+		local typeStr
+		if activityInfo.isMythicPlusActivity then
+			typeStr = "GROUP_FINDER_PVE_PLAYSTYLE"
+		elseif activityInfo.isRatedPvpActivity then
+			typeStr = "GROUP_FINDER_PVP_PLAYSTYLE"
+		elseif activityInfo.isCurrentRaidActivity then
+			typeStr = "GROUP_FINDER_PVE_RAID_PLAYSTYLE"
+		elseif activityInfo.isMythicActivity then
+			typeStr = "GROUP_FINDER_PVE_MYTHICZERO_PLAYSTYLE"
+		end
+		return typeStr and _G[typeStr .. tostring(playstyle)] or nil
+	else
+		return nil
 	end
-	local typeStr
-	if activityInfo.isMythicPlusActivity then
-		typeStr = "GROUP_FINDER_PVE_PLAYSTYLE"
-	elseif activityInfo.isRatedPvpActivity then
-		typeStr = "GROUP_FINDER_PVP_PLAYSTYLE"
-	elseif activityInfo.isCurrentRaidActivity then
-		typeStr = "GROUP_FINDER_PVE_RAID_PLAYSTYLE"
-	elseif activityInfo.isMythicActivity then
-		typeStr = "GROUP_FINDER_PVE_MYTHICZERO_PLAYSTYLE"
-	end
-	return typeStr and _G[typeStr .. tostring(playstyle)] or UNKNOWN
 end
 
-function LFGListEntryCreation_SetTitleFromActivityInfo(self) end --Protected func, not completable with addons. No name when creating activity without authenticator now.
+function LFGListEntryCreation_SetTitleFromActivityInfo(_) end --Protected func, not completable with addons. No name when creating activity without authenticator now.
 
 C_LFGList.GetPlaystyleString = --There is no reason to do this api func protected, but they do.
 	function(playstyle, activityInfo)
@@ -3138,12 +3143,13 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		return nil
 	end
 	local numMembers = searchResultInfo.numMembers
+	local playStyle = searchResultInfo.playstyle
 	local numBNetFriends = searchResultInfo.numBNetFriends
 	local numCharFriends = searchResultInfo.numCharFriends
 	local numGuildMates = searchResultInfo.numGuildMates
 	local questID = searchResultInfo.questID
 	local activityInfo = C_LFGList.GetActivityInfoTable(activityID, questID, searchResultInfo.isWarMode)
-	local playstyleString = PremadeFilter_GetPlaystyleString(searchResultInfo.playstyle, activityInfo)
+
 	local classCounts = {}
 	local memberList = {}
 
@@ -3194,7 +3200,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		leaderOverallDungeonScore = searchResultInfo.leaderOverallDungeonScore,
 		leaderDungeonScoreInfo = searchResultInfo.leaderDungeonScoreInfo,
 		leaderPvpRatingInfo = searchResultInfo.leaderPvpRatingInfo,
-		playStyle = playstyleString ~= UNKNOWN and searchResultInfo.playstyle or 0,
+		playStyle = playStyle,
 		questID = questID,
 		activityID = activityID,
 		numMembers = numMembers,
@@ -3205,7 +3211,7 @@ function PremadeFilter_GetTooltipInfo(resultID)
 		displayType = activityInfo.displayType,
 		isMythicPlusActivity = activityInfo.isMythicPlusActivity,
 		isRatedPvpActivity = activityInfo.isRatedPvpActivity,
-		playstyleString = playstyleString,
+		playstyleString = PremadeFilter_GetPlaystyleString(playStyle, activityInfo),
 	}
 end
 
@@ -3217,7 +3223,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	GameTooltip:SetText(info.name, 1, 1, 1, true)
 	GameTooltip:AddLine(info.activityName)
 
-	if info.playStyle > 0 then
+	if info.playStyle > 0 and info.playstyleString then
 		GameTooltip_AddColoredLine(GameTooltip, info.playstyleString, GREEN_FONT_COLOR)
 	end
 
