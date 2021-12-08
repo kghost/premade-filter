@@ -1297,7 +1297,7 @@ end
 function PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
 	if
 		activityInfo
-		and playstyle ~= (0 or nil)
+		and playstyle == (1 or 2 or 3)
 		and C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown
 	then
 		local typeStr
@@ -1797,10 +1797,10 @@ function PremadeFilter_FixSettings()
 	elseif PremadeFilter_Data.Settings.Version ~= GetAddOnMetadata("premade-filter", "Version") then
 		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version")
 	end
-	if not PremadeFilter_Data.Settings.ScrollOnTop then
+	if PremadeFilter_Data.Settings.ScrollOnTop == nil then
 		PremadeFilter_Data.Settings.ScrollOnTop = false
 	end
-	if not PremadeFilter_Data.Settings.AutoFillSearchBox then
+	if PremadeFilter_Data.Settings.AutoFillSearchBox == nil then
 		PremadeFilter_Data.Settings.AutoFillSearchBox = true
 	end
 
@@ -2335,6 +2335,7 @@ end
 function LFGListSearchPanel_DoSearch(self)
 	local visible = PremadeFilter_Frame:IsVisible()
 	local category = PremadeFilter_Frame.selectedCategory
+	local searchText = self.SearchBox:GetText()
 	local languages = C_LFGList.GetLanguageSearchFilter()
 
 	if LFGListSearchPanelScrollFrame:IsVisible() and PremadeFilter_Data.Settings.ScrollOnTop then
@@ -2346,8 +2347,8 @@ function LFGListSearchPanel_DoSearch(self)
 	if visible and category then
 		C_LFGList.Search(category, self.filters, self.preferredFilters, languages)
 	else
-		C_LFGList.Search(self.categoryID, self.filters, self.preferredFilters, languages)
 		category = self.categoryID
+		C_LFGList.Search(category, self.filters, self.preferredFilters, languages)
 	end
 
 	self.searching = true
@@ -2360,6 +2361,14 @@ function LFGListSearchPanel_DoSearch(self)
 	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters()
 
 	LFGListSearchPanel_UpdateResultList(self)
+
+	-- If auto-create is desired, then the caller needs to set up that data after the search begins.
+	-- There's an issue with using OnTextChanged to handle this due to how OnShow processes the update.
+	if self.previousSearchText ~= searchText then
+		LFGListEntryCreation_ClearAutoCreateMode(self:GetParent().EntryCreation)
+	end
+
+	self.previousSearchText = searchText
 
 	if not PremadeFilter_MinimapButton:IsVisible() then
 		PremadeFilter_MinimapButton.LastUpdate = 0
@@ -2679,15 +2688,10 @@ end
 function LFGListSearchPanel_UpdateResultList(self)
 	if not self.searching then
 		self.totalResults, self.results = C_LFGList.GetFilteredSearchResults()
-		self.applications = C_LFGList.GetApplications()
-
 		local numResults = 0
 		local extraFilters = PremadeFilter_Frame.extraFilters
-
 		local newResults = {}
-
 		local minAge = nil
-
 		PremadeFilter_Frame.freshResults = {}
 
 		if not PremadeFilter_Frame.selectedCategory then
@@ -2696,15 +2700,12 @@ function LFGListSearchPanel_UpdateResultList(self)
 
 		for i = 1, #self.results do
 			local resultID = self.results[i]
-
 			local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
-
 			local age = searchResultInfo.age
 			local activityID = searchResultInfo.activityID
 			local leaderName = searchResultInfo.leaderName
 			local name = searchResultInfo.name
 			local voiceChat = searchResultInfo.voiceChat
-
 			local _, _, categoryID, groupID = C_LFGList.GetActivityInfo(activityID, nil, searchResultInfo.isWarMode)
 			local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID)
 
@@ -2713,7 +2714,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 
 			local infoName = PremadeFilter_GetInfoName(activityID, name)
-
 			local matches = true
 
 			if extraFilters then
@@ -2862,7 +2862,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 
 		self.totalResults = numResults
 		self.results = newResults
-
+		self.applications = C_LFGList.GetApplications()
 		LFGListUtil_SortSearchResults(self.results)
 	end
 	LFGListSearchPanel_UpdateResults(self)
@@ -3007,9 +3007,7 @@ function LFGListSearchEntry_Update(self)
 	end
 
 	self.expiration = GetTime() + appDuration
-
 	local panel = self:GetParent():GetParent():GetParent()
-
 	local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
 	local activityID = searchResultInfo.activityID
 	local name = searchResultInfo.name
@@ -3022,6 +3020,7 @@ function LFGListSearchEntry_Update(self)
 	self.Highlight:SetShown(panel.selectedResult ~= resultID and not isApplication and not isDelisted)
 	local nameColor = NORMAL_FONT_COLOR
 	local activityColor = GRAY_FONT_COLOR
+
 	if isDelisted or isAppFinished then
 		nameColor = LFG_LIST_DELISTED_FONT_COLOR
 		activityColor = LFG_LIST_DELISTED_FONT_COLOR
@@ -3042,20 +3041,22 @@ function LFGListSearchEntry_Update(self)
 	self.ActivityName:SetTextColor(activityColor.r, activityColor.g, activityColor.b)
 	self.VoiceChat:SetShown(voiceChat ~= "")
 	self.VoiceChat.tooltip = voiceChat
-
 	local displayData = C_LFGList.GetSearchResultMemberCounts(resultID)
+
 	LFGListGroupDataDisplay_Update(self.DataDisplay, activityID, displayData, isDelisted)
 
 	local nameWidth = isApplication and 165 or 176
+
 	if voiceChat ~= "" then
 		nameWidth = nameWidth - 22
 	end
 	if self.Name:GetWidth() > nameWidth then
 		self.Name:SetWidth(nameWidth)
 	end
-	self.ActivityName:SetWidth(nameWidth)
 
+	self.ActivityName:SetWidth(nameWidth)
 	local mouseFocus = GetMouseFocus()
+
 	if mouseFocus == self then
 		LFGListSearchEntry_OnEnter(self)
 	end
@@ -3090,8 +3091,8 @@ function LFGListSearchPanel_UpdateResults(self)
 		end
 	else
 		self.SearchingSpinner:Hide()
-		local results = self.results
 		local apps = self.applications
+		local results = self.results
 		local lastVisibleButton
 		for i = 1, #buttons do
 			local button = buttons[i]
@@ -3106,15 +3107,16 @@ function LFGListSearchPanel_UpdateResults(self)
 				button.infoName = infoName
 				button.fresh = PremadeFilter_Frame.freshResults[result]
 				LFGListSearchEntry_Update(button)
+				button:SetScript("OnEnter", PremadeFilter_SearchEntry_OnEnter)
 				button:Show()
 				lastVisibleButton = button
 			else
 				button.created = 0
 				button.resultID = nil
 				button.infoName = nil
+				button:SetScript("OnEnter", nil)
 				button:Hide()
 			end
-			button:SetScript("OnEnter", PremadeFilter_SearchEntry_OnEnter)
 		end
 		local totalHeight = buttons[1]:GetHeight() * (#results + #apps)
 		local showNoResults = (self.totalResults == 0)
@@ -3393,34 +3395,11 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 end
 
 function LFGListUtil_SortSearchResultsCB(id1, id2)
+	if not id1 or not id2 then
+		return false
+	end
 	local searchResultInfo1 = C_LFGList.GetSearchResultInfo(id1)
 	local searchResultInfo2 = C_LFGList.GetSearchResultInfo(id2)
-
-	--Not used
-	--[[ 	local sr_id1 = searchResultInfo1.searchResultID
-	local sr_id2 = searchResultInfo2.searchResultID
-	local activityID1 = searchResultInfo1.activityID
-	local activityID2 = searchResultInfo2.activityID
-	local leaderName1 = searchResultInfo1.leaderName
-	local leaderName2 = searchResultInfo2.leaderName
-	local name1 = searchResultInfo1.name
-	local name2 = searchResultInfo2.name
-	local comment1 = searchResultInfo1.comment
-	local comment2 = searchResultInfo2.comment
-	local iLvl1 = searchResultInfo1.requiredItemLevel
-	local iLvl2 = searchResultInfo2.requiredItemLevel
-	local honorLevel1 = searchResultInfo1.requiredHonorLevel
-	local honorLevel2 = searchResultInfo2.requiredHonorLevel
-	local voiceChat1 = searchResultInfo1.voiceChat
-	local voiceChat2 = searchResultInfo2.voiceChat
-	local numFriends1 = searchResultInfo1.numMembers
-	local numFriends2 = searchResultInfo2.numMembers
-	local questID1 = searchResultInfo1.questID
-	local questID2 = searchResultInfo2.questID
-	local autoAccept1 = searchResultInfo1.autoAccept
-	local autoAccept2 = searchResultInfo2.autoAccept
-	local isDelisted1 = searchResultInfo1.isDelisted
-	local isDelisted2 = searchResultInfo2.isDelisted ]]
 
 	--If one has more friends, do that one first
 	local numBNetFriends1 = searchResultInfo1.numBNetFriends
@@ -3438,9 +3417,19 @@ function LFGListUtil_SortSearchResultsCB(id1, id2)
 	if numGuildMates1 ~= numGuildMates2 then
 		return numGuildMates1 > numGuildMates2
 	end
+
 	local age1 = searchResultInfo1.age
 	local age2 = searchResultInfo2.age
-	return age1 < age2
+	if age1 ~= age2 then
+		return age1 < age2
+	end
+
+	if searchResultInfo1.isWarMode ~= searchResultInfo2.isWarMode then
+		return searchResultInfo1.isWarMode == C_PvP.IsWarModeDesired()
+	end
+
+	--If we aren't sorting by anything else, just go by ID
+	return id1 < id2
 end
 
 function PremadeFilter_CheckButtonSound(self)
