@@ -192,6 +192,10 @@ local PremadeFilter_ActivityInfo = {
 	["3-271-743"] = { tier = 9, instance = 3, raid = true, difficulty = 14 }, --Sanctum of Domination Normal
 	["3-271-744"] = { tier = 9, instance = 3, raid = true, difficulty = 15 }, --Sanctum of Domination Heroic
 	["3-271-745"] = { tier = 9, instance = 3, raid = true, difficulty = 16 }, --Sanctum of Domination Mythic
+
+	["3-282-1020"] = { tier = 9, instance = 4, raid = true, difficulty = 14 }, --Sepulcher of the First Ones Normal
+	["3-282-1021"] = { tier = 9, instance = 4, raid = true, difficulty = 15 }, --Sepulcher of the First Ones Heroic
+	["3-282-1022"] = { tier = 9, instance = 4, raid = true, difficulty = 16 }, --Sepulcher of the First Ones Mythic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -3137,86 +3141,97 @@ end
 function LFGListSearchEntry_OnEnter(self)
 	PremadeFilter_SearchEntry_OnEnter(self)
 end
+do
+	function PremadeFilter_GetTooltipInfo(resultID)
+		local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
+		local activityID = searchResultInfo.activityID
+		if not activityID then
+			return nil
+		end
+		local numMembers = searchResultInfo.numMembers
+		local playStyle = searchResultInfo.playstyle
+		local numBNetFriends = searchResultInfo.numBNetFriends
+		local numCharFriends = searchResultInfo.numCharFriends
+		local numGuildMates = searchResultInfo.numGuildMates
+		local questID = searchResultInfo.questID
+		local activityInfo = C_LFGList.GetActivityInfoTable(activityID, questID, searchResultInfo.isWarMode)
 
-function PremadeFilter_GetTooltipInfo(resultID)
-	local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
-	local activityID = searchResultInfo.activityID
-	if not activityID then
-		return nil
-	end
-	local numMembers = searchResultInfo.numMembers
-	local playStyle = searchResultInfo.playstyle
-	local numBNetFriends = searchResultInfo.numBNetFriends
-	local numCharFriends = searchResultInfo.numCharFriends
-	local numGuildMates = searchResultInfo.numGuildMates
-	local questID = searchResultInfo.questID
-	local activityInfo = C_LFGList.GetActivityInfoTable(activityID, questID, searchResultInfo.isWarMode)
+		local classCounts = {}
+		local memberList = {}
 
-	local classCounts = {}
-	local memberList = {}
-
-	for i = 1, numMembers do
-		local role, class, classLocalized = C_LFGList.GetSearchResultMemberInfo(resultID, i)
-		local info = {
-			role = _G[role],
-			title = classLocalized,
-			color = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR,
-		}
-
-		table.insert(memberList, info)
-
-		if not classCounts[class] then
-			classCounts[class] = {
-				title = info.title,
-				color = info.color,
-				counts = {},
+		for i = 1, numMembers do
+			local role, class, classLocalized, specLocalized = C_LFGList.GetSearchResultMemberInfo(resultID, i)
+			local roleImg
+			if role == "DAMAGER" then
+				roleImg = "|A:8040:16:16|a"
+			elseif role == "HEALER" then
+				roleImg = "|A:8041:16:16|a"
+			elseif role == "TANK" then
+				roleImg = "|A:8042:16:16|a"
+			else
+				roleImg = ""
+			end
+			local info = {
+				role = roleImg .. specLocalized,
+				title = classLocalized,
+				color = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR,
 			}
+
+			table.insert(memberList, info)
+
+			if not classCounts[class] then
+				classCounts[class] = {
+					title = info.title,
+					color = info.color,
+					counts = {},
+				}
+			end
+
+			if not classCounts[class].counts[info.role] then
+				classCounts[class].counts[info.role] = 0
+			end
+
+			classCounts[class].counts[info.role] = classCounts[class].counts[info.role] + 1
 		end
 
-		if not classCounts[class].counts[info.role] then
-			classCounts[class].counts[info.role] = 0
+		local friendList = {}
+		if numBNetFriends + numCharFriends + numGuildMates > 0 then
+			friendList = LFGListSearchEntryUtil_GetFriendList(resultID)
 		end
 
-		classCounts[class].counts[info.role] = classCounts[class].counts[info.role] + 1
+		return {
+			memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID),
+			completedEncounters = C_LFGList.GetSearchResultEncounterInfo(resultID),
+			autoAccept = searchResultInfo.autoAccept,
+			isDelisted = searchResultInfo.isDelisted,
+			name = searchResultInfo.name,
+			comment = searchResultInfo.comment,
+			iLvl = searchResultInfo.requiredItemLevel,
+			HonorLevel = searchResultInfo.requiredHonorLevel,
+			DungeonScore = searchResultInfo.requiredDungeonScore,
+			PvpRating = searchResultInfo.requiredPvpRating,
+			voiceChat = searchResultInfo.voiceChat,
+			leaderName = searchResultInfo.leaderName,
+			age = searchResultInfo.age,
+			leaderOverallDungeonScore = searchResultInfo.leaderOverallDungeonScore,
+			leaderDungeonScoreInfo = searchResultInfo.leaderDungeonScoreInfo,
+			leaderPvpRatingInfo = searchResultInfo.leaderPvpRatingInfo,
+			playStyle = playStyle,
+			questID = questID,
+			activityID = activityID,
+			numMembers = numMembers,
+			classCounts = classCounts,
+			friendList = friendList,
+			activityName = activityInfo.fullName,
+			useHonorLevel = activityInfo.useHonorLevel,
+			displayType = activityInfo.displayType,
+			isMythicPlusActivity = activityInfo.isMythicPlusActivity,
+			isRatedPvpActivity = activityInfo.isRatedPvpActivity,
+			playstyleString = PremadeFilter_GetPlaystyleString(playStyle, activityInfo),
+			memberList = memberList,
+		}
 	end
-
-	local friendList = {}
-	if numBNetFriends + numCharFriends + numGuildMates > 0 then
-		friendList = LFGListSearchEntryUtil_GetFriendList(resultID)
-	end
-
-	return {
-		memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID),
-		completedEncounters = C_LFGList.GetSearchResultEncounterInfo(resultID),
-		autoAccept = searchResultInfo.autoAccept,
-		isDelisted = searchResultInfo.isDelisted,
-		name = searchResultInfo.name,
-		comment = searchResultInfo.comment,
-		iLvl = searchResultInfo.requiredItemLevel,
-		HonorLevel = searchResultInfo.requiredHonorLevel,
-		DungeonScore = searchResultInfo.requiredDungeonScore,
-		PvpRating = searchResultInfo.requiredPvpRating,
-		voiceChat = searchResultInfo.voiceChat,
-		leaderName = searchResultInfo.leaderName,
-		age = searchResultInfo.age,
-		leaderOverallDungeonScore = searchResultInfo.leaderOverallDungeonScore,
-		leaderDungeonScoreInfo = searchResultInfo.leaderDungeonScoreInfo,
-		leaderPvpRatingInfo = searchResultInfo.leaderPvpRatingInfo,
-		playStyle = playStyle,
-		questID = questID,
-		activityID = activityID,
-		numMembers = numMembers,
-		classCounts = classCounts,
-		friendList = friendList,
-		activityName = activityInfo.fullName,
-		useHonorLevel = activityInfo.useHonorLevel,
-		displayType = activityInfo.displayType,
-		isMythicPlusActivity = activityInfo.isMythicPlusActivity,
-		isRatedPvpActivity = activityInfo.isRatedPvpActivity,
-		playstyleString = PremadeFilter_GetPlaystyleString(playStyle, activityInfo),
-	}
 end
-
 function PremadeFilter_SearchEntry_OnEnter(self)
 	local info = PremadeFilter_GetTooltipInfo(self.resultID)
 
@@ -3328,7 +3343,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		GameTooltip:AddLine(" ")
 	end
 
-	if info.displayType == LE_LFG_LIST_DISPLAY_TYPE_CLASS_ENUMERATE then
+	if info.displayType == Enum.LfgListDisplayType.ClassEnumerate then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS_SIMPLE, info.numMembers))
 
 		if info.memberList then
@@ -3355,10 +3370,10 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		for _, classInfo in pairs(info.classCounts) do
 			local counts = {}
 			for role, count in pairs(classInfo.counts) do
-				table.insert(counts, COLOR_GRAY .. role .. ": " .. COLOR_ORANGE .. count .. COLOR_RESET)
+				table.insert(counts, role .. ": " .. COLOR_ORANGE .. count .. COLOR_GRAY)
 			end
 			GameTooltip:AddLine(
-				string.format("%s (%s)", classInfo.title, table.concat(counts, ", ")),
+				string.format("%s " .. COLOR_GRAY .. "(%s)" .. COLOR_RESET, classInfo.title, table.concat(counts, ", ")),
 				classInfo.color.r,
 				classInfo.color.g,
 				classInfo.color.b
