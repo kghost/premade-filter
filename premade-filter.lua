@@ -1300,21 +1300,37 @@ end
 -----------------Temporary (i hope) fix for Blizzard restricted actions------------------------
 function PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
 	if
-		activityInfo
-		and playstyle == (1 or 2 or 3)
-		and C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown
+		activityInfo and
+		C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown 
+		and playstyle
 	then
 		local typeStr
-		if activityInfo.isMythicPlusActivity then
-			typeStr = "GROUP_FINDER_PVE_PLAYSTYLE"
-		elseif activityInfo.isRatedPvpActivity then
-			typeStr = "GROUP_FINDER_PVP_PLAYSTYLE"
-		elseif activityInfo.isCurrentRaidActivity then
-			typeStr = "GROUP_FINDER_PVE_RAID_PLAYSTYLE"
-		elseif activityInfo.isMythicActivity then
-			typeStr = "GROUP_FINDER_PVE_MYTHICZERO_PLAYSTYLE"
+		if activityInfo.isMythicPlusActivity and playstyle == 1 then
+			typeStr = GROUP_FINDER_PVE_PLAYSTYLE1
+		elseif activityInfo.isMythicPlusActivity and playstyle == 2 then
+			typeStr = GROUP_FINDER_PVE_PLAYSTYLE2
+		elseif activityInfo.isMythicPlusActivity and playstyle == 3 then
+			typeStr = GROUP_FINDER_PVE_PLAYSTYLE3
+		elseif activityInfo.isRatedPvpActivity and playstyle == 1 then
+			typeStr = GROUP_FINDER_PVP_PLAYSTYLE1
+		elseif activityInfo.isRatedPvpActivity and playstyle == 2 then
+			typeStr = GROUP_FINDER_PVP_PLAYSTYLE2
+		elseif activityInfo.isRatedPvpActivity and playstyle == 3 then
+			typeStr = GROUP_FINDER_PVP_PLAYSTYLE3
+		elseif activityInfo.isCurrentRaidActivity and playstyle == 1 then
+			typeStr = GROUP_FINDER_PVE_RAID_PLAYSTYLE1
+		elseif activityInfo.isCurrentRaidActivity and playstyle == 2 then
+			typeStr = GROUP_FINDER_PVE_RAID_PLAYSTYLE2
+		elseif activityInfo.isCurrentRaidActivity and playstyle == 3 then
+			typeStr = GROUP_FINDER_PVE_RAID_PLAYSTYLE3
+		elseif activityInfo.isMythicActivity and playstyle == 1 then
+			typeStr = GROUP_FINDER_PVE_MYTHICZERO_PLAYSTYLE1
+		elseif activityInfo.isMythicActivity and playstyle == 2 then
+			typeStr = GROUP_FINDER_PVE_MYTHICZERO_PLAYSTYLE2
+		elseif activityInfo.isMythicActivity and playstyle == 3 then
+			typeStr = GROUP_FINDER_PVE_MYTHICZERO_PLAYSTYLE3
 		end
-		return typeStr and _G[typeStr .. tostring(playstyle)] or nil
+		return typeStr
 	else
 		return nil
 	end

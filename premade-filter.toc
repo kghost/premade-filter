@@ -1,7 +1,7 @@
 ## Interface: 90200
 ## Title: Premade Filter
 ## Title-ruRU: Premade Filter
-## Version: 2.4.2L
+## Version: 2.4.3L
 ## Author: PremadeFilter
 ## Notes: Advanced premade filtering
 ## Notes-ruRU: Расширенный фильтр премейдов
