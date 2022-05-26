@@ -1284,13 +1284,13 @@ function PremadeFilter_PopulateCategories(self, _, info)
 		local categoryID = categories[i]
 		local CategoryInfo = C_LFGList.GetLfgCategoryInfo(categoryID)
 		if CategoryInfo.separateRecommended then
-			PremadeFilter_AddCategoryEntry(self, info, categoryID, CategoryInfo.name, LE_LFG_LIST_FILTER_RECOMMENDED)
+			PremadeFilter_AddCategoryEntry(self, info, categoryID, CategoryInfo.name, Enum.LFGListFilter.Recommended)
 			PremadeFilter_AddCategoryEntry(
 				self,
 				info,
 				categoryID,
 				CategoryInfo.name,
-				LE_LFG_LIST_FILTER_NOT_RECOMMENDED
+				Enum.LFGListFilter.NotRecommended
 			)
 		else
 			PremadeFilter_AddCategoryEntry(self, info, categoryID, CategoryInfo.name, 0)
@@ -1354,7 +1354,7 @@ function PremadeFilter_AugmentWithBest(filters, categoryID, groupID, activityID)
 			local activityInfo = C_LFGList.GetActivityInfoTable(activities[i])
 			local iLevel = activityInfo and activityInfo.ilvlSuggestion or 0
 			local bestFilters = activityInfo and activityInfo.filters or filters
-			local isRecommended = bit.band(bestFilters, LE_LFG_LIST_FILTER_RECOMMENDED) ~= 0
+			local isRecommended = bit.band(bestFilters, Enum.LFGListFilter.Recommended) ~= 0
 			local currentArea = C_LFGList.GetActivityInfoExpensive(activities[i])
 			local usedItemLevel = myItemLevel
 			local isBetter = false
@@ -1394,10 +1394,10 @@ function PremadeFilter_AugmentWithBest(filters, categoryID, groupID, activityID)
 	--Update the filters if needed
 	local categoryInfo = C_LFGList.GetLfgCategoryInfo(currentActivityInfo.categoryID)
 	if categoryInfo and categoryInfo.separateRecommended then
-		if bit.band(filters, LE_LFG_LIST_FILTER_RECOMMENDED) == 0 then
-			filters = LE_LFG_LIST_FILTER_NOT_RECOMMENDED
+		if bit.band(filters, Enum.LFGListFilter.Recommended) == 0 then
+			filters = Enum.LFGListFilter.NotRecommended
 		else
-			filters = LE_LFG_LIST_FILTER_RECOMMENDED
+			filters = Enum.LFGListFilter.Recommended
 		end
 	else
 		filters = 0
@@ -1430,51 +1430,51 @@ function PremadeFilter_SetupPlayStyleDropDown(self, dropdown, info)
 	end
 	local activityInfo = C_LFGList.GetActivityInfoTable(self.selectedActivity)
 	if activityInfo.isRatedPvpActivity then
-		info.text = PremadeFilter_GetPlaystyleString(Enum.LfgEntryPlaystyle.Standard, activityInfo)
-		info.value = Enum.LfgEntryPlaystyle.Standard
+		info.text = PremadeFilter_GetPlaystyleString(Enum.LFGEntryPlaystyle.Standard, activityInfo)
+		info.value = Enum.LFGEntryPlaystyle.Standard
 		info.checked = false
 		info.isRadio = true
 		info.func = function()
-			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LfgEntryPlaystyle.Standard)
+			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LFGEntryPlaystyle.Standard)
 		end
 		UIDropDownMenu_AddButton(info)
-		info.text = PremadeFilter_GetPlaystyleString(Enum.LfgEntryPlaystyle.Casual, activityInfo)
-		info.value = Enum.LfgEntryPlaystyle.Casual
+		info.text = PremadeFilter_GetPlaystyleString(Enum.LFGEntryPlaystyle.Casual, activityInfo)
+		info.value = Enum.LFGEntryPlaystyle.Casual
 		info.checked = false
 		info.isRadio = true
 		info.func = function()
-			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LfgEntryPlaystyle.Casual)
+			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LFGEntryPlaystyle.Casual)
 		end
 		UIDropDownMenu_AddButton(info)
-		info.text = PremadeFilter_GetPlaystyleString(Enum.LfgEntryPlaystyle.Hardcore, activityInfo)
-		info.value = Enum.LfgEntryPlaystyle.Hardcore
+		info.text = PremadeFilter_GetPlaystyleString(Enum.LFGEntryPlaystyle.Hardcore, activityInfo)
+		info.value = Enum.LFGEntryPlaystyle.Hardcore
 		info.checked = false
 		info.isRadio = true
 		info.func = function()
-			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LfgEntryPlaystyle.Hardcore)
+			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LFGEntryPlaystyle.Hardcore)
 		end
 		UIDropDownMenu_AddButton(info)
 	else
-		info.text = PremadeFilter_GetPlaystyleString(Enum.LfgEntryPlaystyle.Standard, activityInfo)
-		info.value = Enum.LfgEntryPlaystyle.Standard
+		info.text = PremadeFilter_GetPlaystyleString(Enum.LFGEntryPlaystyle.Standard, activityInfo)
+		info.value = Enum.LFGEntryPlaystyle.Standard
 		info.checked = false
 		info.isRadio = true
 		info.func = function()
-			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LfgEntryPlaystyle.Standard)
+			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LFGEntryPlaystyle.Standard)
 		end
 		UIDropDownMenu_AddButton(info)
-		info.text = PremadeFilter_GetPlaystyleString(Enum.LfgEntryPlaystyle.Casual, activityInfo)
-		info.value = Enum.LfgEntryPlaystyle.Casual
+		info.text = PremadeFilter_GetPlaystyleString(Enum.LFGEntryPlaystyle.Casual, activityInfo)
+		info.value = Enum.LFGEntryPlaystyle.Casual
 		info.checked = false
 		info.isRadio = true
 		info.func = function()
-			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LfgEntryPlaystyle.Casual)
+			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LFGEntryPlaystyle.Casual)
 		end
 		UIDropDownMenu_AddButton(info)
-		info.text = PremadeFilter_GetPlaystyleString(Enum.LfgEntryPlaystyle.Hardcore, activityInfo)
-		info.value = Enum.LfgEntryPlaystyle.Hardcore
+		info.text = PremadeFilter_GetPlaystyleString(Enum.LFGEntryPlaystyle.Hardcore, activityInfo)
+		info.value = Enum.LFGEntryPlaystyle.Hardcore
 		info.func = function()
-			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LfgEntryPlaystyle.Hardcore)
+			PremadeFilter_OnPlayStyleSelected(self, dropdown, Enum.LFGEntryPlaystyle.Hardcore)
 		end
 		info.checked = false
 		info.isRadio = true
@@ -1538,7 +1538,7 @@ function PremadeFilter_EntrySelect(self, filters, categoryID, groupID, activityI
 		PremadeFilter_OnPlayStyleSelected(
 			self,
 			self.PlayStyleDropdown,
-			self.selectedPlaystyle or Enum.LfgEntryPlaystyle.Standard
+			self.selectedPlaystyle or Enum.LFGEntryPlaystyle.Standard
 		)
 	end
 	if not shouldShowPlayStyleDropdown then
@@ -1726,8 +1726,8 @@ function PremadeFilter_Frame_OnLoad(self)
 
 	PremadeFilter_OnHide(self)
 
-	self.baseFilters = LE_LFG_LIST_FILTER_PVE
-	self.selectedFilters = LE_LFG_LIST_FILTER_PVE
+	self.baseFilters = Enum.LFGListFilter.PvE
+	self.selectedFilters = Enum.LFGListFilter.PvE
 	self.results = {}
 	self.minAge = {}
 	self.availableBosses = nil
@@ -2532,7 +2532,7 @@ function PremadeFilter_SetFilters(filters)
 		PremadeFilter_OnPlayStyleSelected(
 			PremadeFilter_Frame,
 			PremadeFilter_Frame.PlayStyleDropdown,
-			Enum.LfgEntryPlaystyle.Standard
+			Enum.LFGEntryPlaystyle.Standard
 		)
 	end
 
@@ -3359,7 +3359,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		GameTooltip:AddLine(" ")
 	end
 
-	if info.displayType == Enum.LfgListDisplayType.ClassEnumerate then
+	if info.displayType == Enum.LFGListDisplayType.ClassEnumerate then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_MEMBERS_SIMPLE, info.numMembers))
 
 		if info.memberList then
