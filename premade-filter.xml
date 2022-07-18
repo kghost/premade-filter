@@ -1073,7 +1073,7 @@
 				</Scripts>
 			</Button>
 
-			<Button name="PremadeFilter_MinimapButton" parent="Minimap" inherits="MiniMapButtonTemplate" hidden="true">
+			<Button name="PremadeFilter_MinimapButton" parent="MinimapBackdrop" inherits="MiniMapButtonTemplate" hidden="true">
 				<Size>
 					<AbsDimension x="33" y="33"/>
 				</Size>

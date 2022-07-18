@@ -1051,18 +1051,22 @@ function PremadeFilterEditBoxMixin:AddToTabCategory(tabCategory, editBox)
 	local addToTab = editBox or self
 	LFGListEditBox_AddToTabCategory(addToTab, tabCategory)
 end
+
 function PremadeFilterEditBoxMixin:OnLoad()
 	if self.tabCategory then
 		self:AddToTabCategory(self.tabCategory)
 	end
 end
+
 function PremadeFilterEditBoxMixin:GetSelectedActivityID()
 	return self:GetParent().selectedActivity or self:GetParent():GetParent().selectedActivity
 end
+
 function PremadeFilterEditBoxMixin:OnShow()
 	self:SetEnabled(true)
 	self.editBoxEnabled = true
 end
+
 function PremadeFilterEditBoxMixin:OnTabPressed()
 	LFGListEditBox_OnTabPressed(self)
 end
@@ -1285,25 +1289,16 @@ function PremadeFilter_PopulateCategories(self, _, info)
 		local CategoryInfo = C_LFGList.GetLfgCategoryInfo(categoryID)
 		if CategoryInfo.separateRecommended then
 			PremadeFilter_AddCategoryEntry(self, info, categoryID, CategoryInfo.name, Enum.LFGListFilter.Recommended)
-			PremadeFilter_AddCategoryEntry(
-				self,
-				info,
-				categoryID,
-				CategoryInfo.name,
-				Enum.LFGListFilter.NotRecommended
-			)
+			PremadeFilter_AddCategoryEntry(self, info, categoryID, CategoryInfo.name, Enum.LFGListFilter.NotRecommended)
 		else
 			PremadeFilter_AddCategoryEntry(self, info, categoryID, CategoryInfo.name, 0)
 		end
 	end
 end
+
 -----------------Temporary (i hope) fix for Blizzard restricted actions------------------------
 function PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
-	if
-		activityInfo and
-		C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown 
-		and playstyle
-	then
+	if activityInfo and C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown and playstyle then
 		local typeStr
 		if activityInfo.isMythicPlusActivity and playstyle == 1 then
 			typeStr = GROUP_FINDER_PVE_PLAYSTYLE1
@@ -1339,11 +1334,11 @@ end
 function LFGListEntryCreation_SetTitleFromActivityInfo(_) end --Protected func, not completable with addons. No name when creating activity without authenticator now.
 
 C_LFGList.GetPlaystyleString = --There is no reason to do this api func protected, but they do.
-	function(playstyle, activityInfo)
-		return PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
-	end
+function(playstyle, activityInfo)
+	return PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
+end
 
-function PremadeFilter_AugmentWithBest(filters, categoryID, groupID, activityID) --"LFGListUtil_AugmentWithBest" was completely ruined in one of 9.1.5 builds. And not fixed yet.
+function PremadeFilter_AugmentWithBest(filters, categoryID, groupID, activityID) --"LFGListUtil_AugmentWithBest" was completely ruined in one of 9.1.5 builds. And partially fixed in 9.2.5.43254.
 	local myNumMembers = math.max(GetNumGroupMembers(LE_PARTY_CATEGORY_HOME), 1)
 	local myItemLevel = GetAverageItemLevel()
 	if not activityID then
@@ -1404,6 +1399,7 @@ function PremadeFilter_AugmentWithBest(filters, categoryID, groupID, activityID)
 	end
 	return filters, currentActivityInfo.categoryID, currentActivityInfo.groupFinderActivityGroupID, activityID
 end
+
 --------------------------------------------------------------------------------------------
 
 function PremadeFilter_OnPlayStyleSelected(self, dropdown, playstyle)
@@ -1483,7 +1479,7 @@ function PremadeFilter_SetupPlayStyleDropDown(self, dropdown, info)
 	local categoryInfo = C_LFGList.GetLfgCategoryInfo(self.selectedCategory)
 	local shouldShowPlayStyleDropdown = categoryInfo.showPlaystyleDropdown
 		and (
-			activityInfo.isMythicPlusActivity
+		activityInfo.isMythicPlusActivity
 			or activityInfo.isRatedPvpActivity
 			or activityInfo.isCurrentRaidActivity
 			or activityInfo.isMythicActivity
@@ -1504,12 +1500,8 @@ function PremadeFilter_SetupPlayStyleDropDown(self, dropdown, info)
 end
 
 function PremadeFilter_EntrySelect(self, filters, categoryID, groupID, activityID)
-	filters, categoryID, groupID, activityID = PremadeFilter_AugmentWithBest(
-		bit.bor(self.baseFilters, filters or 0),
-		categoryID,
-		groupID,
-		activityID
-	)
+	filters, categoryID, groupID, activityID = PremadeFilter_AugmentWithBest(bit.bor(self.baseFilters, filters or 0),
+		categoryID, groupID, activityID)
 	self.selectedCategory = categoryID
 	self.selectedGroup = groupID
 	self.selectedActivity = activityID
@@ -1529,7 +1521,7 @@ function PremadeFilter_EntrySelect(self, filters, categoryID, groupID, activityI
 
 	local shouldShowPlayStyleDropdown = categoryInfo.showPlaystyleDropdown
 		and (
-			activityInfo.isMythicPlusActivity
+		activityInfo.isMythicPlusActivity
 			or activityInfo.isRatedPvpActivity
 			or activityInfo.isCurrentRaidActivity
 			or activityInfo.isMythicActivity
@@ -1729,13 +1721,13 @@ function PremadeFilter_Frame_OnLoad(self)
 	self.baseFilters = Enum.LFGListFilter.PvE
 	self.selectedFilters = Enum.LFGListFilter.PvE
 	self.results = {}
-	self.minAge = {}
+	self.SearchTime = {}
+	self.updated = {}
 	self.availableBosses = nil
 	self.realmName = GetRealmName()
 	self.realmInfo = PremadeFilter_GetRealmInfo(GetCurrentRegion(), self.realmName)
 	self.realmList = PremadeFilter_GetRegionRealms(self.realmInfo)
 	self.visibleRealms = PremadeFilter_GetVisibleRealms()
-	self.updated = {}
 	self.freshResults = {}
 	self.resultInfo = {}
 	self.chatNotifications = {}
@@ -1810,8 +1802,8 @@ function PremadeFilter_FixSettings()
 		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version")
 	elseif PremadeFilter_Data.Settings.Version == "0.8.4" then
 		PremadeFilter_Data.Settings.NewGroupChatNotifications = PremadeFilter_DefaultSettings.NewGroupChatNotifications
-		PremadeFilter_Data.Settings.NewPlayerChatNotifications = PremadeFilter_Data.Settings.ChatNotifications
 		PremadeFilter_Data.Settings.ChatNotifications = nil
+		PremadeFilter_Data.Settings.NewPlayerChatNotifications = PremadeFilter_Data.Settings.ChatNotifications
 		PremadeFilter_Data.Settings.ScrollOnTop = false
 		PremadeFilter_Data.Settings.Version = "0.9.94"
 	elseif PremadeFilter_Data.Settings.Version ~= GetAddOnMetadata("premade-filter", "Version") then
@@ -1824,8 +1816,7 @@ function PremadeFilter_FixSettings()
 		PremadeFilter_Data.Settings.AutoFillSearchBox = true
 	end
 
-	if
-		type(PremadeFilter_Data.Settings.UpdateInterval) ~= "number"
+	if type(PremadeFilter_Data.Settings.UpdateInterval) ~= "number"
 		or PremadeFilter_Data.Settings.UpdateInterval < 2
 		or PremadeFilter_Data.Settings.UpdateInterval > 60
 	then
@@ -1885,18 +1876,13 @@ do
 end
 
 function PremadeFilter_Frame_AdvancedButton_OnShow()
-	if
-		LFGListSearchPanelScrollFrame:IsVisible() and not _G["LFGListSearchPanelScrollFrameScrollBarScrollCheckButton"]
+	if LFGListSearchPanelScrollFrame:IsVisible() and not _G["LFGListSearchPanelScrollFrameScrollBarScrollCheckButton"]
 	then
 		local Points = { one = {}, two = {}, three = {} }
-		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y =
-			LFGListSearchPanelScrollFrameScrollBar:GetPoint(
-				1
-			)
-		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y =
-			LFGListSearchPanelScrollFrameScrollBar:GetPoint(
-				2
-			)
+		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y = LFGListSearchPanelScrollFrameScrollBar
+			:GetPoint(1)
+		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y = LFGListSearchPanelScrollFrameScrollBar
+			:GetPoint(2)
 		LFGListSearchPanelScrollFrameScrollBar:ClearAllPoints()
 		local UpButtonHeight = LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
 		LFGListSearchPanelScrollFrameScrollBar:SetPoint(
@@ -1927,10 +1913,8 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 			Points["two"].x,
 			Points["two"].y
 		)
-		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y =
-			LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetPoint(
-				1
-			)
+		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y = LFGListSearchPanelScrollFrameScrollBarScrollUpButton
+			:GetPoint(1)
 		local ScrollOnTopCheckBox = CreateFrame(
 			"CheckButton",
 			"LFGListSearchPanelScrollFrameScrollBarScrollCheckButton",
@@ -1960,10 +1944,8 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 			Points["one"].x,
 			Points["one"].y + UpButtonHeight
 		)
-		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y =
-			LFGListSearchPanelScrollFrameScrollBarTop:GetPoint(
-				1
-			)
+		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y = LFGListSearchPanelScrollFrameScrollBarTop
+			:GetPoint(1)
 		LFGListSearchPanelScrollFrameScrollBarTop:ClearAllPoints()
 		LFGListSearchPanelScrollFrameScrollBarTop:SetPoint(
 			Points["two"].this,
@@ -1977,10 +1959,8 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 			LFGListFrame.SearchPanel.SearchBox:SetWidth(LFGListFrame.SearchPanel.SearchBox:GetWidth() - 18)
 		end)
 		if success then
-			Points["three"].this, Points["three"].to, Points["three"].that, Points["three"].x, Points["three"].y =
-				LFGListFrame.SearchPanel.FilterButton:GetPoint(
-					1
-				)
+			Points["three"].this, Points["three"].to, Points["three"].that, Points["three"].x, Points["three"].y = LFGListFrame.SearchPanel
+				.FilterButton:GetPoint(1)
 			LFGListFrame.SearchPanel.FilterButton:ClearAllPoints()
 			LFGListFrame.SearchPanel.FilterButton:SetPoint(
 				Points["three"].this,
@@ -2024,8 +2004,7 @@ function PremadeFilter_OnShow(self)
 	local selectedGroup
 	local selectedActivity
 
-	if
-		self.selectedCategory ~= LFGListFrame.CategorySelection.selectedCategory
+	if self.selectedCategory ~= LFGListFrame.CategorySelection.selectedCategory
 		or self.selectedFilters ~= LFGListFrame.CategorySelection.selectedFilters
 	then
 		selectedCategory = LFGListFrame.CategorySelection.selectedCategory
@@ -2202,14 +2181,12 @@ function PremadeFilter_ExpandOrCollapseButton_OnClick(self, button)
 	PremadeFilter_RealmList_Update()
 end
 
-function PremadeFilter_RealmListCheckButton_OnClick(button, category, dungeonList, hiddenByCollapseList)
+function PremadeFilter_RealmListCheckButton_OnClick(button, _, _, _)
 	local info = button:GetParent().info
 	local update = info.isChapter and not info.isCollapsed
 	local isChecked = button:GetChecked()
 
 	if info.isChapter then
-		local chapter = info.chapter
-		local index = info.index
 		repeat
 			PremadeFilter_Frame.realmList[info.index].isChecked = isChecked
 			info = PremadeFilter_Frame.realmList[info.index + 1]
@@ -2313,7 +2290,7 @@ function PremadeFilterActivityFinder_Update(self)
 		local idx = i + offset
 		local id = activities[idx]
 		if id then
-			button:SetText((C_LFGList.GetActivityInfo(id)))
+			button:SetText(C_LFGList.GetActivityInfoTable(id).fullName)
 			button.activityID = id
 			button.Selected:SetShown(self.selectedActivity == id)
 			if self.selectedActivity == id then
@@ -2371,14 +2348,19 @@ function LFGListSearchPanel_DoSearch(self)
 		C_LFGList.Search(category, self.filters, self.preferredFilters, languages)
 	end
 
+	PremadeFilter_Frame.selectedCategory = category
+	if PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] then
+		PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = PremadeFilter_Frame.SearchTime[
+			PremadeFilter_Frame.selectedCategory]
+	else PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time() end
+	if (not self.searching) or (not PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory]) then
+		PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] = time()
+	end
+	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters()
+
 	self.searching = true
 	self.searchFailed = false
 	self.selectedResult = nil
-
-	PremadeFilter_Frame.addonSearch = true
-	PremadeFilter_Frame.selectedCategory = category
-	PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] = nil
-	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters()
 
 	LFGListSearchPanel_UpdateResultList(self)
 
@@ -2424,8 +2406,7 @@ function PremadeFilter_GetFilters()
 	end
 
 	--Mythic+ rating
-	if
-		PremadeFilter_Frame.MythicPlusRating.CheckButton:GetChecked()
+	if PremadeFilter_Frame.MythicPlusRating.CheckButton:GetChecked()
 		and PremadeFilter_Frame.MythicPlusRating:IsShown()
 	then
 		filters.mpr = tonumber(PremadeFilter_Frame.MythicPlusRating.EditBox:GetText())
@@ -2711,7 +2692,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 		local numResults = 0
 		local extraFilters = PremadeFilter_Frame.extraFilters
 		local newResults = {}
-		local minAge = nil
 		PremadeFilter_Frame.freshResults = {}
 
 		if not PremadeFilter_Frame.selectedCategory then
@@ -2724,15 +2704,12 @@ function LFGListSearchPanel_UpdateResultList(self)
 			local age = searchResultInfo.age
 			local activityID = searchResultInfo.activityID
 			local leaderName = searchResultInfo.leaderName
-			local name = searchResultInfo.name
 			local voiceChat = searchResultInfo.voiceChat
-			local _, _, categoryID, groupID = C_LFGList.GetActivityInfo(activityID, nil, searchResultInfo.isWarMode)
+			local ActivityInfoTable = C_LFGList.GetActivityInfoTable(activityID, nil, searchResultInfo.isWarMode)
+			local categoryID = ActivityInfoTable.categoryID
+			local groupID = ActivityInfoTable.groupFinderActivityGroupID
 			local memberCounts = C_LFGList.GetSearchResultMemberCounts(resultID)
-
-			if not minAge or (age < minAge) then
-				minAge = age
-			end
-
+			local name = searchResultInfo.name
 			local infoName = PremadeFilter_GetInfoName(activityID, name)
 			local matches = true
 
@@ -2787,7 +2764,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 					if not leaderRealm then
 						leaderRealm = "-" .. PremadeFilter_Frame.realmName:gsub("[%s%']+", "")
 					end
-					matches = extraFilters.realms:find(leaderRealm:lower(), 1, true)
+					matches = extraFilters.realms:find(leaderRealm:lower(), 1, true) and true or false
 				end
 
 				-- members
@@ -2841,17 +2818,15 @@ function LFGListSearchPanel_UpdateResultList(self)
 				numResults = numResults + 1
 				newResults[numResults] = resultID
 
-				if
+				if PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] - age >
 					PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory]
-					and time() - age > PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory]
 				then
-					PremadeFilter_Frame.freshResults[resultID] = true
+					PremadeFilter_Frame.freshResults[newResults[i]] = true
 
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification()
 
-						if
-							PremadeFilter_GetSettings("NewGroupChatNotifications")
+						if PremadeFilter_GetSettings("NewGroupChatNotifications")
 							and not PremadeFilter_Frame.chatNotifications[infoName]
 						then
 							PremadeFilter_Frame.chatNotifications[infoName] = true
@@ -2865,19 +2840,9 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 		end
 
-		if
-			PremadeFilter_Frame.addonSearch
-			and not PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory]
-			and not PremadeFilter_MinimapButton:IsVisible()
+		if #self.results > 0 and not PremadeFilter_MinimapButton:IsVisible()
 		then
-			PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] = minAge or 0
-
 			PremadeFilter_MinimapButton.LastUpdate = 0
-			PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time()
-				- PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory]
-				+ 1
-
-			PremadeFilter_Frame.addonSearch = false
 		end
 
 		self.totalResults = numResults
@@ -2889,11 +2854,11 @@ function LFGListSearchPanel_UpdateResultList(self)
 end
 
 local function LFGListSearchPanel_UpdateAdditionalButtons(
-	self,
-	totalHeight,
-	showNoResults,
-	showStartGroup,
-	lastVisibleButton
+    self,
+    totalHeight,
+    showNoResults,
+    showStartGroup,
+    lastVisibleButton
 )
 	local startGroupButton = self.ScrollFrame.ScrollChild.StartGroupButton
 	local noResultsFound = self.ScrollFrame.ScrollChild.NoResultsFound
@@ -3044,8 +3009,7 @@ function LFGListSearchEntry_Update(self)
 	if isDelisted or isAppFinished then
 		nameColor = LFG_LIST_DELISTED_FONT_COLOR
 		activityColor = LFG_LIST_DELISTED_FONT_COLOR
-	elseif
-		searchResultInfo.numBNetFriends > 0
+	elseif searchResultInfo.numBNetFriends > 0
 		or searchResultInfo.numCharFriends > 0
 		or searchResultInfo.numGuildMates > 0
 	then
@@ -3157,6 +3121,7 @@ end
 function LFGListSearchEntry_OnEnter(self)
 	PremadeFilter_SearchEntry_OnEnter(self)
 end
+
 do
 	function PremadeFilter_GetTooltipInfo(resultID)
 		local searchResultInfo = C_LFGList.GetSearchResultInfo(resultID)
@@ -3288,8 +3253,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	if info.voiceChat ~= "" then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_VOICE_CHAT, info.voiceChat), nil, nil, nil, true)
 	end
-	if
-		info.iLvl > 0
+	if info.iLvl > 0
 		or (info.useHonorLevel and info.HonorLevel > 0)
 		or info.voiceChat ~= ""
 		or info.DungeonScore > 0
@@ -3315,7 +3279,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		if not color then
 			color = HIGHLIGHT_FONT_COLOR
 		end
-		GameTooltip:AddLine(DUNGEON_SCORE_LEADER:format(color:WrapTextInColorCode(info.leaderOverallDungeonScore)))
+		GameTooltip:AddLine(DUNGEON_SCORE_LEADER:format(color:WrapTextInColorCode(tostring(info.leaderOverallDungeonScore))))
 	end
 	if info.isMythicPlusActivity and info.leaderDungeonScoreInfo then
 		local leaderDungeonScoreInfo = info.leaderDungeonScoreInfo
@@ -3336,7 +3300,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 				GameTooltip,
 				DUNGEON_SCORE_DUNGEON_RATING:format(
 					leaderDungeonScoreInfo.mapName,
-					color:WrapTextInColorCode(leaderDungeonScoreInfo.mapScore),
+					color:WrapTextInColorCode(tostring(leaderDungeonScoreInfo.mapScore)),
 					leaderDungeonScoreInfo.bestRunLevel
 				)
 			)
@@ -3345,7 +3309,7 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 				GameTooltip,
 				DUNGEON_SCORE_DUNGEON_RATING_OVERTIME:format(
 					leaderDungeonScoreInfo.mapName,
-					color:WrapTextInColorCode(leaderDungeonScoreInfo.mapScore),
+					color:WrapTextInColorCode(tostring(leaderDungeonScoreInfo.mapScore)),
 					leaderDungeonScoreInfo.bestRunLevel
 				)
 			)
@@ -3562,12 +3526,6 @@ end
 
 function PremadeFilter_StopMonitoring()
 	PremadeFilter_Frame.chatNotifications = {}
-
-	if PremadeFilter_Frame.selectedCategory then
-		PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time()
-			- (PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] or 0)
-			+ 1
-	end
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
@@ -3675,9 +3633,6 @@ function PremadeFilter_Hyperlink_OnClick(self, link, text, button)
 			if button == "LeftButton" then
 				PremadeFilter_MinimapButton_OnClick()
 			else
-				PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time()
-					- (PremadeFilter_Frame.minAge[PremadeFilter_Frame.selectedCategory] or 0)
-					+ 1
 				PremadeFilter_StopNotification()
 			end
 		end
@@ -3693,10 +3648,11 @@ function PremadeFilter_OnApplicantListUpdated(_, _, ...)
 		local applicants = C_LFGList.GetApplicants()
 
 		for i = 1, #applicants do
-			local id, status, pendingStatus, numMembers, isNew = C_LFGList.GetApplicantInfo(applicants[i])
-			local grayedOut = not pendingStatus
+			local ApplicantInfo = C_LFGList.GetApplicantInfo(applicants[i])
+			local status = ApplicantInfo.applicationStatus
+			local grayedOut = not ApplicantInfo.pendingApplicationStatus
 				and (
-					status == "failed"
+				status == "failed"
 					or status == "cancelled"
 					or status == "declined"
 					or status == "declined_full"
@@ -3706,19 +3662,13 @@ function PremadeFilter_OnApplicantListUpdated(_, _, ...)
 				)
 			local noTouchy = (status == "invited" or status == "inviteaccepted" or status == "invitedeclined")
 
-			if isNew and not grayedOut and not noTouchy then
-				for i = 1, numMembers do
-					local name, class, _, _, itemLevel, tank, healer, damage, _, _ = C_LFGList.GetApplicantMemberInfo(
-						id,
-						i
-					)
+			if ApplicantInfo.isNew and not grayedOut and not noTouchy then
+				for i = 1, ApplicantInfo.numMembers do
+					local name, class, _, _, itemLevel, tank, healer, damage, _, _ =
+					C_LFGList.GetApplicantMemberInfo(ApplicantInfo.applicantID, i)
 					local classColor = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR
-					local hexColor = string.format(
-						"|cff%02x%02x%02x",
-						classColor.r * 255,
-						classColor.g * 255,
-						classColor.b * 255
-					)
+					local hexColor =
+					string.format("|cff%02x%02x%02x", classColor.r * 255, classColor.g * 255, classColor.b * 255)
 					local displayName = Ambiguate(name, "short")
 
 					local role1 = tank and "TANK" or (healer and "HEALER" or (damage and "DAMAGER"))
@@ -3728,23 +3678,22 @@ function PremadeFilter_OnApplicantListUpdated(_, _, ...)
 						roles = roles .. ", " .. _G[role2]
 					end
 
-					if
-						PremadeFilter_GetSettings("NewPlayerChatNotifications")
+					if PremadeFilter_GetSettings("NewPlayerChatNotifications")
 						and not PremadeFilter_Frame.chatNotifications[name]
 					then
 						PremadeFilter_Frame.chatNotifications[name] = true
 						PremadeFilter_PrintMessage(
 							DEFAULT_CHAT_FRAME,
 							T("found new player")
-								.. " "
-								.. hexColor
-								.. displayName
-								.. COLOR_RESET
-								.. " ("
-								.. roles
-								.. " - "
-								.. math.floor(itemLevel)
-								.. ")"
+							.. " "
+							.. hexColor
+							.. displayName
+							.. COLOR_RESET
+							.. " ("
+							.. roles
+							.. " - "
+							.. math.floor(itemLevel)
+							.. ")"
 						)
 					end
 				end
@@ -3920,8 +3869,7 @@ function PremadeFilter_FixFilterSets()
 		PremadeFilter_Data.FilterSets[word] = nil
 	end
 
-	if
-		type(PremadeFilter_Frame.selectedFilterSet) ~= "number"
+	if type(PremadeFilter_Frame.selectedFilterSet) ~= "number"
 		or PremadeFilter_Frame.selectedFilterSet < 1
 		or PremadeFilter_Frame.selectedFilterSet > #PremadeFilter_Data.FilterSetsOrder
 	then
