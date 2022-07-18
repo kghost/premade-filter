@@ -2821,7 +2821,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 				if PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] - age >
 					PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory]
 				then
-					PremadeFilter_Frame.freshResults[newResults[i]] = true
+					PremadeFilter_Frame.freshResults[resultID] = true
 
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification()
