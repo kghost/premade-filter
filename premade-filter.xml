@@ -1,6 +1,7 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+	..\..\FrameXML\UI.xsd">
 
 	<Button name="PremadeFilterActivityListTemplate" virtual="true">
 		<Size x="250" y="14"/>
@@ -1073,39 +1074,15 @@
 				</Scripts>
 			</Button>
 
-			<Button name="PremadeFilter_MinimapButton" parent="MinimapBackdrop" inherits="MiniMapButtonTemplate" hidden="true">
-				<Size>
-					<AbsDimension x="33" y="33"/>
-				</Size>
+			<Button name="PremadeFilter_MinimapButton" mixin="QueueStatusButtonMixin" parent="MinimapCluster" scale="0.65" hidden="true">
+				<Size x="45" y="45"/>
 				<Anchors>
-					<Anchor point="TOPLEFT">
-						<Offset>
-							<AbsDimension x="22" y="-100"/>
-						</Offset>
-					</Anchor>
+					<Anchor point="TOPRIGHT" relativeKey="$parent.Tracking" relativePoint="BOTTOMRIGHT" x="5" y="-2"/>
 				</Anchors>
 				<Layers>
 					<Layer level="OVERLAY">
-						<Texture name="$parentBorder" file="Interface\Minimap\MiniMap-TrackingBorder">
-							<Size>
-								<AbsDimension x="52" y="52"/>
-							</Size>
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset>
-										<AbsDimension x="1" y="-1"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</Texture>
-						<FontString name="$parentGroupSize" inherits="NumberFontNormalYellow" hidden="true" parentKey="groupSize">
-							<Anchors>
-								<Anchor point="CENTER" x="1" y="0"/>
-							</Anchors>
-						</FontString>
-					</Layer>
-					<Layer level="OVERLAY">
-						<Texture parentKey="Highlight" hidden="true" alpha="0" alphaMode="ADD" atlas="groupfinder-eye-highlight" useAtlasSize="true">
+						<Texture parentKey="Highlight" hidden="true" alpha="0" alphaMode="ADD" atlas="groupfinder-eye-highlight" useAtlasSize="false">
+							<Size x="96" y="96"/>
 							<Anchors>
 								<Anchor point="CENTER" x="0" y="1"/>
 							</Anchors>
@@ -1124,7 +1101,7 @@
 					</AnimationGroup>
 				</Animations>
 				<Frames>
-					<Frame name="$parentIcon" inherits="EyeTemplate" hidden="true" parentKey="Eye">
+					<Frame name="$parentIcon" inherits="EyeTemplate" hidden="false" parentKey="Eye">
 						<Size x="30" y="30"/>
 						<Anchors>
 							<Anchor point="CENTER"/>
@@ -1137,7 +1114,6 @@
 					<OnClick function="PremadeFilter_MinimapButton_OnClick"/>
 					<OnUpdate function="PremadeFilter_MinimapButton_OnUpdate"/>
 				</Scripts>
-				<HighlightTexture alphaMode="ADD" file="Interface\Minimap\UI-Minimap-ZoomButton-Highlight"/>
 			</Button>
 			<Button parentKey="Tutorial" inherits="MainHelpPlateButton" mixin="PremadeFilter_TutorialMixin" scale="0.8">
 				<Anchors>
@@ -1222,15 +1198,6 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-						<FontString parentKey="SoundNotificationsHeader" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" text="Enable sound notifications">
-							<Anchors>
-								<Anchor point="TOPLEFT">
-									<Offset>
-										<AbsDimension x="42" y="-116"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
 						<FontString parentKey="MonitoringHeader" inherits="OptionsFontLarge" justifyH="LEFT" justifyV="TOP" text="Monitoring">
 							<Anchors>
 								<Anchor point="TOPLEFT">
@@ -1262,11 +1229,6 @@
 							<Anchor point="TOPRIGHT" relativeKey="$parent.NewPlayerChatNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
 						</Anchors>
 					</CheckButton>
-					<CheckButton parentKey="SoundNotifications" inherits="PremadeFilter_OptionsCheckButtonTemplate">
-						<Anchors>
-							<Anchor point="TOPRIGHT" relativeKey="$parent.SoundNotificationsHeader" relativePoint="TOPLEFT" x="-2" y="8" />
-						</Anchors>
-					</CheckButton>
 					<Slider name="PremadeFilter_UpdateIntervalSlider" parentKey="UpdateInterval" inherits="OptionsSliderTemplate" minValue="2" maxValue="60" stepsPerPage="3" valueStep="1">
 						<Size x="200" y="17"/>
 						<Anchors>
@@ -1284,8 +1246,7 @@
 					<EditBox name="PremadeFilter_UpdateIntervalEditBox" parentKey="UpdateIntervalEditBox" inherits="InputBoxTemplate" letters="3" autoFocus="false">
 						<Size x="40" y="20"/>
 						<Anchors>
-							<Anchor point="TOP" relativeKey="$parent.UpdateInterval" relativePoint="BOTTOM" x="0" y="0"/>
-							<Anchor point="CENTER" relativeKey="$parent.UpdateInterval" relativePoint="CENTER" x="0" y="0"/>
+							<Anchor point="LEFT" relativeKey="$parent.UpdateInterval" relativePoint="RIGHT" x="10" y="0"/>
 						</Anchors>
 						<FontString inherits="GameFontHighlightSmall" justifyH="CENTER" justifyV="CENTER" />
 						<Scripts>
@@ -1298,9 +1259,9 @@
 					<Layer level="ARTWORK">
 						<FontString name="PremadeFilter_UpdateIntervalShortAlert" parentKey="UpdateIntervalShortAlert" inherits="OptionsFontHighlight" justifyH="LEFT" justifyV="TOP" wordwrap="true">
 							<Anchors>
-								<Anchor point="TOPLEFT" relativeKey="$parent.UpdateInterval" relativePoint="TOPRIGHT" x="20" y="0" />
+								<Anchor point="TOPLEFT" relativeKey="$parent.UpdateIntervalEditBox" relativePoint="TOPRIGHT" x="20" y="0" />
 								<Anchor point="RIGHT" relativeKey="$parent" relativePoint="RIGHT" x="-20" />
-								<Anchor point="BOTTOM" relativeKey="$parent.UpdateIntervalEditBox" relativePoint="BOTTOM" />
+								<Anchor point="BOTTOM" relativeKey="$parent.UpdateIntervalEditBox" relativePoint="BOTTOM" x="0" y="-40"/>
 							</Anchors>
 							<Color a="1" r="1" g="0" b="0" />
 						</FontString>
@@ -1312,18 +1273,19 @@
 						-- setup option values
 						self.NewGroupChatNotifications:SetChecked(PremadeFilter_GetSettings("NewGroupChatNotifications", true));
 						self.NewPlayerChatNotifications:SetChecked(PremadeFilter_GetSettings("NewPlayerChatNotifications", true));
-						self.SoundNotifications:SetChecked(PremadeFilter_GetSettings("SoundNotifications", true));
 						self.UpdateInterval:SetValue(PremadeFilter_GetSettings("UpdateInterval", 15));
 						PremadeFilter_UpdateIntervalShortAlert:SetText(T("Attention! Update interval shorter than 15 seconds may cause the game to run slow and impact your gaming experience!!!"));
 						PremadeFilter_UpdateIntervalShortAlert_UpdateVisibility(PremadeFilter_UpdateIntervalShortAlert);
 					</OnShow>
 				</Scripts>
 			</Frame>
+
 			<Frame parentKey="NineSlice" inherits="NineSlicePanelTemplate">
 				<KeyValues>
 					<KeyValue key="layoutType" value="SimplePanelTemplate" type="string"/>
 				</KeyValues>
 			</Frame>
+
 		</Frames>
 		<Scripts>
 			<OnLoad function="PremadeFilter_Frame_OnLoad"/>

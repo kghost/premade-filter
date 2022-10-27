@@ -1,5 +1,5 @@
 <Bindings>
-	<Binding name="PREMADEFILTER_SEARCH" header="PREMADEFILTER" category="ADDONS">
+	<Binding name="PREMADEFILTER_SEARCH" header="PREMADEFILTER" category="BINDING_HEADER_PREMADEFILTER">
 		LFGListSearchPanel_DoSearch(PremadeFilter_Frame:GetParent());
 	</Binding>
 </Bindings>

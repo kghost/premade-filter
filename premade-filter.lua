@@ -25,7 +25,6 @@ local PremadeFilter_DefaultSettings = {
 	ChatNotifications = nil,
 	NewGroupChatNotifications = true,
 	NewPlayerChatNotifications = true,
-	SoundNotifications = true,
 	ScrollOnTop = false,
 }
 
@@ -196,6 +195,9 @@ local PremadeFilter_ActivityInfo = {
 	["3-282-1020"] = { tier = 9, instance = 4, raid = true, difficulty = 14 }, --Sepulcher of the First Ones Normal
 	["3-282-1021"] = { tier = 9, instance = 4, raid = true, difficulty = 15 }, --Sepulcher of the First Ones Heroic
 	["3-282-1022"] = { tier = 9, instance = 4, raid = true, difficulty = 16 }, --Sepulcher of the First Ones Mythic
+
+	--Dragonflight
+	["3-0-1146"] = { tier = 10, instance = 1, raid = true }, -- Outdoor Dragonflight
 }
 
 local PremadeFilter_RealmChapters = {
@@ -1090,8 +1092,6 @@ StaticPopupDialogs["PREMADEFILTER_CONFIRM_CLOSE"] = {
 			HideUIPanel(PVEFrame)
 
 			PremadeFilter_MinimapButton:Show()
-			PremadeFilter_MinimapButton.Eye:Show()
-			EyeTemplate_StartAnimating(PremadeFilter_MinimapButton.Eye)
 
 			PremadeFilter_StartMonitoring()
 		end
@@ -1297,6 +1297,12 @@ function PremadeFilter_PopulateCategories(self, _, info)
 end
 
 -----------------Temporary (i hope) fix for Blizzard restricted actions------------------------
+LFGList_ReportAdvertisement = function(searchResultID, leaderName) --Protected func, not completable with addons.
+	local reportInfo = ReportInfo:CreateReportInfoFromType(Enum.ReportType.GroupFinderPosting)
+	reportInfo:SetGroupFinderSearchResultID(searchResultID)
+	ReportFrame:InitiateReport(reportInfo, leaderName, nil, nil, false)
+end
+
 function PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
 	if activityInfo and C_LFGList.GetLfgCategoryInfo(activityInfo.categoryID).showPlaystyleDropdown and playstyle then
 		local typeStr
@@ -1334,72 +1340,9 @@ end
 function LFGListEntryCreation_SetTitleFromActivityInfo(_) end --Protected func, not completable with addons. No name when creating activity without authenticator now.
 
 C_LFGList.GetPlaystyleString = --There is no reason to do this api func protected, but they do.
-function(playstyle, activityInfo)
-	return PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
-end
-
-function PremadeFilter_AugmentWithBest(filters, categoryID, groupID, activityID) --"LFGListUtil_AugmentWithBest" was completely ruined in one of 9.1.5 builds. And partially fixed in 9.2.5.43254.
-	local myNumMembers = math.max(GetNumGroupMembers(LE_PARTY_CATEGORY_HOME), 1)
-	local myItemLevel = GetAverageItemLevel()
-	if not activityID then
-		--Find the best activity by iLevel and recommended flag
-		local activities = C_LFGList.GetAvailableActivities(categoryID, groupID, filters)
-		local bestItemLevel, bestRecommended, bestCurrentArea, bestMinLevel, bestMaxPlayers
-		for i = 1, #activities do
-			local activityInfo = C_LFGList.GetActivityInfoTable(activities[i])
-			local iLevel = activityInfo and activityInfo.ilvlSuggestion or 0
-			local bestFilters = activityInfo and activityInfo.filters or filters
-			local isRecommended = bit.band(bestFilters, Enum.LFGListFilter.Recommended) ~= 0
-			local currentArea = C_LFGList.GetActivityInfoExpensive(activities[i])
-			local usedItemLevel = myItemLevel
-			local isBetter = false
-			if not activityID then
-				isBetter = true
-			elseif currentArea ~= bestCurrentArea then
-				isBetter = currentArea
-			elseif bestRecommended ~= isRecommended then
-				isBetter = isRecommended
-			elseif bestMinLevel ~= activityInfo.minLevel then
-				isBetter = activityInfo.minLevel > bestMinLevel
-			elseif iLevel ~= bestItemLevel then
-				isBetter = (iLevel > bestItemLevel and iLevel <= usedItemLevel)
-					or (iLevel <= usedItemLevel and bestItemLevel > usedItemLevel)
-					or (iLevel < bestItemLevel and iLevel > usedItemLevel)
-			elseif (myNumMembers < activityInfo.maxNumPlayers) ~= (myNumMembers < bestMaxPlayers) then
-				isBetter = myNumMembers < activityInfo.maxNumPlayers
-			end
-			if isBetter then
-				activityID = activities[i]
-				bestItemLevel = iLevel
-				bestRecommended = isRecommended
-				bestCurrentArea = currentArea
-				bestMinLevel = activityInfo.minLevel
-				bestMaxPlayers = activityInfo.maxNumPlayers
-			end
-		end
+	function(playstyle, activityInfo)
+		return PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
 	end
-
-	assert(activityID)
-	--Update the categoryID and groupID with what we get from the activity
-	local currentActivityInfo = C_LFGList.GetActivityInfoTable(activityID)
-	if not currentActivityInfo then
-		return
-	end
-	filters = currentActivityInfo.filters
-	--Update the filters if needed
-	local categoryInfo = C_LFGList.GetLfgCategoryInfo(currentActivityInfo.categoryID)
-	if categoryInfo and categoryInfo.separateRecommended then
-		if bit.band(filters, Enum.LFGListFilter.Recommended) == 0 then
-			filters = Enum.LFGListFilter.NotRecommended
-		else
-			filters = Enum.LFGListFilter.Recommended
-		end
-	else
-		filters = 0
-	end
-	return filters, currentActivityInfo.categoryID, currentActivityInfo.groupFinderActivityGroupID, activityID
-end
-
 --------------------------------------------------------------------------------------------
 
 function PremadeFilter_OnPlayStyleSelected(self, dropdown, playstyle)
@@ -1479,7 +1422,7 @@ function PremadeFilter_SetupPlayStyleDropDown(self, dropdown, info)
 	local categoryInfo = C_LFGList.GetLfgCategoryInfo(self.selectedCategory)
 	local shouldShowPlayStyleDropdown = categoryInfo.showPlaystyleDropdown
 		and (
-		activityInfo.isMythicPlusActivity
+			activityInfo.isMythicPlusActivity
 			or activityInfo.isRatedPvpActivity
 			or activityInfo.isCurrentRaidActivity
 			or activityInfo.isMythicActivity
@@ -1500,8 +1443,8 @@ function PremadeFilter_SetupPlayStyleDropDown(self, dropdown, info)
 end
 
 function PremadeFilter_EntrySelect(self, filters, categoryID, groupID, activityID)
-	filters, categoryID, groupID, activityID = PremadeFilter_AugmentWithBest(bit.bor(self.baseFilters, filters or 0),
-		categoryID, groupID, activityID)
+	filters, categoryID, groupID, activityID =
+		LFGListUtil_AugmentWithBest(bit.bor(self.baseFilters, filters or 0), categoryID, groupID, activityID)
 	self.selectedCategory = categoryID
 	self.selectedGroup = groupID
 	self.selectedActivity = activityID
@@ -1521,7 +1464,7 @@ function PremadeFilter_EntrySelect(self, filters, categoryID, groupID, activityI
 
 	local shouldShowPlayStyleDropdown = categoryInfo.showPlaystyleDropdown
 		and (
-		activityInfo.isMythicPlusActivity
+			activityInfo.isMythicPlusActivity
 			or activityInfo.isRatedPvpActivity
 			or activityInfo.isCurrentRaidActivity
 			or activityInfo.isMythicActivity
@@ -1735,13 +1678,9 @@ function PremadeFilter_Frame_OnLoad(self)
 
 	PremadeFilter_RealmList_Update()
 
-	QueueStatusMinimapButton:HookScript("OnShow", function()
-		--self.MinimizeButton:Disable()
+	QueueStatusButton:HookScript("OnShow", function()
 		PremadeFilter_StopMonitoring()
 	end)
-	--[[ 	QueueStatusMinimapButton:HookScript("OnHide", function()
-		self.MinimizeButton:Enable()
-	end) ]]
 
 	self.oldHyperlinkClick = DEFAULT_CHAT_FRAME:GetScript("OnHyperlinkClick")
 	DEFAULT_CHAT_FRAME:SetScript("OnHyperlinkClick", PremadeFilter_Hyperlink_OnClick)
@@ -1816,7 +1755,8 @@ function PremadeFilter_FixSettings()
 		PremadeFilter_Data.Settings.AutoFillSearchBox = true
 	end
 
-	if type(PremadeFilter_Data.Settings.UpdateInterval) ~= "number"
+	if
+		type(PremadeFilter_Data.Settings.UpdateInterval) ~= "number"
 		or PremadeFilter_Data.Settings.UpdateInterval < 2
 		or PremadeFilter_Data.Settings.UpdateInterval > 60
 	then
@@ -1876,98 +1816,50 @@ do
 end
 
 function PremadeFilter_Frame_AdvancedButton_OnShow()
-	if LFGListSearchPanelScrollFrame:IsVisible() and not _G["LFGListSearchPanelScrollFrameScrollBarScrollCheckButton"]
-	then
-		local Points = { one = {}, two = {}, three = {} }
-		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y = LFGListSearchPanelScrollFrameScrollBar
-			:GetPoint(1)
-		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y = LFGListSearchPanelScrollFrameScrollBar
-			:GetPoint(2)
-		LFGListSearchPanelScrollFrameScrollBar:ClearAllPoints()
-		local UpButtonHeight = LFGListSearchPanelScrollFrameScrollBarScrollUpButton:GetHeight()
-		LFGListSearchPanelScrollFrameScrollBar:SetPoint(
-			Points["one"].this,
-			Points["one"].to,
-			Points["one"].that,
-			Points["one"].x,
-			Points["one"].y - UpButtonHeight
+	if LFGListFrame.SearchPanel.ScrollBar:IsVisible() and not _G["LFGListFrame"].SearchPanel.ScrollBar.CheckButton then
+		local Points = { one = {}, two = {} }
+
+		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y =
+			LFGListFrame.SearchPanel.ScrollBar:GetPoint(2)
+		local ScrollOnTopCheckBox = CreateFrame(
+			"CheckButton",
+			"LFGListFrame.SearchPanel.ScrollBar.CheckButton",
+			LFGListFrame.SearchPanel.ScrollBar,
+			"PremadeFilter_ScrollBarCheckButtonTemplate"
 		)
-		LFGListSearchPanelScrollFrameScrollBar:SetPoint(
-			Points["two"].this,
-			Points["two"].to,
-			Points["two"].that,
-			Points["two"].x,
-			Points["two"].y
+		ScrollOnTopCheckBox:SetSize(
+			LFGListFrame.SearchPanel.ScrollBar.Background.Begin:GetWidth(),
+			LFGListFrame.SearchPanel.ScrollBar.Background.Begin:GetWidth()
 		)
-		LFGListSearchPanelScrollFrameScrollBarBG:SetPoint(
+		ScrollOnTopCheckBox:SetPoint("TOPLEFT", LFGListFrame.SearchPanel.ScrollBox, "TOPRIGHT", 0, 7)
+		LFGListFrame.SearchPanel.ScrollBar:ClearAllPoints()
+		LFGListFrame.SearchPanel.ScrollBar:SetPoint("TOPRIGHT", ScrollOnTopCheckBox, "BOTTOMRIGHT", 0, 6)
+		LFGListFrame.SearchPanel.ScrollBar:SetPoint(
 			Points["one"].this,
 			Points["one"].to,
 			Points["one"].that,
 			Points["one"].x,
 			Points["one"].y
 		)
-		LFGListSearchPanelScrollFrameScrollBarBG:SetPoint(
-			Points["two"].this,
-			Points["two"].to,
-			Points["two"].that,
-			Points["two"].x,
-			Points["two"].y
-		)
-		Points["one"].this, Points["one"].to, Points["one"].that, Points["one"].x, Points["one"].y = LFGListSearchPanelScrollFrameScrollBarScrollUpButton
-			:GetPoint(1)
-		local ScrollOnTopCheckBox = CreateFrame(
-			"CheckButton",
-			"LFGListSearchPanelScrollFrameScrollBarScrollCheckButton",
-			LFGListSearchPanelScrollFrameScrollBar,
-			"PremadeFilter_ScrollBarCheckButtonTemplate"
-		)
-		ScrollOnTopCheckBox:SetSize(
-			LFGListSearchPanelScrollFrameScrollBarTop:GetWidth() - 1,
-			LFGListSearchPanelScrollFrameScrollBarTop:GetWidth()
-		)
-		ScrollOnTopCheckBox:SetPoint(
-			Points["one"].this,
-			Points["one"].to,
-			Points["one"].that,
-			Points["one"].x - 0.5,
-			Points["one"].y - 6
-		)
+
 		ScrollOnTopCheckBox:SetChecked(PremadeFilter_Data.Settings.ScrollOnTop)
 		ScrollOnTopCheckBox:SetScript("PostClick", function()
 			PremadeFilter_Data.Settings.ScrollOnTop = ScrollOnTopCheckBox:GetChecked()
 		end)
-		LFGListSearchPanelScrollFrameScrollBarScrollUpButton:ClearAllPoints()
-		LFGListSearchPanelScrollFrameScrollBarScrollUpButton:SetPoint(
-			Points["one"].this,
-			Points["one"].to,
-			Points["one"].that,
-			Points["one"].x,
-			Points["one"].y + UpButtonHeight
-		)
-		Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y = LFGListSearchPanelScrollFrameScrollBarTop
-			:GetPoint(1)
-		LFGListSearchPanelScrollFrameScrollBarTop:ClearAllPoints()
-		LFGListSearchPanelScrollFrameScrollBarTop:SetPoint(
-			Points["two"].this,
-			Points["two"].to,
-			Points["two"].that,
-			Points["two"].x,
-			Points["two"].y + UpButtonHeight
-		)
 
 		local success = LFGListFrame.SearchPanel:HookScript("OnShow", function()
 			LFGListFrame.SearchPanel.SearchBox:SetWidth(LFGListFrame.SearchPanel.SearchBox:GetWidth() - 18)
 		end)
 		if success then
-			Points["three"].this, Points["three"].to, Points["three"].that, Points["three"].x, Points["three"].y = LFGListFrame.SearchPanel
-				.FilterButton:GetPoint(1)
+			Points["two"].this, Points["two"].to, Points["two"].that, Points["two"].x, Points["two"].y =
+				LFGListFrame.SearchPanel.FilterButton:GetPoint(1)
 			LFGListFrame.SearchPanel.FilterButton:ClearAllPoints()
 			LFGListFrame.SearchPanel.FilterButton:SetPoint(
-				Points["three"].this,
-				Points["three"].to,
-				Points["three"].that,
-				Points["three"].x + 18,
-				Points["three"].y
+				Points["two"].this,
+				Points["two"].to,
+				Points["two"].that,
+				Points["two"].x + 18,
+				Points["two"].y
 			)
 
 			local AutoFillCheckBox = CreateFrame(
@@ -1978,11 +1870,11 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 			)
 			AutoFillCheckBox:SetSize(18, 29)
 			AutoFillCheckBox:SetPoint(
-				Points["three"].this,
-				Points["three"].to,
-				Points["three"].that,
-				Points["three"].x - 1,
-				Points["three"].y
+				Points["two"].this,
+				Points["two"].to,
+				Points["two"].that,
+				Points["two"].x - 1,
+				Points["two"].y
 			)
 			AutoFillCheckBox:SetChecked(PremadeFilter_Data.Settings.AutoFillSearchBox)
 			AutoFillCheckBox:SetScript("PostClick", function()
@@ -2004,7 +1896,8 @@ function PremadeFilter_OnShow(self)
 	local selectedGroup
 	local selectedActivity
 
-	if self.selectedCategory ~= LFGListFrame.CategorySelection.selectedCategory
+	if
+		self.selectedCategory ~= LFGListFrame.CategorySelection.selectedCategory
 		or self.selectedFilters ~= LFGListFrame.CategorySelection.selectedFilters
 	then
 		selectedCategory = LFGListFrame.CategorySelection.selectedCategory
@@ -2038,10 +1931,9 @@ function PremadeFilter_OnShow(self)
 	self.AdvancedButton:SetPushedTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Down")
 	self.AdvancedButton:SetDisabledTexture("Interface\\Buttons\\UI-SpellbookIcon-PrevPage-Disabled")
 
-	if PremadeFilter_Frame.ShowNextTime then
+	if not PremadeFilter_Frame.ShowNextTime then
 		PremadeFilter_MinimapButton:Hide()
-		PremadeFilter_MinimapButton.Eye:Hide()
-		EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye)
+		PremadeFilter_MinimapButton.Eye:StopAnimating()
 	end
 
 	PremadeFilter_StopNotification()
@@ -2062,7 +1954,7 @@ end
 
 function PremadeFilter_Toggle()
 	if PremadeFilter_Frame:IsVisible() then
-		if QueueStatusMinimapButton:IsVisible() or PremadeFilter_Frame.closeConfirmation then
+		if QueueStatusButton:IsVisible() or PremadeFilter_Frame.closeConfirmation then
 			PremadeFilter_Frame:Hide()
 		else
 			StaticPopup_Show("PREMADEFILTER_CONFIRM_CLOSE")
@@ -2335,25 +2227,28 @@ function LFGListSearchPanel_DoSearch(self)
 	local searchText = self.SearchBox:GetText()
 	local languages = C_LFGList.GetLanguageSearchFilter()
 
-	if LFGListSearchPanelScrollFrame:IsVisible() and PremadeFilter_Data.Settings.ScrollOnTop then
-		HybridScrollFrame_ScrollToIndex(LFGListSearchPanelScrollFrame, 1, function(_)
-			return LFGListSearchPanelScrollFrame.buttons[1]:GetHeight()
-		end)
+	if LFGListFrame.SearchPanel.ScrollBox:IsVisible() and PremadeFilter_Data.Settings.ScrollOnTop then
+		LFGListFrame.SearchPanel.ScrollBox:ScrollToBegin()
 	end
 
 	if visible and category then
 		C_LFGList.Search(category, self.filters, self.preferredFilters, languages)
 	else
 		category = self.categoryID
+		if not category then
+			return
+		end
 		C_LFGList.Search(category, self.filters, self.preferredFilters, languages)
 	end
 
 	PremadeFilter_Frame.selectedCategory = category
 	if PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] then
-		PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = PremadeFilter_Frame.SearchTime[
-			PremadeFilter_Frame.selectedCategory]
-	else PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time() end
-	if (not self.searching) or (not PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory]) then
+		PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] =
+			PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory]
+	else
+		PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory] = time()
+	end
+	if not self.searching or not PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] then
 		PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] = time()
 	end
 	PremadeFilter_Frame.extraFilters = PremadeFilter_GetFilters()
@@ -2406,7 +2301,8 @@ function PremadeFilter_GetFilters()
 	end
 
 	--Mythic+ rating
-	if PremadeFilter_Frame.MythicPlusRating.CheckButton:GetChecked()
+	if
+		PremadeFilter_Frame.MythicPlusRating.CheckButton:GetChecked()
 		and PremadeFilter_Frame.MythicPlusRating:IsShown()
 	then
 		filters.mpr = tonumber(PremadeFilter_Frame.MythicPlusRating.EditBox:GetText())
@@ -2818,15 +2714,17 @@ function LFGListSearchPanel_UpdateResultList(self)
 				numResults = numResults + 1
 				newResults[numResults] = resultID
 
-				if PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] - age >
-					PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory]
+				if
+					PremadeFilter_Frame.SearchTime[PremadeFilter_Frame.selectedCategory] - age
+					> PremadeFilter_Frame.updated[PremadeFilter_Frame.selectedCategory]
 				then
 					PremadeFilter_Frame.freshResults[resultID] = true
 
 					if PremadeFilter_MinimapButton:IsVisible() then
 						PremadeFilter_StartNotification()
 
-						if PremadeFilter_GetSettings("NewGroupChatNotifications")
+						if
+							PremadeFilter_GetSettings("NewGroupChatNotifications")
 							and not PremadeFilter_Frame.chatNotifications[infoName]
 						then
 							PremadeFilter_Frame.chatNotifications[infoName] = true
@@ -2840,8 +2738,7 @@ function LFGListSearchPanel_UpdateResultList(self)
 			end
 		end
 
-		if #self.results > 0 and not PremadeFilter_MinimapButton:IsVisible()
-		then
+		if #self.results > 0 and not PremadeFilter_MinimapButton:IsVisible() then
 			PremadeFilter_MinimapButton.LastUpdate = 0
 		end
 
@@ -2851,59 +2748,6 @@ function LFGListSearchPanel_UpdateResultList(self)
 		LFGListUtil_SortSearchResults(self.results)
 	end
 	LFGListSearchPanel_UpdateResults(self)
-end
-
-local function LFGListSearchPanel_UpdateAdditionalButtons(
-    self,
-    totalHeight,
-    showNoResults,
-    showStartGroup,
-    lastVisibleButton
-)
-	local startGroupButton = self.ScrollFrame.ScrollChild.StartGroupButton
-	local noResultsFound = self.ScrollFrame.ScrollChild.NoResultsFound
-
-	noResultsFound:SetShown(showNoResults)
-	startGroupButton:SetShown(showStartGroup)
-	local topFrame, bottomFrame
-
-	if showNoResults then
-		noResultsFound:ClearAllPoints()
-		topFrame = noResultsFound
-		bottomFrame = noResultsFound
-
-		if lastVisibleButton then
-			noResultsFound:SetPoint("TOP", lastVisibleButton, "BOTTOM", 0, -10)
-		else
-			noResultsFound:SetPoint("TOP", self.ScrollFrame.ScrollChild, "TOP", 0, -27)
-		end
-	end
-
-	if showStartGroup then
-		startGroupButton:ClearAllPoints()
-
-		bottomFrame = startGroupButton
-		if not topFrame then
-			topFrame = startGroupButton
-		end
-
-		if showNoResults then
-			startGroupButton:SetPoint("TOP", noResultsFound, "BOTTOM", 0, -5)
-		elseif lastVisibleButton then
-			startGroupButton:SetPoint("TOP", lastVisibleButton, "BOTTOM", 0, -10)
-		else
-			startGroupButton:SetPoint("TOP", self.ScrollFrame.ScrollChild, "TOP", 0, -27)
-		end
-
-		noResultsFound:SetText(showStartGroup and LFG_LIST_NO_RESULTS_FOUND or LFG_LIST_SEARCH_FAILED)
-	end
-
-	if topFrame and bottomFrame then
-		local _, _, _, _, offsetY = topFrame:GetPoint(1)
-		totalHeight = totalHeight - offsetY + (topFrame:GetTop() - bottomFrame:GetBottom())
-	end
-
-	return totalHeight
 end
 
 function LFGListSearchEntry_Update(self)
@@ -3009,7 +2853,8 @@ function LFGListSearchEntry_Update(self)
 	if isDelisted or isAppFinished then
 		nameColor = LFG_LIST_DELISTED_FONT_COLOR
 		activityColor = LFG_LIST_DELISTED_FONT_COLOR
-	elseif searchResultInfo.numBNetFriends > 0
+	elseif
+		searchResultInfo.numBNetFriends > 0
 		or searchResultInfo.numCharFriends > 0
 		or searchResultInfo.numGuildMates > 0
 	then
@@ -3056,64 +2901,73 @@ function LFGListSearchEntry_Update(self)
 	end
 end
 
-function LFGListSearchPanel_UpdateResults(self)
-	local offset = HybridScrollFrame_GetOffset(self.ScrollFrame)
-	local buttons = self.ScrollFrame.buttons
+function LFGListSearchPanel_InitButton(button, elementData)
+	button.resultID = elementData.resultID
+	button.infoName = elementData.infoName
+	button.fresh = PremadeFilter_Frame.freshResults[elementData.resultID]
+	LFGListSearchEntry_Update(button)
+	button:SetScript("OnEnter", PremadeFilter_SearchEntry_OnEnter)
+end
 
+function LFGListSearchPanel_UpdateResults(self)
 	--If we have an application selected, deselect it.
 	LFGListSearchPanel_ValidateSelected(self)
 
-	local startGroupButton = self.ScrollFrame.ScrollChild.StartGroupButton
-	local noResultsFound = self.ScrollFrame.ScrollChild.NoResultsFound
-
 	if self.searching then
 		self.SearchingSpinner:Show()
-		noResultsFound:Hide()
-		startGroupButton:Hide()
-		for i = 1, #buttons do
-			buttons[i]:Hide()
-		end
+		self.ScrollBox.NoResultsFound:Hide()
+		self.ScrollBox.StartGroupButton:Hide()
+		self.ScrollBox:ClearDataProvider()
 	else
 		self.SearchingSpinner:Hide()
-		local apps = self.applications
+
+		local dataProvider = CreateDataProvider()
 		local results = self.results
-		local lastVisibleButton
-		for i = 1, #buttons do
-			local button = buttons[i]
-			local idx = i + offset
-			local result = (idx <= #apps) and apps[idx] or results[idx - #apps]
-			if result then
-				local searchResultInfo = C_LFGList.GetSearchResultInfo(result)
-				local activityID = searchResultInfo.activityID
-				local name = searchResultInfo.name
-				local infoName = PremadeFilter_GetInfoName(activityID, name)
-				button.resultID = result
-				button.infoName = infoName
-				button.fresh = PremadeFilter_Frame.freshResults[result]
-				LFGListSearchEntry_Update(button)
-				button:SetScript("OnEnter", PremadeFilter_SearchEntry_OnEnter)
-				button:Show()
-				lastVisibleButton = button
-			else
-				button.created = 0
-				button.resultID = nil
-				button.infoName = nil
-				button:SetScript("OnEnter", nil)
-				button:Hide()
+		for index = 1, #results do
+			local searchResultInfo = C_LFGList.GetSearchResultInfo(results[index])
+			dataProvider:Insert({
+				resultID = results[index],
+				infoName = PremadeFilter_GetInfoName(searchResultInfo.activityID, searchResultInfo.name),
+			})
+		end
+
+		local apps = self.applications
+		local resultSet = tInvert(self.results)
+		for i, app in ipairs(apps) do
+			if not resultSet[app] then
+				local searchResultInfo = C_LFGList.GetSearchResultInfo(app)
+				dataProvider:Insert({
+					resultID = app,
+					infoName = PremadeFilter_GetInfoName(searchResultInfo.activityID, searchResultInfo.name),
+				})
 			end
 		end
-		local totalHeight = buttons[1]:GetHeight() * (#results + #apps)
-		local showNoResults = (self.totalResults == 0)
-		local showStartGroup = ((self.totalResults == 0) or self.shouldAlwaysShowCreateGroupButton)
-			and not self.searchFailed
-		totalHeight = LFGListSearchPanel_UpdateAdditionalButtons(
-			self,
-			totalHeight,
-			showNoResults,
-			showStartGroup,
-			lastVisibleButton
-		)
-		HybridScrollFrame_Update(self.ScrollFrame, totalHeight, self.ScrollFrame:GetHeight())
+
+		if self.totalResults == 0 then
+			self.ScrollBox.NoResultsFound:Show()
+			self.ScrollBox.StartGroupButton:SetShown(not self.searchFailed)
+			self.ScrollBox.StartGroupButton:ClearAllPoints()
+			self.ScrollBox.StartGroupButton:SetPoint("BOTTOM", self.ScrollBox.NoResultsFound, "BOTTOM", 0, -27)
+			self.ScrollBox.NoResultsFound:SetText(
+				self.searchFailed and LFG_LIST_SEARCH_FAILED or LFG_LIST_NO_RESULTS_FOUND
+			)
+		elseif self.shouldAlwaysShowCreateGroupButton then
+			self.ScrollBox.NoResultsFound:Hide()
+			self.ScrollBox.StartGroupButton:SetShown(false)
+
+			dataProvider:Insert({ startGroup = true })
+		else
+			self.ScrollBox.NoResultsFound:Hide()
+			self.ScrollBox.StartGroupButton:SetShown(false)
+		end
+
+		self.ScrollBox:SetDataProvider(dataProvider, ScrollBoxConstants.RetainScrollPosition)
+
+		--Reanchor the errors to not overlap applications
+		if not self.ScrollBox:HasScrollableExtent() then
+			local extent = self.ScrollBox:GetExtent()
+			self.ScrollBox.NoResultsFound:SetPoint("TOP", self.ScrollBox, "TOP", 0, -extent - 27)
+		end
 	end
 	LFGListSearchPanel_UpdateButtonStatus(self)
 end
@@ -3253,7 +3107,8 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 	if info.voiceChat ~= "" then
 		GameTooltip:AddLine(string.format(LFG_LIST_TOOLTIP_VOICE_CHAT, info.voiceChat), nil, nil, nil, true)
 	end
-	if info.iLvl > 0
+	if
+		info.iLvl > 0
 		or (info.useHonorLevel and info.HonorLevel > 0)
 		or info.voiceChat ~= ""
 		or info.DungeonScore > 0
@@ -3279,7 +3134,9 @@ function PremadeFilter_SearchEntry_OnEnter(self)
 		if not color then
 			color = HIGHLIGHT_FONT_COLOR
 		end
-		GameTooltip:AddLine(DUNGEON_SCORE_LEADER:format(color:WrapTextInColorCode(tostring(info.leaderOverallDungeonScore))))
+		GameTooltip:AddLine(
+			DUNGEON_SCORE_LEADER:format(color:WrapTextInColorCode(tostring(info.leaderOverallDungeonScore)))
+		)
 	end
 	if info.isMythicPlusActivity and info.leaderDungeonScoreInfo then
 		local leaderDungeonScoreInfo = info.leaderDungeonScoreInfo
@@ -3529,27 +3386,27 @@ function PremadeFilter_StopMonitoring()
 end
 
 function PremadeFilter_MinimapButton_OnLoad(self)
-	QueueStatusMinimapButton_OnLoad(self)
+	self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	self:SetFrameLevel(self:GetFrameLevel() + 1)
+	self.glowLocks = {}
+	self.angerVal = 0
 	self.LastUpdate = 0
 end
 
 function PremadeFilter_MinimapButton_OnShow(self)
-	QueueStatusMinimapButton_OnShow(self)
+	self.Eye:SetFrameLevel(self:GetFrameLevel() - 1)
+	self.Eye:StartInitialAnimation()
 
-	local point, anchor, relativePoint, x, y = QueueStatusMinimapButton:GetPoint()
-
-	self:ClearAllPoints()
-	self:SetParent(QueueStatusMinimapButton:GetParent())
-	self:SetPoint(point, anchor, relativePoint, x, y)
+	-- local point, anchor, relativePoint, x, y = QueueStatusButton:GetPoint()
+	-- self:ClearAllPoints()
+	-- self:SetParent(QueueStatusButton:GetParent())
+	-- self:SetPoint(point, anchor, relativePoint, x, y)
 end
 
 function PremadeFilter_MinimapButton_OnClick()
 	PVEFrame_ShowFrame("GroupFinderFrame")
-
 	PremadeFilter_MinimapButton:Hide()
-	PremadeFilter_MinimapButton.Eye:Hide()
-	EyeTemplate_StopAnimating(PremadeFilter_MinimapButton.Eye)
-
+	PremadeFilter_MinimapButton.Eye:StopAnimating()
 	PremadeFilter_StopMonitoring()
 end
 
@@ -3559,18 +3416,56 @@ end
 
 function PremadeFilter_MinimapButton_OnUpdate(self, elapsed)
 	self.LastUpdate = self.LastUpdate + elapsed
-
 	if self.LastUpdate > PremadeFilter_GetSettings("UpdateInterval") then
 		self.LastUpdate = 0
+	end
+
+	self.Eye.texture:Hide()
+	if self:IsInitialEyeAnimFinished() or self:IsPokeEndAnimFinished() then
+		self.Eye:StartSearchingAnimation()
+	elseif self:IsFoundInitialAnimFinished() then
+		self.Eye:StartFoundAnimationLoop()
+	elseif self:ShouldStartPokeInitAnim() then
+		self.Eye:StartPokeAnimationInitial()
+	elseif self:IsPokeInitAnimFinished() then
+		self.Eye:StartPokeAnimationLoop()
+	elseif self:ShouldStartPokeEndAnim() then
+		self.Eye:StartPokeAnimationEnd()
+	elseif self:ShouldStartHoverAnim() then
+		self.Eye:StartHoverAnimation()
+	end
+	self.angerVal = self.angerVal - 1
+	self.angerVal = Clamp(self.angerVal, 0, 90)
+end
+
+function PremadeFilter_QueueStatusButton_SetGlowLock(self, lock, enabled, numPingSounds)
+	self.glowLocks[lock] = enabled and (numPingSounds or -1)
+	PremadeFilter_QueueStatusButton_UpdateGlow(self)
+end
+
+function PremadeFilter_QueueStatusButton_UpdateGlow(self)
+	local enabled = false
+	for k, v in pairs(self.glowLocks) do
+		if v then
+			enabled = true
+			break
+		end
+	end
+
+	self.Highlight:SetShown(enabled)
+	if enabled then
+		self.EyeHighlightAnim:Play()
+	else
+		self.EyeHighlightAnim:Stop()
 	end
 end
 
 function PremadeFilter_StartNotification()
-	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", true)
+	PremadeFilter_QueueStatusButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", true)
 end
 
 function PremadeFilter_StopNotification()
-	QueueStatusMinimapButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", false)
+	PremadeFilter_QueueStatusButton_SetGlowLock(PremadeFilter_MinimapButton, "lfglist-applicant", false)
 end
 
 function PremadeFilter_PrintMessage(frame, str)
@@ -3580,17 +3475,18 @@ end
 function PremadeFilter_GetHyperlink(str, data)
 	local linkType = "premade"
 	local linkData = {}
+	local linkDataStr = ""
 
 	for k, v in pairs(data) do
 		table.insert(linkData, k .. ":" .. v)
 	end
-	linkData = table.concat(linkData, ":")
+	linkDataStr = table.concat(linkData, ":")
 
-	if linkData ~= "" then
-		linkData = ":" .. linkData
+	if linkDataStr ~= "" then
+		linkDataStr = ":" .. linkData
 	end
 
-	return COLOR_BLUE .. "|H" .. linkType .. linkData .. "|h[" .. str .. "]|h"
+	return COLOR_BLUE .. "|H" .. linkType .. linkDataStr .. "|h[" .. str .. "]|h|r"
 end
 
 function PremadeFilter_Hyperlink_OnLeave(self, ...)
@@ -3652,7 +3548,7 @@ function PremadeFilter_OnApplicantListUpdated(_, _, ...)
 			local status = ApplicantInfo.applicationStatus
 			local grayedOut = not ApplicantInfo.pendingApplicationStatus
 				and (
-				status == "failed"
+					status == "failed"
 					or status == "cancelled"
 					or status == "declined"
 					or status == "declined_full"
@@ -3665,10 +3561,10 @@ function PremadeFilter_OnApplicantListUpdated(_, _, ...)
 			if ApplicantInfo.isNew and not grayedOut and not noTouchy then
 				for i = 1, ApplicantInfo.numMembers do
 					local name, class, _, _, itemLevel, tank, healer, damage, _, _ =
-					C_LFGList.GetApplicantMemberInfo(ApplicantInfo.applicantID, i)
+						C_LFGList.GetApplicantMemberInfo(ApplicantInfo.applicantID, i)
 					local classColor = RAID_CLASS_COLORS[class] or NORMAL_FONT_COLOR
 					local hexColor =
-					string.format("|cff%02x%02x%02x", classColor.r * 255, classColor.g * 255, classColor.b * 255)
+						string.format("|cff%02x%02x%02x", classColor.r * 255, classColor.g * 255, classColor.b * 255)
 					local displayName = Ambiguate(name, "short")
 
 					local role1 = tank and "TANK" or (healer and "HEALER" or (damage and "DAMAGER"))
@@ -3678,22 +3574,23 @@ function PremadeFilter_OnApplicantListUpdated(_, _, ...)
 						roles = roles .. ", " .. _G[role2]
 					end
 
-					if PremadeFilter_GetSettings("NewPlayerChatNotifications")
+					if
+						PremadeFilter_GetSettings("NewPlayerChatNotifications")
 						and not PremadeFilter_Frame.chatNotifications[name]
 					then
 						PremadeFilter_Frame.chatNotifications[name] = true
 						PremadeFilter_PrintMessage(
 							DEFAULT_CHAT_FRAME,
 							T("found new player")
-							.. " "
-							.. hexColor
-							.. displayName
-							.. COLOR_RESET
-							.. " ("
-							.. roles
-							.. " - "
-							.. math.floor(itemLevel)
-							.. ")"
+								.. " "
+								.. hexColor
+								.. displayName
+								.. COLOR_RESET
+								.. " ("
+								.. roles
+								.. " - "
+								.. math.floor(itemLevel)
+								.. ")"
 						)
 					end
 				end
@@ -3709,24 +3606,20 @@ function PremadeFilter_Options_OnLoad(self)
 	self.NotificationsHeader:SetText(T(self.NotificationsHeader:GetText()))
 	self.NewGroupChatNotificationsHeader:SetText(T(self.NewGroupChatNotificationsHeader:GetText()))
 	self.NewPlayerChatNotificationsHeader:SetText(T(self.NewPlayerChatNotificationsHeader:GetText()))
-	self.SoundNotificationsHeader:SetText(T(self.SoundNotificationsHeader:GetText()))
 	self.MonitoringHeader:SetText(T(self.MonitoringHeader:GetText()))
 	self.UpdateIntervalHeader:SetText(T(self.UpdateIntervalHeader:GetText()))
 
-	-- temp
-	self.SoundNotifications:Disable()
-	self.SoundNotificationsHeader:SetTextColor(GRAY_FONT_COLOR.r, GRAY_FONT_COLOR.g, GRAY_FONT_COLOR.b)
-
 	-- save options
-	self.okay = function(self)
+	self.OnCommit = function(self)
 		PremadeFilter_SetSettings("NewGroupChatNotifications", self.NewGroupChatNotifications:GetChecked())
 		PremadeFilter_SetSettings("NewPlayerChatNotifications", self.NewPlayerChatNotifications:GetChecked())
-		PremadeFilter_SetSettings("SoundNotifications", self.SoundNotifications:GetChecked())
 		PremadeFilter_SetSettings("UpdateInterval", self.UpdateInterval:GetValue())
 	end
 
 	-- add panel
-	InterfaceOptions_AddCategory(self)
+	local category = Settings.RegisterCanvasLayoutCategory(self, self.name)
+	category.ID = "PremadeFilter"
+	Settings.RegisterAddOnCategory(category)
 end
 
 function PremadeFilter_MenuTitleItem(text)
@@ -3818,15 +3711,8 @@ function PremadeFilter_OptionsMenu(self)
 				PremadeFilter_SetSettings("NewPlayerChatNotifications", self.checked)
 			end
 		),
-		PremadeFilter_MenuCheckboxItem(
-			"Enable sound notifications",
-			PremadeFilter_GetSettings("SoundNotifications"),
-			nil,
-			true
-		),
 		PremadeFilter_MenuActionItem(ADVANCED_OPTIONS, function()
-			InterfaceOptionsFrame_Show()
-			InterfaceOptionsFrame_OpenToCategory(PremadeFilter_Options)
+			Settings.OpenToCategory("PremadeFilter")
 		end),
 		PremadeFilter_MenuActionItem(CANCEL, function()
 			CloseDropDownMenus()
@@ -3869,7 +3755,8 @@ function PremadeFilter_FixFilterSets()
 		PremadeFilter_Data.FilterSets[word] = nil
 	end
 
-	if type(PremadeFilter_Frame.selectedFilterSet) ~= "number"
+	if
+		type(PremadeFilter_Frame.selectedFilterSet) ~= "number"
 		or PremadeFilter_Frame.selectedFilterSet < 1
 		or PremadeFilter_Frame.selectedFilterSet > #PremadeFilter_Data.FilterSetsOrder
 	then
@@ -3970,7 +3857,7 @@ function PremadeFilter_UpdateIntervalSlider_OnValueChanged(self)
 end
 
 function PremadeFilter_UpdateIntervalEditBox_OnLoad(self)
-	self:SetText(PremadeFilter_UpdateIntervalSlider:GetValue())
+	PremadeFilter_UpdateIntervalEditBox:SetText(PremadeFilter_UpdateIntervalSlider:GetValue())
 end
 
 function PremadeFilter_UpdateIntervalEditBox_OnEnterPressed(self)
