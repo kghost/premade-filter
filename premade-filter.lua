@@ -198,6 +198,10 @@ local PremadeFilter_ActivityInfo = {
 
 	--Dragonflight
 	["3-0-1146"] = { tier = 10, instance = 1, raid = true }, -- Outdoor Dragonflight
+	
+	["3-310-1189"] = { tier = 10, instance = 2, raid = true, difficulty = 14 }, --Vault of the Incarnates Normal
+	["3-310-1190"] = { tier = 10, instance = 2, raid = true, difficulty = 15 }, --Vault of the Incarnates Heroic
+	["3-310-1191"] = { tier = 10, instance = 2, raid = true, difficulty = 16 }, --Vault of the Incarnates Mythic
 }
 
 local PremadeFilter_RealmChapters = {
