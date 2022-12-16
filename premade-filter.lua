@@ -1447,8 +1447,12 @@ function PremadeFilter_SetupPlayStyleDropDown(self, dropdown, info)
 end
 
 function PremadeFilter_EntrySelect(self, filters, categoryID, groupID, activityID)
+	filters = bit.bor(self.baseFilters or 0, filters or 0)
+	if (filters == 0) or (filters == self.baseFilters) and activityID then
+		filters = C_LFGList.GetActivityInfoTable(activityID).filters or filters
+	end
 	filters, categoryID, groupID, activityID =
-		LFGListUtil_AugmentWithBest(bit.bor(self.baseFilters, filters or 0), categoryID, groupID, activityID)
+		LFGListUtil_AugmentWithBest(filters, categoryID, groupID, activityID)
 	self.selectedCategory = categoryID
 	self.selectedGroup = groupID
 	self.selectedActivity = activityID
