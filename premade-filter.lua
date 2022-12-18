@@ -1562,16 +1562,18 @@ function PremadeFilter_BossList_Update()
 		if info then
 			if type(info.isChecked) == "nil" then
 				button.statusButton.CheckedNone = false
-				button.statusButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 				button.statusButton:SetChecked(false)
+				button.statusButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 				button.bossName:SetTextColor(0.7, 0.7, 0.7)
 			elseif info.isChecked then
 				button.statusButton.CheckedNone = false
+				button.statusButton:SetChecked(false)
 				button.statusButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 				button.statusButton:SetChecked(true)
 				button.bossName:SetTextColor(0, 1, 0)
 			else
 				button.statusButton.CheckedNone = true
+				button.statusButton:SetChecked(false)
 				button.statusButton:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up")
 				button.statusButton:SetChecked(true)
 				button.bossName:SetTextColor(1, 0, 0)
@@ -2444,16 +2446,17 @@ function PremadeFilter_SetFilters(filters)
 	end
 
 	-- voice chat
-	PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 	PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(false)
+	PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 
 	if type(filters.vc) == "table" then
 		PremadeFilter_Frame.VoiceChat.CheckButton.CheckedNone = filters.vc.none
 		if filters.vc.Checked then
-			PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(true)
+			PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(false)
 			if filters.vc.none then
 				PremadeFilter_Frame.VoiceChat.CheckButton:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up")
 			end
+			PremadeFilter_Frame.VoiceChat.CheckButton:SetChecked(true)
 		end
 	end
 
@@ -3341,6 +3344,7 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 
 		if not self.CheckedNone then
 			self.CheckedNone = true
+			self:SetChecked(false)
 			self:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up")
 			self:SetChecked(true)
 
@@ -3356,10 +3360,12 @@ function PremadeFilter_CheckButton_Boss_OnClick(self)
 		end
 	else
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		self.CheckedNone = false
+		self:SetChecked(false)
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 		self:SetChecked(true)
-		self.CheckedNone = false
-
+		
+		
 		PremadeFilter_Frame.availableBosses[bossIndex].isChecked = true
 
 		self:GetParent().bossName:SetTextColor(0, 1, 0)
@@ -3372,6 +3378,7 @@ function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 
 		if not self.CheckedNone then
 			self.CheckedNone = true
+			self:SetChecked(false)
 			self:SetCheckedTexture("Interface\\Buttons\\UI-MultiCheck-Up")
 			self:SetChecked(true)
 		else
@@ -3379,9 +3386,11 @@ function PremadeFilter_CheckButton_VoiceChat_OnClick(self)
 		end
 	else
 		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
+		self.CheckedNone = false
+		self:SetChecked(false)
 		self:SetCheckedTexture("Interface\\Buttons\\UI-CheckBox-Check")
 		self:SetChecked(true)
-		self.CheckedNone = false
+		
 	end
 end
 
