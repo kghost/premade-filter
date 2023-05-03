@@ -20,7 +20,7 @@ local COLOR_ORANGE = "|cffffaa66"
 table.insert(UIChildWindows, "PremadeFilter_Frame")
 
 local PremadeFilter_DefaultSettings = {
-	Version = GetAddOnMetadata("premade-filter", "Version"),
+	Version = C_AddOns.GetAddOnMetadata("premade-filter", "Version"),
 	UpdateInterval = 15,
 	ChatNotifications = nil,
 	NewGroupChatNotifications = true,
@@ -202,6 +202,10 @@ local PremadeFilter_ActivityInfo = {
 	["3-310-1189"] = { tier = 10, instance = 2, raid = true, difficulty = 14 }, --Vault of the Incarnates Normal
 	["3-310-1190"] = { tier = 10, instance = 2, raid = true, difficulty = 15 }, --Vault of the Incarnates Heroic
 	["3-310-1191"] = { tier = 10, instance = 2, raid = true, difficulty = 16 }, --Vault of the Incarnates Mythic
+	
+	["3-313-1253"] = { tier = 10, instance = 3, raid = true, difficulty = 14 }, --Aberrus, the Shadowed Crucible Normal
+	["3-313-1236"] = { tier = 10, instance = 3, raid = true, difficulty = 15 }, --Aberrus, the Shadowed Crucible Heroic
+	["3-313-1237"] = { tier = 10, instance = 3, raid = true, difficulty = 16 }, --Aberrus, the Shadowed Crucible Mythic
 }
 
 local PremadeFilter_RealmChapters = {
@@ -1347,6 +1351,8 @@ C_LFGList.GetPlaystyleString = --There is no reason to do this api func protecte
 	function(playstyle, activityInfo)
 		return PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
 	end
+	
+function C_EncounterJournal.OnOpen(_) end --Another protected func, again. Looks like it does nothing important.
 --------------------------------------------------------------------------------------------
 
 function PremadeFilter_OnPlayStyleSelected(self, dropdown, playstyle)
@@ -1530,6 +1536,12 @@ function PremadeFilter_GetAvailableBosses()
 			end
 		end
 
+		if ( activity.raid ) then
+			EJ_ContentTab_Select(EncounterJournal.raidsTab:GetID())
+		else
+			EJ_ContentTab_Select(EncounterJournal.dungeonsTab:GetID())
+		end
+		
 		EncounterJournal_DisplayInstance(instanceID)
 
 		if activity.difficulty then
@@ -1719,7 +1731,7 @@ function PremadeFilter_OnEvent(self, event, ...)
 		if prefix == "PREMADE_FILTER" then
 			if msg == "VER?" then
 				local player = UnitName("player")
-				local version = GetAddOnMetadata("premade-filter", "Version")
+				local version = C_AddOns.GetAddOnMetadata("premade-filter", "Version")
 
 				C_ChatInfo.SendAddonMessage("PREMADE_FILTER", "VER!" .. player .. ":" .. version, "WHISPER", sender)
 
@@ -1727,7 +1739,7 @@ function PremadeFilter_OnEvent(self, event, ...)
 					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, sender .. " requested addon version")
 				end
 			elseif msg:sub(1, 4) == "VER!" then
-				local version = GetAddOnMetadata("premade-filter", "Version")
+				local version = C_AddOns.GetAddOnMetadata("premade-filter", "Version")
 				local receivedVersion = msg:gsub("^VER%!(.+):(.+)$", "%2")
 				if receivedVersion > version then
 					PremadeFilter_PrintMessage(DEFAULT_CHAT_FRAME, T("New version available"))
@@ -1748,15 +1760,15 @@ function PremadeFilter_FixSettings()
 
 	if not PremadeFilter_Data.Settings.Version then
 		PremadeFilter_Data.Settings = PremadeFilter_DefaultSettings
-		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version")
+		PremadeFilter_Data.Settings.Version = C_AddOns.GetAddOnMetadata("premade-filter", "Version")
 	elseif PremadeFilter_Data.Settings.Version == "0.8.4" then
 		PremadeFilter_Data.Settings.NewGroupChatNotifications = PremadeFilter_DefaultSettings.NewGroupChatNotifications
 		PremadeFilter_Data.Settings.ChatNotifications = nil
 		PremadeFilter_Data.Settings.NewPlayerChatNotifications = PremadeFilter_Data.Settings.ChatNotifications
 		PremadeFilter_Data.Settings.ScrollOnTop = false
 		PremadeFilter_Data.Settings.Version = "0.9.94"
-	elseif PremadeFilter_Data.Settings.Version ~= GetAddOnMetadata("premade-filter", "Version") then
-		PremadeFilter_Data.Settings.Version = GetAddOnMetadata("premade-filter", "Version")
+	elseif PremadeFilter_Data.Settings.Version ~= C_AddOns.GetAddOnMetadata("premade-filter", "Version") then
+		PremadeFilter_Data.Settings.Version = C_AddOns.GetAddOnMetadata("premade-filter", "Version")
 	end
 	if PremadeFilter_Data.Settings.ScrollOnTop == nil then
 		PremadeFilter_Data.Settings.ScrollOnTop = false
@@ -1838,12 +1850,12 @@ function PremadeFilter_Frame_AdvancedButton_OnShow()
 			"PremadeFilter_ScrollBarCheckButtonTemplate"
 		)
 		ScrollOnTopCheckBox:SetSize(
-			LFGListFrame.SearchPanel.ScrollBar.Background.Begin:GetWidth(),
-			LFGListFrame.SearchPanel.ScrollBar.Background.Begin:GetWidth()
+			LFGListFrame.SearchPanel.ScrollBar.Back:GetWidth() * 1.5,
+			LFGListFrame.SearchPanel.ScrollBar.Back:GetWidth() * 1.5
 		)
-		ScrollOnTopCheckBox:SetPoint("TOPLEFT", LFGListFrame.SearchPanel.ScrollBox, "TOPRIGHT", 0, 7)
+		ScrollOnTopCheckBox:SetPoint("TOPLEFT", LFGListFrame.SearchPanel.ScrollBox, "TOPRIGHT", 2.5, 7)
 		LFGListFrame.SearchPanel.ScrollBar:ClearAllPoints()
-		LFGListFrame.SearchPanel.ScrollBar:SetPoint("TOPRIGHT", ScrollOnTopCheckBox, "BOTTOMRIGHT", 0, 6)
+		LFGListFrame.SearchPanel.ScrollBar:SetPoint("TOP", ScrollOnTopCheckBox, "BOTTOM", 0, 0)
 		LFGListFrame.SearchPanel.ScrollBar:SetPoint(
 			Points["one"].this,
 			Points["one"].to,

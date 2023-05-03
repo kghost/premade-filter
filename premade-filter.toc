@@ -1,11 +1,12 @@
-## Interface: 100002
+## Interface: 100100
 ## Title: Premade Filter
 ## Title-ruRU: Premade Filter
-## Version: 2.5.2L
+## Version: 2.5.3L
 ## Author: PremadeFilter
 ## Notes: Advanced premade filtering
 ## Notes-ruRU: Расширенный фильтр премейдов
 ## SavedVariables: PremadeFilter_Data
+## IconAtlas: groupfinder-eye-single
 
 localization\core.lua
 localization\deDE.lua
