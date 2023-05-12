@@ -203,7 +203,7 @@ local PremadeFilter_ActivityInfo = {
 	["3-310-1190"] = { tier = 10, instance = 2, raid = true, difficulty = 15 }, --Vault of the Incarnates Heroic
 	["3-310-1191"] = { tier = 10, instance = 2, raid = true, difficulty = 16 }, --Vault of the Incarnates Mythic
 	
-	["3-313-1253"] = { tier = 10, instance = 3, raid = true, difficulty = 14 }, --Aberrus, the Shadowed Crucible Normal
+	["3-313-1235"] = { tier = 10, instance = 3, raid = true, difficulty = 14 }, --Aberrus, the Shadowed Crucible Normal
 	["3-313-1236"] = { tier = 10, instance = 3, raid = true, difficulty = 15 }, --Aberrus, the Shadowed Crucible Heroic
 	["3-313-1237"] = { tier = 10, instance = 3, raid = true, difficulty = 16 }, --Aberrus, the Shadowed Crucible Mythic
 }
