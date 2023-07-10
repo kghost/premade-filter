@@ -1352,7 +1352,7 @@ C_LFGList.GetPlaystyleString = --There is no reason to do this api func protecte
 		return PremadeFilter_GetPlaystyleString(playstyle, activityInfo)
 	end
 	
-function C_EncounterJournal.OnOpen(_) end --Another protected func, again. Looks like it does nothing important.
+function C_EncounterJournal.OnOpen() end --Another protected func, again. Looks like it does nothing important.
 --------------------------------------------------------------------------------------------
 
 function PremadeFilter_OnPlayStyleSelected(self, dropdown, playstyle)
@@ -2940,7 +2940,7 @@ function LFGListSearchPanel_UpdateResults(self)
 		self.SearchingSpinner:Show()
 		self.ScrollBox.NoResultsFound:Hide()
 		self.ScrollBox.StartGroupButton:Hide()
-		self.ScrollBox:ClearDataProvider()
+		self.ScrollBox:RemoveDataProvider()
 	else
 		self.SearchingSpinner:Hide()
 
