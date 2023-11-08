@@ -206,6 +206,10 @@ local PremadeFilter_ActivityInfo = {
 	["3-313-1235"] = { tier = 10, instance = 3, raid = true, difficulty = 14 }, --Aberrus, the Shadowed Crucible Normal
 	["3-313-1236"] = { tier = 10, instance = 3, raid = true, difficulty = 15 }, --Aberrus, the Shadowed Crucible Heroic
 	["3-313-1237"] = { tier = 10, instance = 3, raid = true, difficulty = 16 }, --Aberrus, the Shadowed Crucible Mythic
+	
+	["3-319-1251"] = { tier = 10, instance = 4, raid = true, difficulty = 14 }, --Amirdrassil, the Dream's Hope Normal
+	["3-319-1252"] = { tier = 10, instance = 4, raid = true, difficulty = 15 }, --Amirdrassil, the Dream's Hope Heroic
+	["3-319-1253"] = { tier = 10, instance = 4, raid = true, difficulty = 16 }, --Amirdrassil, the Dream's Hope Mythic
 }
 
 local PremadeFilter_RealmChapters = {
